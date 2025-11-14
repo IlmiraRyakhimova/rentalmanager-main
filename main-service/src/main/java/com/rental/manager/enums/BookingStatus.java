@@ -1,4 +1,4 @@
-package com.rental.manager.entities;
+package com.rental.manager.enums;
 
 public enum BookingStatus {
     PENDING("Ожидает подтверждения"),

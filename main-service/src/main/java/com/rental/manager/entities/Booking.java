@@ -1,5 +1,7 @@
 package com.rental.manager.entities;
 
+import com.rental.manager.enums.BookingStatus;
+import com.rental.manager.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

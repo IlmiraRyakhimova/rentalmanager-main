@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
 
-    <include file="db/changelog/sql/001-initial-schema.sql"/>
+    <include file="db/changelog/sql/001-add-users-table.sql"/>
 </databaseChangeLog>
 
 <!--1) создать файл sql с помощью скрипта new-migration.sh или вручную

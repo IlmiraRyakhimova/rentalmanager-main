@@ -5,7 +5,7 @@ spring:
     password: password
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
   liquibase:
     enabled: true
@@ -15,3 +15,4 @@ logging:
   level:
     org.springframework.jdbc.core: DEBUG
     liquibase: INFO
+    
