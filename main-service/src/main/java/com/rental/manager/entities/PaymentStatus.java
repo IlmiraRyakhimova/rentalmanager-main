@@ -1,4 +1,4 @@
-package com.rental.entities;
+package com.rental.manager.entities;
 
 public enum PaymentStatus {
     UNPAID("Неоплачено"),

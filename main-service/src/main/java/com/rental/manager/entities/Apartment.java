@@ -1,7 +1,6 @@
-package com.rental.entities;
+package com.rental.manager.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
