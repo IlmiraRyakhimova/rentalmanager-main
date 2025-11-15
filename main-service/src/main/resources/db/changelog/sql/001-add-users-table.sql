@@ -3,8 +3,7 @@
 --changeset ilmira:001-1
 
 CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
-    auth_service_user_id VARCHAR(255),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     phone_number VARCHAR(50),
     email VARCHAR(255) NOT NULL,
@@ -15,6 +14,7 @@ CREATE TABLE users (
 
 
 --changeset ilmira:001-2
+CREATE UNIQUE INDEX idx_users_id ON users(id);
 CREATE UNIQUE INDEX idx_users_email ON users(email);
-CREATE UNIQUE INDEX idx_users_auth_service_id ON users(auth_service_user_id);
-CREATE INDEX idx_users_role ON users(role);
+CREATE UNIQUE INDEX idx_users_phone_number ON users(phone_number);
+

@@ -1,60 +1,63 @@
 package com.rental.manager.service.impl;
 
+import com.rental.manager.dto.responsedto.UserResponseDTO;
 import com.rental.manager.entities.User;
-import com.rental.manager.enums.UserRole;
 import com.rental.manager.repository.UserRepository;
 import com.rental.manager.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.rental.manager.mappers.UserMapper;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
-
+    private final UserMapper mapper;
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public UserResponseDTO createUser(User user) {
+        return mapper.toDTO(userRepository.save(user));
     }
 
     @Override
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    public UserResponseDTO updateUser(UUID id, User newUserInfo) {
+        User user = userRepository.findById(id);
+        user.setName(newUserInfo.getName());
+        user.setEmail(newUserInfo.getEmail());
+        user.setPhoneNumber(newUserInfo.getPhoneNumber());
+        return mapper.toDTO(user);
     }
 
     @Override
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    public List<User> getUsersByRole(UserRole role) {
-        return userRepository.findByRole(role);
-    }
-
-    @Override
-    public User createUser(User user) {
-        return userRepository.save(user);
-    }
-
-    @Override
-    public User updateUser(Long id, User newUserInfo) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setName(newUserInfo.getName());
-                    user.setPhoneNumber(newUserInfo.getPhoneNumber());
-                    user.setEmail(newUserInfo.getEmail());
-                    return userRepository.save(user);
-                })
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-    }
-
-    @Override
-    public void deleteUser(Long id) {
+    public void deleteUser(UUID id) {
         userRepository.deleteById(id);
+    }
 
+    @Override
+    public UserResponseDTO getUserById(UUID id) {
+        return mapper.toDTO(userRepository.findById(id));
+    }
+
+    public List<UserResponseDTO> getUserByName(String name) {
+        List<User> users = userRepository.findByNameContainingIgnoreCase(name);
+        List<UserResponseDTO> usersDTO = new ArrayList<>();
+        for (User user : users) {
+             usersDTO.add(mapper.toDTO(user));
+        }
+        return usersDTO;
+    }
+
+    @Override
+    public UserResponseDTO getUserByEmail(String email) {
+        return mapper.toDTO(userRepository.findByEmail(email));
+    }
+
+    public UserResponseDTO getUserByPhoneNumber(String phoneNumber) {
+        return mapper.toDTO(userRepository.findByPhoneNumber(phoneNumber));
     }
 }

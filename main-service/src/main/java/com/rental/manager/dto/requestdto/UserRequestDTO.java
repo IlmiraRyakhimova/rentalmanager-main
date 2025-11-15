@@ -1,13 +1,12 @@
-package com.rental.manager.dto.response;
+package com.rental.manager.dto.requestdto;
 
-import com.rental.manager.enums.UserRole;
+import com.rental.manager.entities.enums.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UserResponse {
-    private Long id;
+public class UserRequestDTO {
     private String name;
     private String email;
     private String phoneNumber;

@@ -1,9 +1,8 @@
 package com.rental.manager.web.controller;
 
-import com.rental.manager.dto.request.UserRequest;
-import com.rental.manager.dto.response.UserResponse;
-import com.rental.manager.entities.User;
-import com.rental.manager.enums.UserRole;
+import com.rental.manager.dto.requestdto.UserRequestDTO;
+import com.rental.manager.dto.responsedto.UserResponseDTO;
+import com.rental.manager.mappers.UserMapper;
 import com.rental.manager.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/users")
@@ -19,70 +18,42 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper mapper;
 
     @PostMapping
-    public UserResponse createUser(@RequestBody @Validated UserRequest request) {
-        User user = new User(request.getName(), request.getPhoneNumber(), request.getEmail(), request.getRole());
-        User savedUser = userService.createUser(user);
-
-        return mapToResponse(savedUser);
-    }
-
-    @GetMapping
-    public List<UserResponse> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return users.stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
-        return userService.getUserById(id)
-                .map(user -> ResponseEntity.ok(mapToResponse(user)))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/role/{role}")
-    public List<UserResponse> getUserByRole(@PathVariable UserRole role) {
-        List<User> users = userService.getUsersByRole(role);
-        return users.stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Validated UserRequestDTO request) {
+        return ResponseEntity.ok(userService.createUser(mapper.toEntity(request)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
-                                                   @RequestBody @Validated UserRequest request) {
-        try {
-            User userDetails = new User(request.getName(), request.getPhoneNumber(),
-                    request.getEmail(), request.getRole());
-            User updatedUser = userService.updateUser(id, userDetails);
-            return ResponseEntity.ok(mapToResponse(updatedUser));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable UUID id,
+                                                      @RequestBody @Validated UserRequestDTO request) {
+        return ResponseEntity.ok(userService.updateUser(id, mapper.toEntity(request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        try {
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable UUID id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
 
+    @GetMapping("/search/{name}")
+    public ResponseEntity<List<UserResponseDTO>> getUserByName(@PathVariable String name) {
+        return ResponseEntity.ok(userService.getUserByName(name));
+    }
 
-    private UserResponse mapToResponse(User user) {
-        UserResponse response = new UserResponse();
-        response.setId(user.getId());
-        response.setName(user.getName());
-        response.setPhoneNumber(user.getPhoneNumber());
-        response.setEmail(user.getEmail());
-        response.setRole(user.getRole());
-        return response;
+    @GetMapping("/search/{email}")
+    public ResponseEntity<UserResponseDTO> getUserByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(userService.getUserByEmail(email));
+    }
+
+    @GetMapping("/search/{phone-number}")
+    public ResponseEntity<UserResponseDTO> getUserByPhoneNumber(@PathVariable String phoneNumber) {
+        return ResponseEntity.ok(userService.getUserByPhoneNumber(phoneNumber));
     }
 }
