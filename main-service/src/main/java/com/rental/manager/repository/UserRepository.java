@@ -9,11 +9,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-    User findById(UUID id);
+public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByNameContainingIgnoreCase(String name);
     User findByEmail(String email);
     User findByPhoneNumber(String phoneNumber);
-    void deleteById(UUID id);
-
 }

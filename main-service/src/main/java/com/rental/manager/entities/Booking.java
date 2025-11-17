@@ -1,5 +1,6 @@
 package com.rental.manager.entities;
 
+import com.rental.manager.entities.apartment.Apartment;
 import com.rental.manager.entities.enums.BookingStatus;
 import com.rental.manager.entities.enums.PaymentStatus;
 import jakarta.persistence.*;
@@ -43,13 +44,27 @@ public class Booking {
     private BigDecimal totalPrice;
 
     @Column(name = "guest_name")
-    private String guestName;
+    private String MainGuestName;
+
 
     @Column(name = "guest_phone_number")
     private String guestPhoneNumber;
 
     @Column(name = "guest_email")
     private String guestEmail;
+
+    @Column(name = "number_of_adults")
+    private int numberOfAdults;
+
+    @Column (name = "number_of_children")
+    private int numberOfChildren;
+
+    @Column(name = "total_number_of_guests")
+    private int TotalNumberOfGuests;
+
+    public void calculateDerivedGuests() {
+        this.TotalNumberOfGuests = this.numberOfAdults + this.numberOfChildren;
+    }
 
     @Enumerated(EnumType.STRING)
     @Column(name = "booking_status")
@@ -83,7 +98,7 @@ public class Booking {
         this.apartment = apartment;
         this.checkInDate = checkIn;
         this.checkOutDate = checkOut;
-        this.guestName = guestName;
+        this.MainGuestName = guestName;
         this.guestPhoneNumber = phone;
         this.guestEmail = email;
     }

@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO updateUser(UUID id, User newUserInfo) {
-        User user = userRepository.findById(id);
+        User user = userRepository.findById(id).orElseThrow();
         user.setName(newUserInfo.getName());
         user.setEmail(newUserInfo.getEmail());
         user.setPhoneNumber(newUserInfo.getPhoneNumber());
@@ -40,16 +40,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO getUserById(UUID id) {
-        return mapper.toDTO(userRepository.findById(id));
+        return mapper.toDTO(userRepository.findById(id).orElseThrow());
     }
 
     public List<UserResponseDTO> getUserByName(String name) {
         List<User> users = userRepository.findByNameContainingIgnoreCase(name);
-        List<UserResponseDTO> usersDTO = new ArrayList<>();
-        for (User user : users) {
-             usersDTO.add(mapper.toDTO(user));
-        }
-        return usersDTO;
+        return users.stream().map(mapper::toDTO).toList();
     }
 
     @Override
