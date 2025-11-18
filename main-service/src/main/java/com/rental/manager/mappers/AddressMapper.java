@@ -2,7 +2,9 @@ package com.rental.manager.mappers;
 
 import com.rental.manager.dto.responsedto.AddressResponseDTO;
 import com.rental.manager.entities.apartment.Address;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AddressMapper {
 
     public AddressResponseDTO toDTO(Address entity) {

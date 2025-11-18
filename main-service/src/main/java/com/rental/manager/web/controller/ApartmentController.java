@@ -21,7 +21,7 @@ public class ApartmentController {
     private final ApartmentService apartmentService;
     private final ApartmentMapper mapper;
 
-    @PutMapping("/{id}")
+    @PostMapping
     public ResponseEntity<ApartmentResponseDTO> createApartment(@RequestBody @Validated ApartmentRequestDTO request) {
         return ResponseEntity.ok(apartmentService.createApartment(mapper.toEntity(request)));
     }
