@@ -1,5 +1,7 @@
 package com.rental.manager.service;
 
+import com.rental.manager.dto.requestdto.AddressPatchRequestDTO;
+import com.rental.manager.dto.requestdto.AddressRequestDTO;
 import com.rental.manager.dto.responsedto.AddressResponseDTO;
 import com.rental.manager.entities.apartment.Address;
 
@@ -7,8 +9,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface AddressService {
-    AddressResponseDTO createAddress(Address address);
-    AddressResponseDTO updateAddress(UUID id, Address newAddressInfo);
+    AddressResponseDTO createAddress(AddressRequestDTO request);
+    AddressResponseDTO updateAddress(UUID id, AddressRequestDTO request);
+    AddressResponseDTO patchAddress(UUID id, AddressPatchRequestDTO request);
     void deleteAddress(UUID id);
 
     AddressResponseDTO getAddressById(UUID id);

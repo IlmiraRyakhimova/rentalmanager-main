@@ -1,7 +1,9 @@
 package com.rental.manager.web.controller;
 
 
+import com.rental.manager.dto.requestdto.ApartmentPatchRequestDTO;
 import com.rental.manager.dto.requestdto.ApartmentRequestDTO;
+import com.rental.manager.dto.requestdto.ApartmentUpdateRequestDTO;
 import com.rental.manager.dto.responsedto.ApartmentResponseDTO;
 import com.rental.manager.mappers.ApartmentMapper;
 import com.rental.manager.service.ApartmentService;
@@ -34,6 +36,31 @@ public class ApartmentController {
     @PutMapping("/{id}")
     public ResponseEntity<ApartmentResponseDTO> updateApartment(@PathVariable UUID id, @RequestBody @Validated ApartmentRequestDTO request) {
         return ResponseEntity.ok(apartmentService.updateApartment(id, mapper.toEntity(request)));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApartmentResponseDTO> patchApartment(@PathVariable UUID id,
+                                                              @RequestBody ApartmentPatchRequestDTO request) {
+        return ResponseEntity.ok(apartmentService.patchApartment(id,
+                request.getTitle(),
+                request.getAccommodationType(),
+                request.getPricePerNight(),
+                request.getArea(),
+                request.getNumberOfRooms(),
+                request.getNumberOfBathrooms(),
+
+                request.getAddress() != null ? request.getAddress().getPostalCode() : null,
+                request.getAddress() != null ? request.getAddress().getCountry() : null,
+                request.getAddress() != null ? request.getAddress().getCity() : null,
+                request.getAddress() != null ? request.getAddress().getDistrict() : null,
+                request.getAddress() != null ? request.getAddress().getStreet() : null,
+                request.getAddress() != null ? request.getAddress().getBuildingNumber() : null,
+                request.getAddress() != null ? request.getAddress().getFloorNumber() : null,
+                request.getAddress() != null ? request.getAddress().getApartmentNumber() : null,
+
+                request.getOwner() != null ? request.getOwner().getName() : null,
+                request.getOwner() != null ? request.getOwner().getEmail() : null,
+                request.getOwner() != null ? request.getOwner().getPhoneNumber() : null));
     }
 
     @DeleteMapping("/{id}")

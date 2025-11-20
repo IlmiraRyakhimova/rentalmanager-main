@@ -16,7 +16,7 @@ public class AddressMapper {
         dto.setCity(entity.getCity());
         dto.setDistrict(entity.getDistrict());
         dto.setStreet(entity.getStreet());
-        dto.setHouseNumber(entity.getHouseNumber());
+        dto.setBuildingNumber(entity.getBuildingNumber());
         dto.setFloorNumber(entity.getFloorNumber());
         dto.setApartmentNumber(entity.getApartmentNumber());
         return dto;
@@ -29,7 +29,7 @@ public class AddressMapper {
         entity.setCity(dto.getCity());
         entity.setDistrict(dto.getDistrict());
         entity.setStreet(dto.getStreet());
-        entity.setHouseNumber(dto.getHouseNumber());
+        entity.setBuildingNumber(dto.getBuildingNumber());
         entity.setFloorNumber(dto.getFloorNumber());
         entity.setApartmentNumber(dto.getApartmentNumber());
         return entity;

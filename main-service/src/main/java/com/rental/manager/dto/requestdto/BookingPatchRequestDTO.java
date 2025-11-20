@@ -2,37 +2,18 @@ package com.rental.manager.dto.requestdto;
 
 import com.rental.manager.entities.enums.BookingStatus;
 import com.rental.manager.entities.enums.PaymentStatus;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Getter
-@Setter
-public class BookingRequestDTO {
-
-    @NotNull
+public class BookingPatchRequestDTO {
     private UUID apartmentId;
-
-    @NotBlank
     private String guestName;
-
-    @Email
     private String guestEmail;
-
-    @NotBlank
     private String guestPhoneNumber;
+    private LocalDate checkInDate;
+    private LocalDate checkOutDate;
     private Integer numberOfAdults;
     private Integer numberOfChildren;
-
-    @NotNull
-    private LocalDate checkInDate;
-
-    @NotNull
-    private LocalDate checkOutDate;
 }

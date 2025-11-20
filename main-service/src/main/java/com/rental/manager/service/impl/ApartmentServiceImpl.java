@@ -8,7 +8,9 @@ import com.rental.manager.mappers.ApartmentMapper;
 import com.rental.manager.repository.AddressRepository;
 import com.rental.manager.repository.ApartmentRepository;
 import com.rental.manager.repository.UserRepository;
+import com.rental.manager.service.AddressService;
 import com.rental.manager.service.ApartmentService;
+import com.rental.manager.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,8 @@ public class ApartmentServiceImpl implements ApartmentService {
     private final ApartmentMapper mapper;
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
+    private final AddressService addressService;
+    private final UserService userService;
 
 
     @Override
@@ -57,7 +61,7 @@ public class ApartmentServiceImpl implements ApartmentService {
                     .filter(a ->
                             eq(a.getDistrict(), addr.getDistrict()) &&
                                     eq(a.getStreet(), addr.getStreet()) &&
-                                    eq(a.getHouseNumber(), addr.getHouseNumber()) &&
+                                    eq(a.getBuildingNumber(), addr.getBuildingNumber()) &&
                                     eq(a.getApartmentNumber(), addr.getApartmentNumber()))
                     .findFirst()
                     .orElse(null);
@@ -92,6 +96,50 @@ public class ApartmentServiceImpl implements ApartmentService {
         apartment.setNumberOfBathrooms(newApartmentInfo.getNumberOfBathrooms());
         return mapper.toDTO(apartment);
     }
+
+    @Override
+    @Transactional
+    public ApartmentResponseDTO patchApartment(UUID id,
+                                                String title,
+                                                String accommodationType,
+                                                BigDecimal pricePerNight,
+                                                Double area,
+                                                Integer numberOfRooms,
+                                                Integer numberOfBathrooms,
+                                                String postalCode,
+                                                String country,
+                                                String city,
+                                                String district,
+                                                String street,
+                                                Integer buildingNumber,
+                                                Integer floorNumber,
+                                                Integer apartmentNumber,
+                                                String ownerName,
+                                                String ownerEmail,
+                                                String ownerPhoneNumber) {
+        Apartment apartment = apartmentRepository.findById(id).orElseThrow();
+
+        if (title != null) apartment.setTitle(title);
+        if (accommodationType != null) apartment.setAccommodationType(accommodationType);
+        if (pricePerNight != null) apartment.setPricePerNight(pricePerNight);
+        if (area != null) apartment.setArea(area);
+        if (numberOfRooms != null) apartment.setNumberOfRooms(numberOfRooms);
+        if (numberOfBathrooms != null) apartment.setNumberOfBathrooms(numberOfBathrooms);
+
+        if (apartment.getAddress() != null && (postalCode != null || country != null || city != null ||
+                district != null || street != null || buildingNumber != null ||
+                floorNumber != null || apartmentNumber != null)) {
+            addressService.patchAddress(apartment.getAddress().getId(), apartmentNumber, floorNumber, buildingNumber, street, district, city, country, postalCode);
+        }
+
+        if (apartment.getOwner() != null && (ownerName != null || ownerEmail != null || ownerPhoneNumber != null)) {
+            userService.patchUser(apartment.getOwner().getId(), ownerName, ownerEmail, ownerPhoneNumber);
+        }
+
+        Apartment saved = apartmentRepository.save(apartment);
+        return mapper.toDTO(saved);
+    }
+
 
     @Override
     public void deleteApartment(UUID id) {

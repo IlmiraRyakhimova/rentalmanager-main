@@ -1,15 +1,16 @@
 package com.rental.manager.service.impl;
 
+import com.rental.manager.dto.requestdto.UserPatchRequestDTO;
+import com.rental.manager.dto.requestdto.UserRequestDTO;
 import com.rental.manager.dto.responsedto.UserResponseDTO;
 import com.rental.manager.entities.User;
 import com.rental.manager.repository.UserRepository;
 import com.rental.manager.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.DialectOverride;
 import org.springframework.stereotype.Service;
 import com.rental.manager.mappers.UserMapper;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -21,30 +22,31 @@ public class UserServiceImpl implements UserService {
     private final UserMapper mapper;
 
     @Override
-    public UserResponseDTO createUser(User user) {
+    public UserResponseDTO createUser(UserRequestDTO request) {
+        User user = mapper.toEntity(request);
         return mapper.toDTO(userRepository.save(user));
     }
 
     @Override
-    public UserResponseDTO updateUser(UUID id, User newUserInfo) {
+    public UserResponseDTO updateUser(UUID id, UserRequestDTO request) {
         User user = userRepository.findById(id).orElseThrow();
-        user.setName(newUserInfo.getName());
-        user.setEmail(newUserInfo.getEmail());
-        user.setPhoneNumber(newUserInfo.getPhoneNumber());
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
         return mapper.toDTO(user);
     }
 
     @Override
-    public UserResponseDTO updateUser(UUID id, String name, String email, String phoneNumber) {
+    public UserResponseDTO patchUser(UUID id, UserPatchRequestDTO request) {
         User user = userRepository.findById(id).orElseThrow();
-        if (name != null) {
-            user.setName(name);
+        if (request.getName() != null) {
+            user.setName(request.getName());
         }
-        if (email != null) {
-            user.setEmail(email);
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
         }
-        if (phoneNumber != null) {
-            user.setPhoneNumber(phoneNumber);
+        if (request.getPhoneNumber() != null) {
+            user.setPhoneNumber(request.getPhoneNumber());
         }
         return mapper.toDTO(user);
     }

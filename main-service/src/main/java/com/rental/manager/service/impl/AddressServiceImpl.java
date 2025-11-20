@@ -1,5 +1,7 @@
 package com.rental.manager.service.impl;
 
+import com.rental.manager.dto.requestdto.AddressPatchRequestDTO;
+import com.rental.manager.dto.requestdto.AddressRequestDTO;
 import com.rental.manager.dto.responsedto.AddressResponseDTO;
 import com.rental.manager.entities.apartment.Address;
 import com.rental.manager.mappers.AddressMapper;
@@ -19,20 +21,54 @@ public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
     private final AddressMapper mapper;
     @Override
-    public AddressResponseDTO createAddress(Address address) {
+    public AddressResponseDTO createAddress(AddressRequestDTO request) {
+        Address address = mapper.toEntity(request);
         return mapper.toDTO(addressRepository.save(address));
     }
 
     @Override
-    public AddressResponseDTO updateAddress(UUID id, Address newAddressInfo) {
+    public AddressResponseDTO updateAddress(UUID id, AddressRequestDTO request) {
         Address address = addressRepository.findById(id).orElseThrow();
-        address.setStreet(newAddressInfo.getStreet());
-        address.setDistrict(newAddressInfo.getDistrict());
-        address.setCity(newAddressInfo.getCity());
-        address.setCountry(newAddressInfo.getCountry());
-        address.setPostalCode(newAddressInfo.getPostalCode());
+        address.setStreet(request.getStreet());
+        address.setDistrict(request.getDistrict());
+        address.setCity(request.getCity());
+        address.setCountry(request.getCountry());
+        address.setPostalCode(request.getPostalCode());
         return mapper.toDTO(address);
     }
+
+    @Override
+    public AddressResponseDTO patchAddress(UUID id, AddressPatchRequestDTO request) {
+        Address address = addressRepository.findById(id).orElseThrow();
+        if (request.getApartmentNumber() != null) {
+            address.setApartmentNumber(request.getApartmentNumber());
+        }
+        if (request.getFloorNumber() != null) {
+            address.setFloorNumber(request.getFloorNumber());
+        }
+        if (request.getBuildingNumber() != null) {
+            address.setBuildingNumber(request.getBuildingNumber());
+        }
+        if (request.getStreet() != null) {
+            address.setStreet(request.getStreet());
+        }
+        if (request.getDistrict() != null) {
+            address.setDistrict(request.getDistrict());
+        }
+        if (request.getCity() != null) {
+            address.setCity(request.getCity());
+        }
+        if (request.getCountry() != null) {
+            address.setCountry(request.getCountry());
+        }
+        if (request.getPostalCode() != null) {
+            address.setPostalCode(request.getPostalCode());
+        }
+        return mapper.toDTO(address);
+    }
+
+
+
 
     @Override
     public void deleteAddress(UUID id) {

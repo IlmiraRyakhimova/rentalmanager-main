@@ -11,6 +11,24 @@ public interface ApartmentService {
 
     ApartmentResponseDTO createApartment(Apartment apartment);
     ApartmentResponseDTO updateApartment(UUID id, Apartment newApartmentInfo);
+    ApartmentResponseDTO patchApartment(UUID id,
+                                         String title,
+                                         String accommodationType,
+                                         BigDecimal pricePerNight,
+                                         Double area,
+                                         Integer numberOfRooms,
+                                         Integer numberOfBathrooms,
+                                         String postalCode,
+                                         String country,
+                                         String city,
+                                         String district,
+                                         String street,
+                                         Integer buildingNumber,
+                                         Integer floorNumber,
+                                         Integer apartmentNumber,
+                                         String ownerName,
+                                         String ownerEmail,
+                                         String ownerPhoneNumber);
     void deleteApartment(UUID id);
 
     ApartmentResponseDTO getApartmentById(UUID id);

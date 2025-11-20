@@ -1,14 +1,11 @@
-package com.rental.manager.dto.responsedto;
+package com.rental.manager.dto.requestdto;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.UUID;
-
 @Getter
 @Setter
-public class AddressResponseDTO {
-    private UUID id;
+public class AddressPatchRequestDTO {
     private String postalCode;
     private String country;
     private String city;

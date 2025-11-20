@@ -1,11 +1,29 @@
 package com.rental.manager.repository;
 
 import com.rental.manager.entities.Booking;
-import com.rental.manager.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface BookingRepository extends JpaRepository<Booking, UUID> {
-    
+
+    Booking findByBookingCode(String bookingCode);
+    List<Booking> findByGuestNameContainingIgnoreCase(String guestName);
+    List<Booking> findByGuestPhoneNumberContainingIgnoreCase(String guestPhoneNumber);
+    Booking findByGuestEmailContainingIgnoreCase(String guestEmail);
+    List<Booking> findByBookingStatusContainingIgnoreCase(String bookingStatus);
+    List<Booking> findByPaymentStatusContainingIgnoreCase(String paymentStatus);
+
+    List<Booking> findByApartmentTitleContainingIgnoreCase(String apartmentTitle);
+    Booking findByApartmentOwnerNameContainingIgnoreCase(String ownerName);
+    Booking findByApartmentOwnerEmailContainingIgnoreCase(String ownerEmail);
+    Booking findByApartmentOwnerPhoneNumberContainingIgnoreCase(String ownerPhoneNumber);
+
+
+
+
+
+
+
 }

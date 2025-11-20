@@ -1,6 +1,7 @@
 package com.rental.manager.web.controller;
 
 import com.rental.manager.dto.requestdto.UserRequestDTO;
+import com.rental.manager.dto.requestdto.UserPatchRequestDTO;
 import com.rental.manager.dto.responsedto.UserResponseDTO;
 import com.rental.manager.mappers.UserMapper;
 import com.rental.manager.service.UserService;
@@ -22,7 +23,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Validated UserRequestDTO request) {
-        return ResponseEntity.ok(userService.createUser(mapper.toEntity(request)));
+        return ResponseEntity.ok(userService.createUser(request));
     }
 
     @GetMapping
@@ -33,13 +34,13 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(@PathVariable UUID id,
                                                       @RequestBody @Validated UserRequestDTO request) {
-        return ResponseEntity.ok(userService.updateUser(id, mapper.toEntity(request)));
+        return ResponseEntity.ok(userService.updateUser(id,request));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<UserResponseDTO> patchUser(@PathVariable UUID id,
-                                                     @RequestBody UserRequestDTO request) {
-        return ResponseEntity.ok(userService.updateUser(id, request.getName(), request.getEmail(), request.getPhoneNumber()));
+                                                     @RequestBody UserPatchRequestDTO request) {
+        return ResponseEntity.ok(userService.patchUser(id, request));
     }
 
     @DeleteMapping("/{id}")
