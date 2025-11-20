@@ -12,8 +12,8 @@ import java.util.UUID;
 @Setter
 public class ApartmentRequestDTO {
     private String title;
-    private UUID ownerId;
-    private UUID addressId;
+    private UserRequestDTO owner;
+    private AddressRequestDTO address;
     private String accommodationType;
     private BigDecimal pricePerNight;
     private Double area;

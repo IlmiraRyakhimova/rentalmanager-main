@@ -21,6 +21,11 @@ public class ApartmentController {
     private final ApartmentService apartmentService;
     private final ApartmentMapper mapper;
 
+    @GetMapping
+    public ResponseEntity<List<ApartmentResponseDTO>> getAllApartments() {
+        return ResponseEntity.ok(apartmentService.getAllApartments());
+    }
+    
     @PostMapping
     public ResponseEntity<ApartmentResponseDTO> createApartment(@RequestBody @Validated ApartmentRequestDTO request) {
         return ResponseEntity.ok(apartmentService.createApartment(mapper.toEntity(request)));
@@ -42,61 +47,76 @@ public class ApartmentController {
         return ResponseEntity.ok(apartmentService.getApartmentById(id));
     }
 
-    @GetMapping("/search/owner-id/{owner_id}")
+    @GetMapping("/search/by-owner-id/{ownerId}")
     public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByOwnerId(@PathVariable UUID ownerId) {
         return ResponseEntity.ok(apartmentService.getApartmentsByOwnerId(ownerId));
     }
 
-    @GetMapping("/search/title/{title}")
+    @GetMapping("/search/by-owner-name/{ownerName}")
+    public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByOwnerName(@PathVariable String ownerName) {
+        return ResponseEntity.ok(apartmentService.getApartmentsByOwnerName(ownerName));
+    }
+
+    @GetMapping("/search/by-owner-email/{ownerEmail}")
+    public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByOwnerEmail(@PathVariable String ownerEmail) {
+        return ResponseEntity.ok(apartmentService.getApartmentsByOwnerEmail(ownerEmail));
+    }
+
+    @GetMapping("/search/by-owner-phone/{ownerPhoneNumber}")
+    public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByOwnerPhoneNumber(@PathVariable String ownerPhoneNumber) {
+        return ResponseEntity.ok(apartmentService.getApartmentsByOwnerPhoneNumber(ownerPhoneNumber));
+    }
+
+    @GetMapping("/search/by-title/{title}")
     public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByTitle(@PathVariable String title) {
         return ResponseEntity.ok(apartmentService.getApartmentsByTitle(title));
     }
 
-    @GetMapping("/search/accommodation-type/{accommodationType}")
+    @GetMapping("/search/by-accommodation-type/{accommodationType}")
     public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByAccommodationType(@PathVariable String accommodationType) {
         return ResponseEntity.ok(apartmentService.getApartmentsByAccommodationType(accommodationType));
     }
 
-    @GetMapping("/search/postal-code/{postalCode}")
+    @GetMapping("/search/by-postal-code/{postalCode}")
     public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByPostalCode(@PathVariable String postalCode) {
         return ResponseEntity.ok(apartmentService.getApartmentsByPostalCode(postalCode));
     }
 
-    @GetMapping("/search/country/{country}")
+    @GetMapping("/search/by-country/{country}")
     public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByCountry(@PathVariable String country) {
         return ResponseEntity.ok(apartmentService.getApartmentsByCountry(country));
     }
 
-    @GetMapping("/search/city/{city}")
+    @GetMapping("/search/by-city/{city}")
     public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByCity(@PathVariable String city) {
         return ResponseEntity.ok(apartmentService.getApartmentsByCity(city));
     }
 
-    @GetMapping("/search/district/{district}")
+    @GetMapping("/search/by-district/{district}")
     public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByDistrict(@PathVariable String district) {
         return ResponseEntity.ok(apartmentService.getApartmentsByDistrict(district));
     }
 
-    @GetMapping("/search/street/{street}")
+    @GetMapping("/search/by-street/{street}")
     public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByStreet(@PathVariable String street) {
         return ResponseEntity.ok(apartmentService.getApartmentsByStreet(street));
     }
 
-    @GetMapping("/search/price-per-night/{minPrice}/{maxPrice}")
+    @GetMapping("/search/by-price-per-night/{minPrice}/{maxPrice}")
     public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByPricePerNightRange(@RequestParam BigDecimal minPrice, @RequestParam BigDecimal maxPrice) {
         return ResponseEntity.ok(apartmentService.getApartmentsByPricePerNightRange(minPrice, maxPrice));
     }
 
-    @GetMapping("/search/area/{minArea}/{maxArea}")
+    @GetMapping("/search/by-area/{minArea}/{maxArea}")
     public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByAreaRange(@RequestParam Double minArea, @RequestParam Double maxArea) {
         return ResponseEntity.ok(apartmentService.getApartmentsByAreaRange(minArea, maxArea));
     }
 
-    @GetMapping("/search/number-of-rooms/{numberOfRooms}")
+    @GetMapping("/search/by-number-of-rooms/{numberOfRooms}")
     public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByNumberOfRooms(@PathVariable Integer numberOfRooms) {
         return ResponseEntity.ok(apartmentService.getApartmentsByNumberOfRooms(numberOfRooms));
     }
-    @GetMapping("/search/number-of-bathrooms/{numberOfBathrooms}")
+    @GetMapping("/search/by-number-of-bathrooms/{numberOfBathrooms}")
     public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByNumberOfBathrooms(@PathVariable Integer numberOfBathrooms) {
         return ResponseEntity.ok(apartmentService.getApartmentsByNumberOfBathrooms(numberOfBathrooms));
     }

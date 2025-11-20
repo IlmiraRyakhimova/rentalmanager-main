@@ -10,6 +10,9 @@ import java.util.UUID;
 public interface ApartmentRepository extends JpaRepository<Apartment, UUID> {
 
     List<Apartment> findByOwnerId(UUID ownerId);
+    List<Apartment> findByOwnerNameContainingIgnoreCase(String ownerName);
+    List<Apartment> findByOwnerEmailContainingIgnoreCase(String ownerEmail);
+    List<Apartment> findByOwnerPhoneNumberContainingIgnoreCase(String ownerPhoneNumber);
     List<Apartment> findByAccommodationTypeContainingIgnoreCase(String accommodationType);
 
     List<Apartment> findByTitleContainingIgnoreCase(String title);

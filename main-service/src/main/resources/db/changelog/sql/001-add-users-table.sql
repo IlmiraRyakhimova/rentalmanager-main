@@ -41,7 +41,7 @@ CREATE TABLE apartments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(255),
     accommodation_type VARCHAR(255),
-    agent_id UUID NOT NULL REFERENCES users(id),
+    agent_id UUID REFERENCES users(id),
     owner_id UUID NOT NULL REFERENCES users(id),
     address_id UUID REFERENCES apartment_addresses(id),
     area_in_square_meters DOUBLE PRECISION,

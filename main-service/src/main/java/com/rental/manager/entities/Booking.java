@@ -37,15 +37,14 @@ public class Booking {
     @Column(nullable = false, name = "check_out")
     private LocalDate checkOutDate;
 
-    @Column(nullable = false, name = "total_nights")
+    @Transient
     private Integer totalNights;
 
-    @Column(nullable = false, precision = 15, scale = 2, name = "total_price")
+    @Transient
     private BigDecimal totalPrice;
 
     @Column(name = "guest_name")
-    private String MainGuestName;
-
+    private String mainGuestName;
 
     @Column(name = "guest_phone_number")
     private String guestPhoneNumber;
@@ -59,12 +58,8 @@ public class Booking {
     @Column (name = "number_of_children")
     private int numberOfChildren;
 
-    @Column(name = "total_number_of_guests")
-    private int TotalNumberOfGuests;
-
-    public void calculateDerivedGuests() {
-        this.TotalNumberOfGuests = this.numberOfAdults + this.numberOfChildren;
-    }
+    @Transient
+    private int totalGuests;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "booking_status")
@@ -92,29 +87,6 @@ public class Booking {
         generateBookingCode();
     }
 
-    public Booking(Apartment apartment, LocalDate checkIn, LocalDate checkOut,
-                    String guestName, String phone, String email) {
-        this();
-        this.apartment = apartment;
-        this.checkInDate = checkIn;
-        this.checkOutDate = checkOut;
-        this.MainGuestName = guestName;
-        this.guestPhoneNumber = phone;
-        this.guestEmail = email;
-    }
-
-
-    @PrePersist
-    public void onPrePersist() {
-        generateBookingCode();
-        calculateDerivedFields();
-    }
-
-    @PreUpdate
-    public void onPreUpdate() {
-        calculateDerivedFields();
-    }
-
     public void generateBookingCode() {
         if (this.bookingCode == null) {
             String timestamp = String.valueOf(System.currentTimeMillis());
@@ -123,27 +95,22 @@ public class Booking {
         }
     }
 
-
-    public void calculateDerivedFields() {
-        calculateAndSetTotalNights();
-        calculateAndSetTotalPrice();
-    }
-
-    public void calculateAndSetTotalNights() {
+    public Integer getTotalNights() {
         if (checkInDate != null && checkOutDate != null) {
-            this.totalNights = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+            return (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         }
+        return 0;
     }
 
-    public void calculateAndSetTotalPrice() {
-        if (this.apartment != null &&
-                this.apartment.getPricePerNight() != null &&
-                this.totalNights != null &&
-                this.totalNights > 0) {
-
-            this.totalPrice = this.apartment.getPricePerNight()
-                    .multiply(BigDecimal.valueOf(this.totalNights));
+    public BigDecimal getTotalPrice() {
+        if (apartment != null && apartment.getPricePerNight() != null && getTotalNights() > 0) {
+            return apartment.getPricePerNight().multiply(BigDecimal.valueOf(getTotalNights()));
         }
+        return BigDecimal.ZERO;
+    }
+
+    public Integer getTotalNumberOdGuests() {
+        return numberOfAdults + numberOfChildren;
     }
 
     public boolean isValid() {

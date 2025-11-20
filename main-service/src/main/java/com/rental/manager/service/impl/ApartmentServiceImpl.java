@@ -1,18 +1,17 @@
 package com.rental.manager.service.impl;
 
 import com.rental.manager.dto.responsedto.ApartmentResponseDTO;
-import com.rental.manager.dto.responsedto.UserResponseDTO;
 import com.rental.manager.entities.User;
 import com.rental.manager.entities.apartment.Address;
 import com.rental.manager.entities.apartment.Apartment;
 import com.rental.manager.mappers.ApartmentMapper;
+import com.rental.manager.repository.AddressRepository;
 import com.rental.manager.repository.ApartmentRepository;
 import com.rental.manager.repository.UserRepository;
-import com.rental.manager.service.AddressService;
 import com.rental.manager.service.ApartmentService;
-import com.rental.manager.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,18 +25,59 @@ public class ApartmentServiceImpl implements ApartmentService {
     private final ApartmentRepository apartmentRepository;
     private final ApartmentMapper mapper;
     private final UserRepository userRepository;
-    private final AddressService addressService;
-    private final UserService userService;
+    private final AddressRepository addressRepository;
+
 
     @Override
+    @Transactional
     public ApartmentResponseDTO createApartment(Apartment apartment) {
         User owner = apartment.getOwner();
-        User existingOwner = userRepository.findByPhoneNumber(owner.getPhoneNumber());
-        apartment.setOwner(existingOwner != null ? existingOwner : userRepository.save(owner));
-        User agent = userRepository.findById(apartment.getAgent().getId()).orElseThrow();
-        apartment.setAgent(agent);
-        return mapper.toDTO(apartmentRepository.save(apartment));
+        if (owner != null) {
+            User existingOwner = null;
+
+            if (owner.getPhoneNumber() != null && !owner.getPhoneNumber().isBlank()) {
+                existingOwner = userRepository.findByPhoneNumber(owner.getPhoneNumber());
+            }
+
+            if (existingOwner == null && owner.getEmail() != null && !owner.getEmail().isBlank()) {
+                existingOwner = userRepository.findByEmail(owner.getEmail());
+            }
+
+            if (existingOwner != null) {
+                apartment.setOwner(existingOwner);
+            } else {
+                User savedOwner = userRepository.save(owner);
+                apartment.setOwner(savedOwner);
+            }
+        }
+
+        Address addr = apartment.getAddress();
+        if (addr != null) {
+            Address existingAddress = addressRepository.findByCityContainingIgnoreCase(addr.getCity() != null ? addr.getCity() : "").stream()
+                    .filter(a ->
+                            eq(a.getDistrict(), addr.getDistrict()) &&
+                                    eq(a.getStreet(), addr.getStreet()) &&
+                                    eq(a.getHouseNumber(), addr.getHouseNumber()) &&
+                                    eq(a.getApartmentNumber(), addr.getApartmentNumber()))
+                    .findFirst()
+                    .orElse(null);
+            if (existingAddress != null) {
+                apartment.setAddress(existingAddress);
+            } else {
+                Address savedAddress = addressRepository.save(addr);
+                apartment.setAddress(savedAddress);
+            }
+        }
+
+        Apartment saved = apartmentRepository.save(apartment);
+        return mapper.toDTO(saved);
     }
+
+
+    private boolean eq(Object a, Object b) {
+        return (a == null && b == null) || (a != null && a.equals(b));
+    }
+
 
     @Override
     public ApartmentResponseDTO updateApartment(UUID id, Apartment newApartmentInfo) {
@@ -66,6 +106,24 @@ public class ApartmentServiceImpl implements ApartmentService {
     @Override
     public List<ApartmentResponseDTO> getApartmentsByOwnerId(UUID ownerId) {
         List<Apartment> apartments = apartmentRepository.findByOwnerId(ownerId);
+        return apartments.stream().map(mapper::toDTO).toList();
+    }
+
+    @Override
+    public List<ApartmentResponseDTO> getApartmentsByOwnerName(String ownerName) {
+        List<Apartment> apartments = apartmentRepository.findByOwnerNameContainingIgnoreCase(ownerName);
+        return apartments.stream().map(mapper::toDTO).toList();
+    }
+
+    @Override
+    public List<ApartmentResponseDTO> getApartmentsByOwnerEmail(String ownerEmail) {
+        List<Apartment> apartments = apartmentRepository.findByOwnerEmailContainingIgnoreCase(ownerEmail);
+        return apartments.stream().map(mapper::toDTO).toList();
+    }
+
+    @Override
+    public List<ApartmentResponseDTO> getApartmentsByOwnerPhoneNumber(String ownerPhoneNumber) {
+        List<Apartment> apartments = apartmentRepository.findByOwnerPhoneNumberContainingIgnoreCase(ownerPhoneNumber);
         return apartments.stream().map(mapper::toDTO).toList();
     }
 
@@ -133,6 +191,12 @@ public class ApartmentServiceImpl implements ApartmentService {
     @Override
     public List<ApartmentResponseDTO> getApartmentsByNumberOfBathrooms(Integer numberOfBathrooms) {
         List<Apartment> apartments = apartmentRepository.findByNumberOfBathrooms(numberOfBathrooms);
+        return apartments.stream().map(mapper::toDTO).toList();
+    }
+
+    @Override
+    public List<ApartmentResponseDTO> getAllApartments() {
+        List<Apartment> apartments = apartmentRepository.findAll();
         return apartments.stream().map(mapper::toDTO).toList();
     }
 }

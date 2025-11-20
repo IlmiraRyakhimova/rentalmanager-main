@@ -15,6 +15,9 @@ public interface ApartmentService {
 
     ApartmentResponseDTO getApartmentById(UUID id);
     List<ApartmentResponseDTO> getApartmentsByOwnerId(UUID ownerId);
+    List<ApartmentResponseDTO> getApartmentsByOwnerName(String ownerName);
+    List <ApartmentResponseDTO> getApartmentsByOwnerEmail(String ownerEmail);
+    List<ApartmentResponseDTO> getApartmentsByOwnerPhoneNumber(String ownerPhoneNumber);
 
 
     List<ApartmentResponseDTO> getApartmentsByTitle(String title);
@@ -30,4 +33,6 @@ public interface ApartmentService {
     List<ApartmentResponseDTO> getApartmentsByAreaRange(Double minArea, Double maxArea);
     List<ApartmentResponseDTO> getApartmentsByNumberOfRooms(Integer numberOfRooms);
     List<ApartmentResponseDTO> getApartmentsByNumberOfBathrooms(Integer numberOfBathrooms);
+
+    List<ApartmentResponseDTO> getAllApartments();
 }

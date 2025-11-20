@@ -10,10 +10,12 @@ public interface UserService {
 
     UserResponseDTO createUser(User user);
     UserResponseDTO updateUser(UUID id, User newUserInfo);
+    UserResponseDTO updateUser(UUID id, String name, String email, String phoneNumber);
     void deleteUser(UUID id);
 
     UserResponseDTO getUserById(UUID id);
     List<UserResponseDTO> getUserByName(String name);
+    List<UserResponseDTO> getAllUsers();
     UserResponseDTO getUserByEmail(String email);
     UserResponseDTO getUserByPhoneNumber(String phoneNumber);
 }

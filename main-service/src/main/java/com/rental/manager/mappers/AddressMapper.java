@@ -1,5 +1,6 @@
 package com.rental.manager.mappers;
 
+import com.rental.manager.dto.requestdto.AddressRequestDTO;
 import com.rental.manager.dto.responsedto.AddressResponseDTO;
 import com.rental.manager.entities.apartment.Address;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,7 @@ public class AddressMapper {
         return dto;
     }
 
-    public Address toEntity(AddressResponseDTO dto) {
+    public Address toEntity(AddressRequestDTO dto) {
         Address entity = new Address();
         entity.setPostalCode(dto.getPostalCode());
         entity.setCountry(dto.getCountry());

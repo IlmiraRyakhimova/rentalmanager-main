@@ -24,8 +24,8 @@ public class Address {
     private String district;
     private String street;
 
-    @Column(name = "house_number")
-    private String houseNumber;
+    @Column(name = "building_number")
+    private String buildingNumber;
 
     @Column(name = "floor_number")
     private Integer floorNumber;
@@ -50,7 +50,7 @@ public class Address {
                         city != null ? city : "",
                         district != null ? district : "",
                         street != null ? street : "",
-                        houseNumber != null ? houseNumber : "",
+                        buildingNumber != null ? buildingNumber : "",
                         floorNumber != null ? floorNumber : "",
                         apartmentNumber != null ? apartmentNumber :"")
 

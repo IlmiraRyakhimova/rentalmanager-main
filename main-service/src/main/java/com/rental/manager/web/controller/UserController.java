@@ -25,10 +25,21 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(mapper.toEntity(request)));
     }
 
+    @GetMapping
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(@PathVariable UUID id,
                                                       @RequestBody @Validated UserRequestDTO request) {
         return ResponseEntity.ok(userService.updateUser(id, mapper.toEntity(request)));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> patchUser(@PathVariable UUID id,
+                                                     @RequestBody UserRequestDTO request) {
+        return ResponseEntity.ok(userService.updateUser(id, request.getName(), request.getEmail(), request.getPhoneNumber()));
     }
 
     @DeleteMapping("/{id}")
@@ -42,17 +53,17 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    @GetMapping("/search/{name}")
+    @GetMapping("/search/by-name/{name}")
     public ResponseEntity<List<UserResponseDTO>> getUserByName(@PathVariable String name) {
         return ResponseEntity.ok(userService.getUserByName(name));
     }
 
-    @GetMapping("/search/{email}")
+    @GetMapping("/search/by-email/{email}")
     public ResponseEntity<UserResponseDTO> getUserByEmail(@PathVariable String email) {
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
-    @GetMapping("/search/{phone-number}")
+    @GetMapping("/search/by-phone-number/{phoneNumber}")
     public ResponseEntity<UserResponseDTO> getUserByPhoneNumber(@PathVariable String phoneNumber) {
         return ResponseEntity.ok(userService.getUserByPhoneNumber(phoneNumber));
     }

@@ -5,6 +5,7 @@ import com.rental.manager.entities.User;
 import com.rental.manager.repository.UserRepository;
 import com.rental.manager.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.DialectOverride;
 import org.springframework.stereotype.Service;
 import com.rental.manager.mappers.UserMapper;
 
@@ -34,6 +35,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserResponseDTO updateUser(UUID id, String name, String email, String phoneNumber) {
+        User user = userRepository.findById(id).orElseThrow();
+        if (name != null) {
+            user.setName(name);
+        }
+        if (email != null) {
+            user.setEmail(email);
+        }
+        if (phoneNumber != null) {
+            user.setPhoneNumber(phoneNumber);
+        }
+        return mapper.toDTO(user);
+    }
+
+
+
+    @Override
     public void deleteUser(UUID id) {
         userRepository.deleteById(id);
     }
@@ -43,8 +61,15 @@ public class UserServiceImpl implements UserService {
         return mapper.toDTO(userRepository.findById(id).orElseThrow());
     }
 
+    @Override
     public List<UserResponseDTO> getUserByName(String name) {
         List<User> users = userRepository.findByNameContainingIgnoreCase(name);
+        return users.stream().map(mapper::toDTO).toList();
+    }
+
+    @Override
+    public List<UserResponseDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
         return users.stream().map(mapper::toDTO).toList();
     }
 

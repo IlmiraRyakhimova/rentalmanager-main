@@ -33,10 +33,13 @@ public class ApartmentMapper {
         Apartment entity = new Apartment();
         entity.setTitle(dto.getTitle());
         entity.setAccommodationType(dto.getAccommodationType());
+        entity.setOwner(userMapper.toEntity(dto.getOwner()));
+        entity.setAddress(addressMapper.toEntity(dto.getAddress()));
         entity.setPricePerNight(dto.getPricePerNight());
         entity.setArea(dto.getArea());
         entity.setNumberOfRooms(dto.getNumberOfRooms());
         entity.setNumberOfBathrooms(dto.getNumberOfBathrooms());
+
         return entity;
     }
 }
