@@ -1,7 +1,10 @@
 package com.rental.manager.service;
 
+import com.rental.manager.dto.requestdto.ApartmentPatchRequestDTO;
+import com.rental.manager.dto.requestdto.ApartmentRequestDTO;
 import com.rental.manager.dto.responsedto.ApartmentResponseDTO;
 import com.rental.manager.entities.apartment.Apartment;
+import com.rental.manager.repository.ApartmentRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -9,26 +12,9 @@ import java.util.UUID;
 
 public interface ApartmentService {
 
-    ApartmentResponseDTO createApartment(Apartment apartment);
-    ApartmentResponseDTO updateApartment(UUID id, Apartment newApartmentInfo);
-    ApartmentResponseDTO patchApartment(UUID id,
-                                         String title,
-                                         String accommodationType,
-                                         BigDecimal pricePerNight,
-                                         Double area,
-                                         Integer numberOfRooms,
-                                         Integer numberOfBathrooms,
-                                         String postalCode,
-                                         String country,
-                                         String city,
-                                         String district,
-                                         String street,
-                                         Integer buildingNumber,
-                                         Integer floorNumber,
-                                         Integer apartmentNumber,
-                                         String ownerName,
-                                         String ownerEmail,
-                                         String ownerPhoneNumber);
+    ApartmentResponseDTO createApartment(ApartmentRequestDTO request);
+    ApartmentResponseDTO updateApartment(UUID id, ApartmentRequestDTO request);
+    ApartmentResponseDTO patchApartment(UUID id, ApartmentPatchRequestDTO request);
     void deleteApartment(UUID id);
 
     ApartmentResponseDTO getApartmentById(UUID id);

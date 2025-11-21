@@ -1,5 +1,6 @@
 package com.rental.manager.mappers;
 
+import com.rental.manager.dto.requestdto.UserPatchRequestDTO;
 import com.rental.manager.dto.requestdto.UserRequestDTO;
 import com.rental.manager.dto.responsedto.UserResponseDTO;
 import com.rental.manager.entities.User;
@@ -23,6 +24,20 @@ public class UserMapper {
         entity.setName(dto.getName());
         entity.setEmail(dto.getEmail());
         entity.setPhoneNumber(dto.getPhoneNumber());
+        return entity;
+    }
+
+    public User toEntity(UserPatchRequestDTO dto) {
+        User entity = new User();
+        if (dto.getName() != null) {
+            entity.setName(dto.getName());
+        }
+        if (dto.getEmail() != null) {
+            entity.setEmail(dto.getEmail());
+        }
+        if (dto.getPhoneNumber() != null) {
+            entity.setPhoneNumber(dto.getPhoneNumber());
+        }
         return entity;
     }
 }

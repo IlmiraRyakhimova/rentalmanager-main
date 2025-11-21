@@ -1,10 +1,16 @@
 package com.rental.manager.service.impl;
 
+import com.rental.manager.dto.requestdto.AddressPatchRequestDTO;
+import com.rental.manager.dto.requestdto.ApartmentPatchRequestDTO;
+import com.rental.manager.dto.requestdto.ApartmentRequestDTO;
+import com.rental.manager.dto.requestdto.UserPatchRequestDTO;
 import com.rental.manager.dto.responsedto.ApartmentResponseDTO;
 import com.rental.manager.entities.User;
 import com.rental.manager.entities.apartment.Address;
 import com.rental.manager.entities.apartment.Apartment;
+import com.rental.manager.mappers.AddressMapper;
 import com.rental.manager.mappers.ApartmentMapper;
+import com.rental.manager.mappers.UserMapper;
 import com.rental.manager.repository.AddressRepository;
 import com.rental.manager.repository.ApartmentRepository;
 import com.rental.manager.repository.UserRepository;
@@ -26,6 +32,8 @@ public class ApartmentServiceImpl implements ApartmentService {
 
     private final ApartmentRepository apartmentRepository;
     private final ApartmentMapper mapper;
+    private final UserMapper userMapper;
+    private final AddressMapper addressMapper;
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final AddressService addressService;
@@ -34,7 +42,8 @@ public class ApartmentServiceImpl implements ApartmentService {
 
     @Override
     @Transactional
-    public ApartmentResponseDTO createApartment(Apartment apartment) {
+    public ApartmentResponseDTO createApartment(ApartmentRequestDTO request) {
+        Apartment apartment = mapper.toEntity(request);
         User owner = apartment.getOwner();
         if (owner != null) {
             User existingOwner = null;
@@ -84,56 +93,44 @@ public class ApartmentServiceImpl implements ApartmentService {
 
 
     @Override
-    public ApartmentResponseDTO updateApartment(UUID id, Apartment newApartmentInfo) {
+    public ApartmentResponseDTO updateApartment(UUID id, ApartmentRequestDTO request) {
         Apartment apartment = apartmentRepository.findById(id).orElseThrow();
-        apartment.setOwner(newApartmentInfo.getOwner());
-        apartment.setTitle(newApartmentInfo.getTitle());
-        apartment.setAddress(newApartmentInfo.getAddress());
-        apartment.setAccommodationType(newApartmentInfo.getAccommodationType());
-        apartment.setPricePerNight(newApartmentInfo.getPricePerNight());
-        apartment.setArea(newApartmentInfo.getArea());
-        apartment.setNumberOfRooms(newApartmentInfo.getNumberOfRooms());
-        apartment.setNumberOfBathrooms(newApartmentInfo.getNumberOfBathrooms());
+        apartment.setOwner(userMapper.toEntity(request.getOwner()));
+        apartment.setTitle(request.getTitle());
+        apartment.setAddress(addressMapper.toEntity(request.getAddress()));
+        apartment.setAccommodationType(request.getAccommodationType());
+        apartment.setPricePerNight(request.getPricePerNight());
+        apartment.setArea(request.getArea());
+        apartment.setNumberOfRooms(request.getNumberOfRooms());
+        apartment.setNumberOfBathrooms(request.getNumberOfBathrooms());
         return mapper.toDTO(apartment);
     }
 
     @Override
     @Transactional
     public ApartmentResponseDTO patchApartment(UUID id,
-                                                String title,
-                                                String accommodationType,
-                                                BigDecimal pricePerNight,
-                                                Double area,
-                                                Integer numberOfRooms,
-                                                Integer numberOfBathrooms,
-                                                String postalCode,
-                                                String country,
-                                                String city,
-                                                String district,
-                                                String street,
-                                                Integer buildingNumber,
-                                                Integer floorNumber,
-                                                Integer apartmentNumber,
-                                                String ownerName,
-                                                String ownerEmail,
-                                                String ownerPhoneNumber) {
+                                                ApartmentPatchRequestDTO request) {
         Apartment apartment = apartmentRepository.findById(id).orElseThrow();
 
-        if (title != null) apartment.setTitle(title);
-        if (accommodationType != null) apartment.setAccommodationType(accommodationType);
-        if (pricePerNight != null) apartment.setPricePerNight(pricePerNight);
-        if (area != null) apartment.setArea(area);
-        if (numberOfRooms != null) apartment.setNumberOfRooms(numberOfRooms);
-        if (numberOfBathrooms != null) apartment.setNumberOfBathrooms(numberOfBathrooms);
+        if (request.getTitle() != null) apartment.setTitle(request.getTitle());
+        if (request.getAccommodationType() != null) apartment.setAccommodationType(request.getAccommodationType());
+        if (request.getPricePerNight() != null) apartment.setPricePerNight(request.getPricePerNight());
+        if (request.getArea() != null) apartment.setArea(request.getArea());
+        if (request.getNumberOfRooms() != null) apartment.setNumberOfRooms(request.getNumberOfRooms());
+        if (request.getNumberOfBathrooms() != null) apartment.setNumberOfBathrooms(request.getNumberOfBathrooms());
 
-        if (apartment.getAddress() != null && (postalCode != null || country != null || city != null ||
-                district != null || street != null || buildingNumber != null ||
-                floorNumber != null || apartmentNumber != null)) {
-            addressService.patchAddress(apartment.getAddress().getId(), apartmentNumber, floorNumber, buildingNumber, street, district, city, country, postalCode);
+        AddressPatchRequestDTO address = request.getAddress();
+
+        if (address != null && (address.getPostalCode() != null || address.getCountry() != null || address.getCity() != null ||
+                address.getDistrict() != null || address.getStreet() != null || address.getBuildingNumber() != null ||
+                address.getFloorNumber() != null || address.getApartmentNumber() != null)) {
+            addressService.patchAddress(apartment.getAddress().getId(), address);
         }
 
-        if (apartment.getOwner() != null && (ownerName != null || ownerEmail != null || ownerPhoneNumber != null)) {
-            userService.patchUser(apartment.getOwner().getId(), ownerName, ownerEmail, ownerPhoneNumber);
+        UserPatchRequestDTO owner = request.getOwner();
+
+        if (owner != null && (owner.getName() != null || owner.getEmail() != null || owner.getPhoneNumber() != null)) {
+            userService.patchUser(apartment.getOwner().getId(), owner);
         }
 
         Apartment saved = apartmentRepository.save(apartment);

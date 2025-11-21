@@ -1,5 +1,6 @@
 package com.rental.manager.mappers;
 
+import com.rental.manager.dto.requestdto.AddressPatchRequestDTO;
 import com.rental.manager.dto.requestdto.AddressRequestDTO;
 import com.rental.manager.dto.responsedto.AddressResponseDTO;
 import com.rental.manager.entities.apartment.Address;
@@ -32,6 +33,35 @@ public class AddressMapper {
         entity.setBuildingNumber(dto.getBuildingNumber());
         entity.setFloorNumber(dto.getFloorNumber());
         entity.setApartmentNumber(dto.getApartmentNumber());
+        return entity;
+    }
+
+    public Address toEntity(AddressPatchRequestDTO dto) {
+        Address entity = new Address();
+        if (dto.getPostalCode() != null) {
+            entity.setPostalCode(dto.getPostalCode());
+        }
+        if (dto.getCountry() != null) {
+            entity.setCountry(dto.getCountry());
+        }
+        if (dto.getCity() != null) {
+            entity.setCity(dto.getCity());
+        }
+        if (dto.getDistrict() != null) {
+            entity.setDistrict(dto.getDistrict());
+        }
+        if (dto.getStreet() != null) {
+            entity.setStreet(dto.getStreet());
+        }
+        if (dto.getBuildingNumber() != null) {
+            entity.setBuildingNumber(dto.getBuildingNumber());
+        }
+        if (dto.getFloorNumber() != null) {
+            entity.setFloorNumber(dto.getFloorNumber());
+        }
+        if (dto.getApartmentNumber() != null) {
+            entity.setApartmentNumber(dto.getApartmentNumber());
+        }
         return entity;
     }
 

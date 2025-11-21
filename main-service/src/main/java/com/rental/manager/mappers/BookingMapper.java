@@ -1,5 +1,6 @@
 package com.rental.manager.mappers;
 
+import com.rental.manager.dto.requestdto.BookingPatchRequestDTO;
 import com.rental.manager.dto.requestdto.BookingRequestDTO;
 import com.rental.manager.dto.responsedto.BookingResponseDTO;
 import com.rental.manager.entities.Booking;
@@ -13,13 +14,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BookingMapper {
 
-    private final ApartmentRepository apartmentRepository;
+    private final ApartmentMapper apartmentMapper;
+
 
     public BookingResponseDTO toDTO(Booking entity) {
         BookingResponseDTO dto = new BookingResponseDTO();
         dto.setId(entity.getId());
         dto.setBookingCode(entity.getBookingCode());
-        dto.setApartmentId(entity.getApartment().getId());
+        dto.setApartment(apartmentMapper.toDTO(entity.getApartment()));
         dto.setApartmentTitle(entity.getApartment().getTitle());
         dto.setGuestName(entity.getMainGuestName());
         dto.setGuestEmail(entity.getGuestEmail());
@@ -38,10 +40,8 @@ public class BookingMapper {
 
         Booking entity = new Booking();
 
-        Apartment apartment = apartmentRepository.findById(dto.getApartmentId())
-                .orElseThrow(() -> new EntityNotFoundException("Apartment not found with id: " + dto.getApartmentId()));
 
-        entity.setApartment(apartment);
+        entity.setApartment(apartmentMapper.toEntity(dto.getApartment()));
         entity.setMainGuestName(dto.getGuestName());
         entity.setGuestEmail(dto.getGuestEmail());
         entity.setGuestPhoneNumber(dto.getGuestPhoneNumber());
@@ -50,6 +50,36 @@ public class BookingMapper {
         entity.setNumberOfAdults(dto.getNumberOfAdults());
         entity.setNumberOfChildren(dto.getNumberOfChildren());
 
+        return entity;
+    }
+
+    public Booking toEntity(BookingPatchRequestDTO dto) {
+        Booking entity = new Booking();
+        if (dto.getApartment() != null) {
+
+            entity.setApartment(apartmentMapper.toEntity(dto.getApartment()));
+        }
+        if (dto.getGuestName() != null) {
+            entity.setMainGuestName(dto.getGuestName());
+        }
+        if (dto.getGuestEmail() != null) {
+            entity.setGuestEmail(dto.getGuestEmail());
+        }
+        if (dto.getGuestPhoneNumber() != null) {
+            entity.setGuestPhoneNumber(dto.getGuestPhoneNumber());
+        }
+        if (dto.getCheckInDate() != null) {
+            entity.setCheckInDate(dto.getCheckInDate());
+        }
+        if (dto.getCheckOutDate() != null) {
+            entity.setCheckOutDate(dto.getCheckOutDate());
+        }
+        if (dto.getNumberOfAdults() != null) {
+            entity.setNumberOfAdults(dto.getNumberOfAdults());
+        }
+        if (dto.getNumberOfChildren() != null) {
+            entity.setNumberOfChildren(dto.getNumberOfChildren());
+        }
         return entity;
     }
 }

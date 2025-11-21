@@ -15,7 +15,7 @@ import java.util.UUID;
 public class BookingResponseDTO {
     private UUID id;
     private String bookingCode;
-    private UUID apartmentId;
+    private ApartmentResponseDTO apartment;
     private String apartmentTitle;
     private String guestName;
     private String guestEmail;

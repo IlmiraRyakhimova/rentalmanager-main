@@ -11,14 +11,17 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     Booking findByBookingCode(String bookingCode);
     List<Booking> findByGuestNameContainingIgnoreCase(String guestName);
     List<Booking> findByGuestPhoneNumberContainingIgnoreCase(String guestPhoneNumber);
-    Booking findByGuestEmailContainingIgnoreCase(String guestEmail);
+    List<Booking>  findByGuestEmailContainingIgnoreCase(String guestEmail);
     List<Booking> findByBookingStatusContainingIgnoreCase(String bookingStatus);
     List<Booking> findByPaymentStatusContainingIgnoreCase(String paymentStatus);
 
+    List<Booking> findByApartmentId(UUID apartmentId);
     List<Booking> findByApartmentTitleContainingIgnoreCase(String apartmentTitle);
-    Booking findByApartmentOwnerNameContainingIgnoreCase(String ownerName);
-    Booking findByApartmentOwnerEmailContainingIgnoreCase(String ownerEmail);
-    Booking findByApartmentOwnerPhoneNumberContainingIgnoreCase(String ownerPhoneNumber);
+
+    List<Booking> findByApartmentOwnerId(UUID ownerId);
+    List<Booking> findByApartmentOwnerNameContainingIgnoreCase(String ownerName);
+    List<Booking> findByApartmentOwnerEmailContainingIgnoreCase(String ownerEmail);
+    List<Booking> findByApartmentOwnerPhoneNumberContainingIgnoreCase(String ownerPhoneNumber);
 
 
 

@@ -17,7 +17,7 @@ import java.util.UUID;
 public class BookingRequestDTO {
 
     @NotNull
-    private UUID apartmentId;
+    private ApartmentRequestDTO apartment;
 
     @NotBlank
     private String guestName;

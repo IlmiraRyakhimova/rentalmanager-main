@@ -19,7 +19,6 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
-    private final UserMapper mapper;
 
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Validated UserRequestDTO request) {
