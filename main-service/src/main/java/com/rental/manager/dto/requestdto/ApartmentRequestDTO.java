@@ -1,23 +1,18 @@
 package com.rental.manager.dto.requestdto;
 
 
-import com.rental.manager.entities.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
-
+import lombok.Data;
 import java.math.BigDecimal;
-import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 public class ApartmentRequestDTO {
 
     @NotBlank
     private String title;
 
-    @NotBlank
+    @Valid
     private UserRequestDTO owner;
 
     @Valid

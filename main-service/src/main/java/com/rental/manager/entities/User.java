@@ -33,6 +33,9 @@ public class User {
     @Column(nullable = false)
     private UserRole role;
 
+    @Column(nullable = false)
+    private String password;
+
 
     @CreationTimestamp
     @Column(name = "created_at")

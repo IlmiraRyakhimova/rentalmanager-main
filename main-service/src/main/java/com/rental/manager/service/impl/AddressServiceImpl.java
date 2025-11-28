@@ -7,6 +7,7 @@ import com.rental.manager.entities.apartment.Address;
 import com.rental.manager.mappers.AddressMapper;
 import com.rental.manager.repository.AddressRepository;
 import com.rental.manager.service.AddressService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,18 +29,20 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public AddressResponseDTO updateAddress(UUID id, AddressRequestDTO request) {
-        Address address = addressRepository.findById(id).orElseThrow();
+        Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Address not found with id: " + id));
         address.setStreet(request.getStreet());
         address.setDistrict(request.getDistrict());
         address.setCity(request.getCity());
         address.setCountry(request.getCountry());
         address.setPostalCode(request.getPostalCode());
-        return mapper.toDTO(address);
+        return mapper.toDTO(addressRepository.save(address));
     }
 
     @Override
     public AddressResponseDTO patchAddress(UUID id, AddressPatchRequestDTO request) {
-        Address address = addressRepository.findById(id).orElseThrow();
+        Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Address not found with id: " + id));
         if (request.getApartmentNumber() != null) {
             address.setApartmentNumber(request.getApartmentNumber());
         }
@@ -64,7 +67,7 @@ public class AddressServiceImpl implements AddressService {
         if (request.getPostalCode() != null) {
             address.setPostalCode(request.getPostalCode());
         }
-        return mapper.toDTO(address);
+        return mapper.toDTO(addressRepository.save(address));
     }
 
 
@@ -77,7 +80,8 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public AddressResponseDTO getAddressById(UUID id) {
-        return mapper.toDTO(addressRepository.findById(id).orElseThrow());
+        return mapper.toDTO(addressRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Address not found with id: " + id)));
     }
 
     @Override

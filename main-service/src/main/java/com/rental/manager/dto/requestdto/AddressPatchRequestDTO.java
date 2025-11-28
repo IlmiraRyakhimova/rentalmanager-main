@@ -1,10 +1,9 @@
 package com.rental.manager.dto.requestdto;
 
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
+import lombok.Data;
+
+@Data
 public class AddressPatchRequestDTO {
     private String postalCode;
     private String country;

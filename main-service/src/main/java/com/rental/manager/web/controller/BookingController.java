@@ -5,9 +5,13 @@ import com.rental.manager.dto.requestdto.BookingPaymentStatusPatchRequestDTO;
 import com.rental.manager.dto.requestdto.BookingRequestDTO;
 import com.rental.manager.dto.requestdto.BookingStatusPatchRequestDTO;
 import com.rental.manager.dto.responsedto.BookingResponseDTO;
+import com.rental.manager.entities.Booking;
+import com.rental.manager.entities.enums.BookingStatus;
+import com.rental.manager.entities.enums.PaymentStatus;
 import com.rental.manager.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +26,7 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
+
     public ResponseEntity<BookingResponseDTO> createBooking(@RequestBody @Validated BookingRequestDTO request) {
         return ResponseEntity.ok(bookingService.createBooking(request));
     }
@@ -73,12 +78,12 @@ public class BookingController {
     }
 
     @GetMapping("/search/by-booking-status/{bookingStatus}")
-    public ResponseEntity<List<BookingResponseDTO>> getBookingsByBookingStatus(@PathVariable String bookingStatus) {
+    public ResponseEntity<List<BookingResponseDTO>> getBookingsByBookingStatus(@PathVariable BookingStatus bookingStatus) {
         return ResponseEntity.ok(bookingService.getBookingsByBookingStatus(bookingStatus));
     }
 
     @GetMapping("/search/by-payment-status/{paymentStatus}")
-    public ResponseEntity<List<BookingResponseDTO>> getBookingsByPaymentStatus(@PathVariable String paymentStatus) {
+    public ResponseEntity<List<BookingResponseDTO>> getBookingsByPaymentStatus(@PathVariable PaymentStatus paymentStatus) {
         return ResponseEntity.ok(bookingService.getBookingsByPaymentStatus(paymentStatus));
     }
 

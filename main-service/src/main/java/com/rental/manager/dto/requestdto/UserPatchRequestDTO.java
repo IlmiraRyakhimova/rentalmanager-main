@@ -1,12 +1,8 @@
 package com.rental.manager.dto.requestdto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-import java.util.Optional;
-
-@Getter
-@Setter
+@Data
 public class UserPatchRequestDTO {
     private String Name;
     private String phoneNumber;

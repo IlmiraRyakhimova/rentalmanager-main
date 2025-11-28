@@ -6,9 +6,11 @@ import com.rental.manager.dto.responsedto.UserResponseDTO;
 import com.rental.manager.entities.User;
 import com.rental.manager.repository.UserRepository;
 import com.rental.manager.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.rental.manager.mappers.UserMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
@@ -29,16 +31,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO updateUser(UUID id, UserRequestDTO request) {
-        User user = userRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
-        return mapper.toDTO(user);
+        user.setRole(request.getRole());
+        return mapper.toDTO(userRepository.save(user));
     }
 
     @Override
     public UserResponseDTO patchUser(UUID id, UserPatchRequestDTO request) {
-        User user = userRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
         if (request.getName() != null) {
             user.setName(request.getName());
         }
@@ -48,7 +53,7 @@ public class UserServiceImpl implements UserService {
         if (request.getPhoneNumber() != null) {
             user.setPhoneNumber(request.getPhoneNumber());
         }
-        return mapper.toDTO(user);
+        return mapper.toDTO(userRepository.save(user));
     }
 
 
@@ -60,7 +65,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO getUserById(UUID id) {
-        return mapper.toDTO(userRepository.findById(id).orElseThrow());
+        return mapper.toDTO(userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id)));
     }
 
     @Override

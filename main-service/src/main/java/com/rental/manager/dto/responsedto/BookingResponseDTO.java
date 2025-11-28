@@ -3,15 +3,14 @@ package com.rental.manager.dto.responsedto;
 import com.rental.manager.entities.Booking;
 import com.rental.manager.entities.enums.BookingStatus;
 import com.rental.manager.entities.enums.PaymentStatus;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 public class BookingResponseDTO {
     private UUID id;
     private String bookingCode;

@@ -15,4 +15,7 @@ logging:
   level:
     org.springframework.jdbc.core: DEBUG
     liquibase: INFO
-    
+
+jwt:
+  secret: YIey45awBl7FoIywlTaSRpoPrJ7O9TqebTyNeuYkZFE=
+  expiration: 86400000

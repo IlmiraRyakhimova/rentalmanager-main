@@ -31,10 +31,10 @@ public class Booking {
     @JoinColumn(name = "apartment_id")
     private Apartment apartment;
 
-    @Column(nullable = false, name = "check_in")
+    @Column(nullable = false, name = "check_in_date")
     private LocalDate checkInDate;
 
-    @Column(nullable = false, name = "check_out")
+    @Column(nullable = false, name = "check_out_date")
     private LocalDate checkOutDate;
 
     @Transient
@@ -95,23 +95,24 @@ public class Booking {
         }
     }
 
-    public Integer getTotalNights() {
-        if (checkInDate != null && checkOutDate != null) {
-            return (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+    @PostUpdate
+    @PostPersist
+    public void calculatePost() {
+
+        totalGuests = numberOfAdults + numberOfChildren;
+        if (this.checkInDate != null && this.checkOutDate != null) {
+            this.totalNights = (int) ChronoUnit.DAYS.between(this.checkInDate, this.checkOutDate);
+        } else {
+            this.totalNights = 0;
         }
-        return 0;
+
+        if (this.apartment != null && this.apartment.getPricePerNight() != null && this.totalNights > 0) {
+            this.totalPrice = this.apartment.getPricePerNight().multiply(BigDecimal.valueOf(this.totalNights));
+        } else {
+            this.totalPrice = BigDecimal.ZERO;
+        }
     }
 
-    public BigDecimal getTotalPrice() {
-        if (apartment != null && apartment.getPricePerNight() != null && getTotalNights() > 0) {
-            return apartment.getPricePerNight().multiply(BigDecimal.valueOf(getTotalNights()));
-        }
-        return BigDecimal.ZERO;
-    }
-
-    public Integer getTotalNumberOdGuests() {
-        return numberOfAdults + numberOfChildren;
-    }
 
     public boolean isValid() {
         return (checkInDate != null && checkOutDate != null && checkOutDate.isAfter(checkInDate));

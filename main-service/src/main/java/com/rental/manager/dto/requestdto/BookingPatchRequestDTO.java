@@ -1,16 +1,13 @@
 package com.rental.manager.dto.requestdto;
 
-import com.rental.manager.entities.enums.BookingStatus;
-import com.rental.manager.entities.enums.PaymentStatus;
-import lombok.Getter;
-import lombok.Setter;
+
+import lombok.Data;
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 public class BookingPatchRequestDTO {
-    private ApartmentPatchRequestDTO apartment;
+    private UUID apartmentId;
     private String guestName;
     private String guestEmail;
     private String guestPhoneNumber;

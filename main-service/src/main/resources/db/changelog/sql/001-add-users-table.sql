@@ -8,6 +8,7 @@ CREATE TABLE users (
     phone_number VARCHAR(50),
     email VARCHAR(255) NOT NULL,
     role VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -54,8 +55,30 @@ CREATE TABLE apartments (
 );
 
 
+
+
 --changeset ilmira:001-5
 CREATE INDEX idx_apartments_agent_id ON apartments(agent_id);
 CREATE INDEX idx_apartments_owner_id ON apartments(owner_id);
 CREATE INDEX idx_apartments_address_id ON apartments(address_id);
+
+--changeset ilmira:001-6
+CREATE TABLE bookings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    booking_code VARCHAR(255) UNIQUE NOT NULL,
+    apartment_id UUID REFERENCES apartments(id),
+    check_in_date DATE NOT NULL,
+    check_out_date DATE NOT NULL,
+    main_guest_name VARCHAR(255),
+    guest_phone_number VARCHAR(50),
+    guest_email VARCHAR(255),
+    number_of_adults INTEGER,
+    number_of_children INTEGER,
+    booking_status VARCHAR(50),
+    payment_status VARCHAR(50),
+    notes VARCHAR(1000),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 

@@ -17,6 +17,7 @@ import com.rental.manager.repository.UserRepository;
 import com.rental.manager.service.AddressService;
 import com.rental.manager.service.ApartmentService;
 import com.rental.manager.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,8 +94,10 @@ public class ApartmentServiceImpl implements ApartmentService {
 
 
     @Override
+    @Transactional
     public ApartmentResponseDTO updateApartment(UUID id, ApartmentRequestDTO request) {
-        Apartment apartment = apartmentRepository.findById(id).orElseThrow();
+        Apartment apartment = apartmentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Apartment not found with id: " + id));
         apartment.setOwner(userMapper.toEntity(request.getOwner()));
         apartment.setTitle(request.getTitle());
         apartment.setAddress(addressMapper.toEntity(request.getAddress()));
@@ -103,14 +106,15 @@ public class ApartmentServiceImpl implements ApartmentService {
         apartment.setArea(request.getArea());
         apartment.setNumberOfRooms(request.getNumberOfRooms());
         apartment.setNumberOfBathrooms(request.getNumberOfBathrooms());
-        return mapper.toDTO(apartment);
+        return mapper.toDTO(apartmentRepository.save(apartment));
     }
 
     @Override
     @Transactional
     public ApartmentResponseDTO patchApartment(UUID id,
                                                 ApartmentPatchRequestDTO request) {
-        Apartment apartment = apartmentRepository.findById(id).orElseThrow();
+        Apartment apartment = apartmentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Apartment not found with id: " + id));
 
         if (request.getTitle() != null) apartment.setTitle(request.getTitle());
         if (request.getAccommodationType() != null) apartment.setAccommodationType(request.getAccommodationType());
@@ -145,7 +149,9 @@ public class ApartmentServiceImpl implements ApartmentService {
 
     @Override
     public ApartmentResponseDTO getApartmentById(UUID id) {
-        return mapper.toDTO(apartmentRepository.findById(id).orElseThrow());
+        return mapper.toDTO(apartmentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Apartment not found with id: " + id)));
+
     }
 
     @Override

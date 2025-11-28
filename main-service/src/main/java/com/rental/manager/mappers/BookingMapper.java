@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class BookingMapper {
 
     private final ApartmentMapper apartmentMapper;
+    private final ApartmentRepository apartmentRepository;
 
 
     public BookingResponseDTO toDTO(Booking entity) {
@@ -28,7 +29,7 @@ public class BookingMapper {
         dto.setGuestPhoneNumber(entity.getGuestPhoneNumber());
         dto.setCheckInDate(entity.getCheckInDate());
         dto.setCheckOutDate(entity.getCheckOutDate());
-        dto.setTotalGuests(entity.getTotalNumberOdGuests());
+        dto.setTotalGuests(entity.getTotalGuests());
         dto.setTotalNights(entity.getTotalNights());
         dto.setTotalPrice(entity.getTotalPrice());
         dto.setBookingStatus(entity.getBookingStatus());
@@ -39,9 +40,11 @@ public class BookingMapper {
     public Booking toEntity(BookingRequestDTO dto) {
 
         Booking entity = new Booking();
+        Apartment apartment = apartmentRepository.findById(dto.getApartmentId()).orElseThrow();
 
 
-        entity.setApartment(apartmentMapper.toEntity(dto.getApartment()));
+
+        entity.setApartment(apartment);
         entity.setMainGuestName(dto.getGuestName());
         entity.setGuestEmail(dto.getGuestEmail());
         entity.setGuestPhoneNumber(dto.getGuestPhoneNumber());
@@ -55,9 +58,11 @@ public class BookingMapper {
 
     public Booking toEntity(BookingPatchRequestDTO dto) {
         Booking entity = new Booking();
-        if (dto.getApartment() != null) {
+        if (dto.getApartmentId() != null) {
+            Apartment apartment = apartmentRepository.findById(dto.getApartmentId()).orElseThrow();
 
-            entity.setApartment(apartmentMapper.toEntity(dto.getApartment()));
+
+            entity.setApartment(apartment);
         }
         if (dto.getGuestName() != null) {
             entity.setMainGuestName(dto.getGuestName());

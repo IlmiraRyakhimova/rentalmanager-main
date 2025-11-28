@@ -1,14 +1,12 @@
 package com.rental.manager.dto.responsedto;
 
-import com.rental.manager.entities.User;
-import lombok.Getter;
-import lombok.Setter;
+
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 public class ApartmentResponseDTO {
     private UUID id;
     private String title;

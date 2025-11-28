@@ -3,7 +3,6 @@ package com.rental.manager.web.controller;
 import com.rental.manager.dto.requestdto.UserRequestDTO;
 import com.rental.manager.dto.requestdto.UserPatchRequestDTO;
 import com.rental.manager.dto.responsedto.UserResponseDTO;
-import com.rental.manager.mappers.UserMapper;
 import com.rental.manager.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

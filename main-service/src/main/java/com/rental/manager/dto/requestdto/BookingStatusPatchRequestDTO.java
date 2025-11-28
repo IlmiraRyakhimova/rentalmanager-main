@@ -2,11 +2,10 @@ package com.rental.manager.dto.requestdto;
 
 
 import com.rental.manager.entities.enums.BookingStatus;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+
+@Data
 public class BookingStatusPatchRequestDTO {
     private BookingStatus bookingStatus;
 }

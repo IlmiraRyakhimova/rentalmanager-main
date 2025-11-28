@@ -1,11 +1,11 @@
 package com.rental.manager.dto.requestdto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import org.springframework.stereotype.Service;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
-@Getter
-@Service
+
+@Data
 public class AddressRequestDTO {
 
 
@@ -21,6 +21,6 @@ public class AddressRequestDTO {
     private String buildingNumber;
     private Integer floorNumber;
 
-    @NotBlank
+    @NotNull
     private Integer apartmentNumber;
 }

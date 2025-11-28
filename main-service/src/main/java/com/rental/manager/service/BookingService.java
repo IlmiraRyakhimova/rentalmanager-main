@@ -5,6 +5,8 @@ import com.rental.manager.dto.requestdto.BookingPaymentStatusPatchRequestDTO;
 import com.rental.manager.dto.requestdto.BookingRequestDTO;
 import com.rental.manager.dto.requestdto.BookingStatusPatchRequestDTO;
 import com.rental.manager.dto.responsedto.BookingResponseDTO;
+import com.rental.manager.entities.enums.BookingStatus;
+import com.rental.manager.entities.enums.PaymentStatus;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,8 +26,8 @@ public interface BookingService {
     List<BookingResponseDTO>  getBookingsByGuestName(String guestName);
     List<BookingResponseDTO> getBookingsByGuestEmail(String guestEmail);
     List<BookingResponseDTO> getBookingsByGuestPhoneNumber(String guestPhoneNumber);
-    List<BookingResponseDTO> getBookingsByBookingStatus(String bookingStatus);
-    List<BookingResponseDTO> getBookingsByPaymentStatus(String paymentStatus);
+    List<BookingResponseDTO> getBookingsByBookingStatus(BookingStatus bookingStatus);
+    List<BookingResponseDTO> getBookingsByPaymentStatus(PaymentStatus paymentStatus);
 
     List<BookingResponseDTO> getBookingsByApartmentId(UUID apartmentId);
     List<BookingResponseDTO> getBookingsByApartmentTitle(String apartmentTitle);
