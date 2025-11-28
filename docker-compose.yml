@@ -4,8 +4,8 @@ services:
     container_name: rental-postgres
     environment:
       POSTGRES_DB: rental_manager
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     healthcheck:
@@ -21,8 +21,10 @@ services:
       - ./main-service/src:/app/src
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/rental_manager
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
     ports:
       - "8080:8080"
     depends_on:
