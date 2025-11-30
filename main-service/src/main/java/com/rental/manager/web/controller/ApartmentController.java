@@ -109,12 +109,12 @@ public class ApartmentController {
     }
 
     @GetMapping("/search/by-price-per-night/{minPrice}/{maxPrice}")
-    public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByPricePerNightRange(@RequestParam BigDecimal minPrice, @RequestParam BigDecimal maxPrice) {
+    public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByPricePerNightRange(@PathVariable BigDecimal minPrice, @PathVariable BigDecimal maxPrice) {
         return ResponseEntity.ok(apartmentService.getApartmentsByPricePerNightRange(minPrice, maxPrice));
     }
 
     @GetMapping("/search/by-area/{minArea}/{maxArea}")
-    public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByAreaRange(@RequestParam Double minArea, @RequestParam Double maxArea) {
+    public ResponseEntity<List<ApartmentResponseDTO>> getApartmentsByAreaRange(@PathVariable Double minArea, @PathVariable Double maxArea) {
         return ResponseEntity.ok(apartmentService.getApartmentsByAreaRange(minArea, maxArea));
     }
 

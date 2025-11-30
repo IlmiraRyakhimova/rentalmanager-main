@@ -54,8 +54,8 @@ public class Address {
                         floorNumber != null ? floorNumber : "",
                         apartmentNumber != null ? apartmentNumber :"")
 
-                .replaceAll(", ,", ",")
-                .replaceAll("^, |, $", "");
+                .replace(", ,", ",")
+                .replaceAll("(^, )|(, $)", "");
     }
 }
 

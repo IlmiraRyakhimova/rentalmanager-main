@@ -6,7 +6,10 @@ import com.rental.manager.dto.responsedto.AuthResponseDTO;
 import com.rental.manager.entities.User;
 import com.rental.manager.repository.UserRepository;
 import com.rental.manager.security.jwt.JwtService;
+import com.rental.manager.security.jwt.dto.JwtDTO;
+import com.rental.manager.security.jwt.dto.RefreshTokenDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,12 +32,15 @@ public class AuthServiceImpl implements AuthService {
         user.setPhoneNumber(request.getPhoneNumber());
         user.setRole(request.getRole());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        User savedUser = userRepository.save(user);
         AuthResponseDTO response = new AuthResponseDTO();
-        response.setToken(jwtService.generateToken(savedUser.getEmail()));
-        response.setName(savedUser.getName());
-        response.setEmail(savedUser.getEmail());
+        JwtDTO jwtDto = jwtService.generateAuthToken(user.getEmail());
+        user.setRefreshTokenHash(jwtService.hashRefreshToken(jwtDto.getRefreshToken()));
+        userRepository.save(user);
+
+        response.setAccessToken(jwtDto.getToken());
+        response.setRefreshToken(jwtDto.getRefreshToken());
+        response.setName(user.getName());
+        response.setEmail(user.getEmail());
 
         return response;
     }
@@ -43,14 +49,46 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponseDTO signIn(SignInRequestDTO request) {
         User user = userRepository.findByEmail(request.getEmail());
         if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new BadCredentialsException("Invalid email or password");
         }
 
         AuthResponseDTO response = new AuthResponseDTO();
-        response.setToken(jwtService.generateToken(user.getEmail()));
+        JwtDTO jwtDto = jwtService.generateAuthToken(user.getEmail());
+        user.setRefreshTokenHash(jwtService.hashRefreshToken(jwtDto.getRefreshToken()));
+        userRepository.save(user);
+
+        response.setAccessToken(jwtDto.getToken());
+        response.setRefreshToken(jwtDto.getRefreshToken());
         response.setName(user.getName());
         response.setEmail(user.getEmail());
         return response;
     }
 
+    @Override
+    public AuthResponseDTO refreshToken(RefreshTokenDTO refreshTokenDTO) {
+        String refreshToken = refreshTokenDTO.getRefreshToken();
+
+        if (refreshToken == null || !jwtService.validateToken(refreshToken)) {
+            throw new BadCredentialsException("Refresh token expired or invalid");
+        }
+
+        User user = userRepository.findByEmail(jwtService.extractEmail(refreshToken));
+
+        if (user == null) {
+            throw new BadCredentialsException("User not found");
+        }
+
+        if (!jwtService.matchesRefreshToken(refreshToken, user.getRefreshTokenHash())) {
+            throw new BadCredentialsException("Invalid refresh token");
+        }
+
+        JwtDTO jwtDto = jwtService.refreshBaseToken(user.getEmail(), refreshToken);
+        AuthResponseDTO response = new AuthResponseDTO();
+        response.setAccessToken(jwtDto.getToken());
+        response.setRefreshToken(jwtDto.getRefreshToken());
+        response.setName(user.getName());
+        response.setEmail(user.getEmail());
+
+        return response;
+    }
 }

@@ -1,7 +1,5 @@
 package com.rental.manager.dto.requestdto;
 
-import com.rental.manager.entities.enums.BookingStatus;
-import com.rental.manager.entities.enums.PaymentStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

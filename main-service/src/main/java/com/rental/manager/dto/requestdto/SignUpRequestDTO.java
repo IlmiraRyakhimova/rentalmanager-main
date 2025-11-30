@@ -14,14 +14,14 @@ public class SignUpRequestDTO {
     private String email;
 
     @NotBlank
-    @Pattern(regexp = "^\\+?[0-9]{10,15}$")
+    @Pattern(regexp = "^\\+?\\d{10,15}$")
     private String phoneNumber;
 
     @NotNull
     private UserRole role;
 
     @NotBlank
-    @Size(min = 8)
+    @Size(min = 8, max = 72)
     private String password;
 }
 

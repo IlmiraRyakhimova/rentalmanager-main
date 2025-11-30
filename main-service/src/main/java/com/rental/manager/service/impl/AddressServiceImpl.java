@@ -19,6 +19,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AddressServiceImpl implements AddressService {
 
+    private static final String ENTITY_NOT_FOUND_MSG = "Address not found with id: ";
+
     private final AddressRepository addressRepository;
     private final AddressMapper mapper;
     @Override
@@ -30,7 +32,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressResponseDTO updateAddress(UUID id, AddressRequestDTO request) {
         Address address = addressRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Address not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id));
         address.setStreet(request.getStreet());
         address.setDistrict(request.getDistrict());
         address.setCity(request.getCity());
@@ -42,7 +44,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressResponseDTO patchAddress(UUID id, AddressPatchRequestDTO request) {
         Address address = addressRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Address not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id));
         if (request.getApartmentNumber() != null) {
             address.setApartmentNumber(request.getApartmentNumber());
         }
@@ -81,7 +83,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressResponseDTO getAddressById(UUID id) {
         return mapper.toDTO(addressRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Address not found with id: " + id)));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id)));
     }
 
     @Override

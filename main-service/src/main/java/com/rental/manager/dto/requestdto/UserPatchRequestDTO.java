@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class UserPatchRequestDTO {
-    private String Name;
+    private String name;
     private String phoneNumber;
     private String email;
 }

@@ -36,6 +36,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column
+    private String refreshTokenHash;
+
 
     @CreationTimestamp
     @Column(name = "created_at")

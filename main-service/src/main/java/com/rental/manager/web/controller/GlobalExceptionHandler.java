@@ -7,6 +7,7 @@ import lombok.Getter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -24,7 +25,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
+        ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             errors.put(fieldName, error.getDefaultMessage());
         });
@@ -51,6 +52,8 @@ public class GlobalExceptionHandler {
             return HttpStatus.BAD_REQUEST;
         } else if (ex instanceof IllegalArgumentException) {
             return HttpStatus.BAD_REQUEST;
+        } else if (ex instanceof BadCredentialsException) {
+            return HttpStatus.UNAUTHORIZED;
         } else {
             return HttpStatus.INTERNAL_SERVER_ERROR;
         }

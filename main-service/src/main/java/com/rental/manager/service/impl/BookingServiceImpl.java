@@ -25,6 +25,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
 
+    private static final String BOOKING_NOT_FOUND_MSG = "Booking not found with id: ";
+    private static final String APARTMENT_NOT_FOUND_MSG = "Apartment not found with id: ";
+
     private final BookingRepository bookingRepository;
     private final ApartmentRepository apartmentRepository;
     private final BookingMapper mapper;
@@ -33,7 +36,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingResponseDTO createBooking(BookingRequestDTO request) {
         Apartment apartment = apartmentRepository.findById(request.getApartmentId())
-                .orElseThrow(() -> new EntityNotFoundException("Apartment not found with id: " + request.getApartmentId()));
+                .orElseThrow(() -> new EntityNotFoundException(APARTMENT_NOT_FOUND_MSG + request.getApartmentId()));
 
         Booking booking = mapper.toEntity(request);
         booking.setApartment(apartment);
@@ -42,10 +45,10 @@ public class BookingServiceImpl implements BookingService {
 
     public BookingResponseDTO updateBooking(UUID id, BookingRequestDTO request) {
         Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(BOOKING_NOT_FOUND_MSG + id));
 
         Apartment apartment = apartmentRepository.findById(request.getApartmentId())
-                .orElseThrow(() -> new EntityNotFoundException("Apartment not found with id: " + request.getApartmentId()));
+                .orElseThrow(() -> new EntityNotFoundException(APARTMENT_NOT_FOUND_MSG + request.getApartmentId()));
 
         booking.setApartment(apartment);
         booking.setMainGuestName(request.getGuestName());
@@ -61,11 +64,11 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponseDTO patchBooking(UUID id, BookingPatchRequestDTO request) {
         Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(BOOKING_NOT_FOUND_MSG + id));
 
         if (request.getApartmentId() != null) {
             Apartment apartment = apartmentRepository.findById(request.getApartmentId())
-                    .orElseThrow(() -> new EntityNotFoundException("Apartment not found with id: " + request.getApartmentId()));
+                    .orElseThrow(() -> new EntityNotFoundException(APARTMENT_NOT_FOUND_MSG + request.getApartmentId()));
             booking.setApartment(apartment);
         }
         if (request.getGuestName() != null) {
@@ -95,7 +98,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponseDTO patchBookingStatus(UUID id, BookingStatusPatchRequestDTO request) {
         Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(BOOKING_NOT_FOUND_MSG + id));
         booking.setBookingStatus(request.getBookingStatus());
         return mapper.toDTO(bookingRepository.save(booking));
     }
@@ -103,7 +106,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponseDTO patchPaymentStatus(UUID id, BookingPaymentStatusPatchRequestDTO request) {
         Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(BOOKING_NOT_FOUND_MSG + id));
         booking.setPaymentStatus(request.getPaymentStatus());
         return mapper.toDTO(bookingRepository.save(booking));
     }
@@ -122,7 +125,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponseDTO getBookingById(UUID id) {
         return mapper.toDTO(bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + id)));
+                .orElseThrow(() -> new EntityNotFoundException(BOOKING_NOT_FOUND_MSG + id)));
     }
 
     @Override

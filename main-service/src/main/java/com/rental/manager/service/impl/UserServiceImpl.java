@@ -20,6 +20,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    private static final String ENTITY_NOT_FOUND_MSG = "User not found with id: ";
+
     private final UserRepository userRepository;
     private final UserMapper mapper;
 
@@ -32,7 +34,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO updateUser(UUID id, UserRequestDTO request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id));
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
@@ -43,7 +45,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO patchUser(UUID id, UserPatchRequestDTO request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id));
         if (request.getName() != null) {
             user.setName(request.getName());
         }
@@ -66,7 +68,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO getUserById(UUID id) {
         return mapper.toDTO(userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id)));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id)));
     }
 
     @Override

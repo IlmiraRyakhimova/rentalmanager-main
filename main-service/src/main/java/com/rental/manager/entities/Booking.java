@@ -14,12 +14,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+import java.util.Random;
 
 @Entity
 @Table(name = "bookings")
 @Getter
 @Setter
 public class Booking {
+
+    private static final Random RANDOM = new Random();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
@@ -90,8 +94,10 @@ public class Booking {
     public void generateBookingCode() {
         if (this.bookingCode == null) {
             String timestamp = String.valueOf(System.currentTimeMillis());
-            String random = String.valueOf((int) (Math.random() * 1000));
-            this.bookingCode = "RNT-" + timestamp.substring(timestamp.length() - 6) + "-" + random;
+
+
+            int randomNumber = Math.abs(RANDOM.nextInt(1000));
+            this.bookingCode = "RNT-" + timestamp.substring(timestamp.length() - 6) + "-" + randomNumber;
         }
     }
 

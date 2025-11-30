@@ -1,6 +1,6 @@
 package com.rental.manager.dto.responsedto;
 
-import com.rental.manager.entities.Booking;
+
 import com.rental.manager.entities.enums.BookingStatus;
 import com.rental.manager.entities.enums.PaymentStatus;
 import lombok.Data;

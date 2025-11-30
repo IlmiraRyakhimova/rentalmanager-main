@@ -31,6 +31,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ApartmentServiceImpl implements ApartmentService {
 
+    private static final String ENTITY_NOT_FOUND_MSG = "Apartment not found with id: ";
+
     private final ApartmentRepository apartmentRepository;
     private final ApartmentMapper mapper;
     private final UserMapper userMapper;
@@ -40,52 +42,81 @@ public class ApartmentServiceImpl implements ApartmentService {
     private final AddressService addressService;
     private final UserService userService;
 
-
     @Override
     @Transactional
     public ApartmentResponseDTO createApartment(ApartmentRequestDTO request) {
         Apartment apartment = mapper.toEntity(request);
-        User owner = apartment.getOwner();
-        if (owner != null) {
-            User existingOwner = null;
 
-            if (owner.getPhoneNumber() != null && !owner.getPhoneNumber().isBlank()) {
-                existingOwner = userRepository.findByPhoneNumber(owner.getPhoneNumber());
-            }
-
-            if (existingOwner == null && owner.getEmail() != null && !owner.getEmail().isBlank()) {
-                existingOwner = userRepository.findByEmail(owner.getEmail());
-            }
-
-            if (existingOwner != null) {
-                apartment.setOwner(existingOwner);
-            } else {
-                User savedOwner = userRepository.save(owner);
-                apartment.setOwner(savedOwner);
-            }
-        }
-
-        Address addr = apartment.getAddress();
-        if (addr != null) {
-            Address existingAddress = addressRepository.findByCityContainingIgnoreCase(addr.getCity() != null ? addr.getCity() : "").stream()
-                    .filter(a ->
-                            eq(a.getDistrict(), addr.getDistrict()) &&
-                                    eq(a.getStreet(), addr.getStreet()) &&
-                                    eq(a.getBuildingNumber(), addr.getBuildingNumber()) &&
-                                    eq(a.getApartmentNumber(), addr.getApartmentNumber()))
-                    .findFirst()
-                    .orElse(null);
-            if (existingAddress != null) {
-                apartment.setAddress(existingAddress);
-            } else {
-                Address savedAddress = addressRepository.save(addr);
-                apartment.setAddress(savedAddress);
-            }
-        }
+        resolveOwner(apartment);
+        resolveAddress(apartment);
 
         Apartment saved = apartmentRepository.save(apartment);
         return mapper.toDTO(saved);
     }
+
+    private void resolveOwner(Apartment apartment) {
+        User owner = apartment.getOwner();
+        if (owner == null) {
+            return;
+        }
+
+        User existingOwner = findExistingOwner(owner);
+
+        if (existingOwner != null) {
+            apartment.setOwner(existingOwner);
+        } else {
+            User savedOwner = userRepository.save(owner);
+            apartment.setOwner(savedOwner);
+        }
+    }
+
+    private User findExistingOwner(User owner) {
+        if (owner.getPhoneNumber() != null && !owner.getPhoneNumber().isBlank()) {
+            User existingOwner = userRepository.findByPhoneNumber(owner.getPhoneNumber());
+            if (existingOwner != null) {
+                return existingOwner;
+            }
+        }
+
+        if (owner.getEmail() != null && !owner.getEmail().isBlank()) {
+            return userRepository.findByEmail(owner.getEmail());
+        }
+
+        return null;
+    }
+
+    private void resolveAddress(Apartment apartment) {
+        Address addr = apartment.getAddress();
+        if (addr == null) {
+            return;
+        }
+
+        Address existingAddress = findExistingAddress(addr);
+
+        if (existingAddress != null) {
+            apartment.setAddress(existingAddress);
+        } else {
+            Address savedAddress = addressRepository.save(addr);
+            apartment.setAddress(savedAddress);
+        }
+    }
+
+    private Address findExistingAddress(Address addr) {
+        String city = addr.getCity() != null ? addr.getCity() : "";
+
+        return addressRepository.findByCityContainingIgnoreCase(city).stream()
+                .filter(a -> isAddressMatching(a, addr))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private boolean isAddressMatching(Address existing, Address requested) {
+        return eq(existing.getDistrict(), requested.getDistrict()) &&
+                eq(existing.getStreet(), requested.getStreet()) &&
+                eq(existing.getBuildingNumber(), requested.getBuildingNumber()) &&
+                eq(existing.getApartmentNumber(), requested.getApartmentNumber());
+    }
+
 
 
     private boolean eq(Object a, Object b) {
@@ -97,7 +128,7 @@ public class ApartmentServiceImpl implements ApartmentService {
     @Transactional
     public ApartmentResponseDTO updateApartment(UUID id, ApartmentRequestDTO request) {
         Apartment apartment = apartmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Apartment not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id));
         apartment.setOwner(userMapper.toEntity(request.getOwner()));
         apartment.setTitle(request.getTitle());
         apartment.setAddress(addressMapper.toEntity(request.getAddress()));
@@ -114,7 +145,7 @@ public class ApartmentServiceImpl implements ApartmentService {
     public ApartmentResponseDTO patchApartment(UUID id,
                                                 ApartmentPatchRequestDTO request) {
         Apartment apartment = apartmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Apartment not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id));
 
         if (request.getTitle() != null) apartment.setTitle(request.getTitle());
         if (request.getAccommodationType() != null) apartment.setAccommodationType(request.getAccommodationType());
@@ -150,7 +181,7 @@ public class ApartmentServiceImpl implements ApartmentService {
     @Override
     public ApartmentResponseDTO getApartmentById(UUID id) {
         return mapper.toDTO(apartmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Apartment not found with id: " + id)));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id)));
 
     }
 

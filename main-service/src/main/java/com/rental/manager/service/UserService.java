@@ -3,7 +3,7 @@ package com.rental.manager.service;
 import com.rental.manager.dto.requestdto.UserPatchRequestDTO;
 import com.rental.manager.dto.requestdto.UserRequestDTO;
 import com.rental.manager.dto.responsedto.UserResponseDTO;
-import com.rental.manager.entities.User;
+
 
 import java.util.List;
 import java.util.UUID;

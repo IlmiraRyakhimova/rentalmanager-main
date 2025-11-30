@@ -3,8 +3,6 @@ package com.rental.manager.service;
 import com.rental.manager.dto.requestdto.ApartmentPatchRequestDTO;
 import com.rental.manager.dto.requestdto.ApartmentRequestDTO;
 import com.rental.manager.dto.responsedto.ApartmentResponseDTO;
-import com.rental.manager.entities.apartment.Apartment;
-import com.rental.manager.repository.ApartmentRepository;
 
 import java.math.BigDecimal;
 import java.util.List;

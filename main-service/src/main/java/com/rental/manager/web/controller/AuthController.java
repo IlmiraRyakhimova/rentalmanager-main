@@ -29,4 +29,9 @@ public class AuthController {
     public ResponseEntity<AuthResponseDTO> signIn(@RequestBody @Validated SignInRequestDTO request) {
         return ResponseEntity.ok(authService.signIn(request));
     }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<AuthResponseDTO> refreshToken(@RequestBody @Validated com.rental.manager.security.jwt.dto.RefreshTokenDTO refreshTokenDTO) {
+        return ResponseEntity.ok(authService.refreshToken(refreshTokenDTO));
+    }
 }

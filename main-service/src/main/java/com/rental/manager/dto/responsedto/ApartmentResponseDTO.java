@@ -17,5 +17,4 @@ public class ApartmentResponseDTO {
     private Double area;
     private Integer numberOfRooms;
     private Integer numberOfBathrooms;
-    private Integer MaxGuestsAllowed;
 }

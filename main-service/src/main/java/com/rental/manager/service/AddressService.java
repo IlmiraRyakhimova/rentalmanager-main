@@ -3,7 +3,7 @@ package com.rental.manager.service;
 import com.rental.manager.dto.requestdto.AddressPatchRequestDTO;
 import com.rental.manager.dto.requestdto.AddressRequestDTO;
 import com.rental.manager.dto.responsedto.AddressResponseDTO;
-import com.rental.manager.entities.apartment.Address;
+
 
 import java.util.List;
 import java.util.UUID;
