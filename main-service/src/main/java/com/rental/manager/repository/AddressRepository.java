@@ -1,6 +1,6 @@
 package com.rental.manager.repository;
 
-import com.rental.manager.entities.apartment.Address;
+import com.rental.manager.entities.Address;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

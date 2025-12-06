@@ -1,4 +1,4 @@
-package com.rental.manager.entities.apartment;
+package com.rental.manager.entities;
 
 
 import jakarta.persistence.*;

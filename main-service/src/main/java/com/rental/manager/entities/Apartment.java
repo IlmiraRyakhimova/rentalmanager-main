@@ -1,6 +1,5 @@
-package com.rental.manager.entities.apartment;
+package com.rental.manager.entities;
 
-import com.rental.manager.entities.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

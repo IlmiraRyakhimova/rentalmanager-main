@@ -3,7 +3,7 @@ package com.rental.manager.service.impl;
 import com.rental.manager.dto.requestdto.AddressPatchRequestDTO;
 import com.rental.manager.dto.requestdto.AddressRequestDTO;
 import com.rental.manager.dto.responsedto.AddressResponseDTO;
-import com.rental.manager.entities.apartment.Address;
+import com.rental.manager.entities.Address;
 import com.rental.manager.mappers.AddressMapper;
 import com.rental.manager.repository.AddressRepository;
 import com.rental.manager.service.AddressService;

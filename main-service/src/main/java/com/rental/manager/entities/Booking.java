@@ -1,6 +1,5 @@
 package com.rental.manager.entities;
 
-import com.rental.manager.entities.apartment.Apartment;
 import com.rental.manager.entities.enums.BookingStatus;
 import com.rental.manager.entities.enums.PaymentStatus;
 import jakarta.persistence.*;

@@ -6,7 +6,7 @@ import com.rental.manager.dto.requestdto.BookingRequestDTO;
 import com.rental.manager.dto.requestdto.BookingStatusPatchRequestDTO;
 import com.rental.manager.dto.responsedto.BookingResponseDTO;
 import com.rental.manager.entities.Booking;
-import com.rental.manager.entities.apartment.Apartment;
+import com.rental.manager.entities.Apartment;
 import com.rental.manager.entities.enums.BookingStatus;
 import com.rental.manager.entities.enums.PaymentStatus;
 import com.rental.manager.mappers.BookingMapper;

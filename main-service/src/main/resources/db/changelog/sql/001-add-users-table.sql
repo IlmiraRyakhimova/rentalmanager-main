@@ -7,6 +7,7 @@ CREATE TABLE users (
     name VARCHAR(255) NOT NULL,
     phone_number VARCHAR(50),
     email VARCHAR(255) NOT NULL,
+    is_email_verified BOOLEAN DEFAULT FALSE NOT NULL,
     role VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     refresh_token_hash VARCHAR(255),
@@ -81,5 +82,15 @@ CREATE TABLE bookings (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+--changeset ilmira:001-7
+CREATE TABLE email_verification_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    token VARCHAR(255) NOT NULL,
+    user_id UUID REFERENCES users(id),
+    expiry_date TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 
 

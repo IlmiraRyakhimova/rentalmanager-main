@@ -4,9 +4,8 @@ import com.rental.manager.dto.requestdto.BookingPatchRequestDTO;
 import com.rental.manager.dto.requestdto.BookingRequestDTO;
 import com.rental.manager.dto.responsedto.BookingResponseDTO;
 import com.rental.manager.entities.Booking;
-import com.rental.manager.entities.apartment.Apartment;
+import com.rental.manager.entities.Apartment;
 import com.rental.manager.repository.ApartmentRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

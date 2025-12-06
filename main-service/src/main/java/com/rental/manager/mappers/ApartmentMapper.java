@@ -3,7 +3,7 @@ package com.rental.manager.mappers;
 import com.rental.manager.dto.requestdto.ApartmentPatchRequestDTO;
 import com.rental.manager.dto.requestdto.ApartmentRequestDTO;
 import com.rental.manager.dto.responsedto.ApartmentResponseDTO;
-import com.rental.manager.entities.apartment.Apartment;
+import com.rental.manager.entities.Apartment;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 

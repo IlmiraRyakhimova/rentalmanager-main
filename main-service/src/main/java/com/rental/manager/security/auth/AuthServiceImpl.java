@@ -8,10 +8,14 @@ import com.rental.manager.repository.UserRepository;
 import com.rental.manager.security.jwt.JwtService;
 import com.rental.manager.security.jwt.dto.JwtDTO;
 import com.rental.manager.security.jwt.dto.RefreshTokenDTO;
+import com.rental.manager.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,9 +23,11 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public AuthResponseDTO signUp(SignUpRequestDTO request) {
         if (userRepository.findByEmail(request.getEmail()) != null) {
             throw new IllegalArgumentException("Email already in use");
@@ -32,16 +38,14 @@ public class AuthServiceImpl implements AuthService {
         user.setPhoneNumber(request.getPhoneNumber());
         user.setRole(request.getRole());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        AuthResponseDTO response = new AuthResponseDTO();
-        JwtDTO jwtDto = jwtService.generateAuthToken(user.getEmail());
-        user.setRefreshTokenHash(jwtService.hashRefreshToken(jwtDto.getRefreshToken()));
         userRepository.save(user);
 
-        response.setAccessToken(jwtDto.getToken());
-        response.setRefreshToken(jwtDto.getRefreshToken());
+        emailService.createAndSendVerificationToken(user.getEmail());
+
+
+        AuthResponseDTO response = new AuthResponseDTO();
         response.setName(user.getName());
         response.setEmail(user.getEmail());
-
         return response;
     }
 
@@ -50,6 +54,10 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail());
         if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Invalid email or password");
+        }
+
+        if (!user.isEmailVerified()) {
+            throw new IllegalStateException("Пожалуйста, подтвердите ваш email, чтобы войти в систему.");
         }
 
         AuthResponseDTO response = new AuthResponseDTO();
@@ -65,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponseDTO refreshToken(RefreshTokenDTO refreshTokenDTO) {
+    public AuthResponseDTO refreshAccessToken(RefreshTokenDTO refreshTokenDTO) {
         String refreshToken = refreshTokenDTO.getRefreshToken();
 
         if (refreshToken == null || !jwtService.validateToken(refreshToken)) {
@@ -90,5 +98,16 @@ public class AuthServiceImpl implements AuthService {
         response.setEmail(user.getEmail());
 
         return response;
+    }
+
+    public void logOut() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            user.setRefreshTokenHash(null);
+            userRepository.save(user);
+        }
     }
 }

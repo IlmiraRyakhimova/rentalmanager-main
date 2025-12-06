@@ -1,6 +1,6 @@
 package com.rental.manager.repository;
 
-import com.rental.manager.entities.apartment.Apartment;
+import com.rental.manager.entities.Apartment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.math.BigDecimal;

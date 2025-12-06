@@ -8,6 +8,7 @@ import com.rental.manager.security.jwt.dto.RefreshTokenDTO;
 public interface AuthService {
     AuthResponseDTO signUp(SignUpRequestDTO request);
     AuthResponseDTO signIn(SignInRequestDTO request);
-    AuthResponseDTO refreshToken(RefreshTokenDTO refreshTokenDTO);
+    AuthResponseDTO refreshAccessToken(RefreshTokenDTO refreshTokenDTO);
+    void logOut();
 
 }
