@@ -43,13 +43,11 @@ public class AuthController {
     }
 
     @GetMapping("/verify-email")
-    public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
-//        String redirectUrl = emailService.verifyEmail(token);
-//        return ResponseEntity.status(302)
-//                .header("Location", redirectUrl)
-//                .build();
-        String message = emailService.verifyEmail(token);
-        return ResponseEntity.ok(message);
+    public ResponseEntity<Void> verifyEmail(@RequestParam("token") String token) {
+        String redirectUrl = emailService.verifyEmail(token);
+        return ResponseEntity.status(302)
+                .header("Location", redirectUrl)
+                .build();
     }
 
     @PostMapping("/resend-verification-email")

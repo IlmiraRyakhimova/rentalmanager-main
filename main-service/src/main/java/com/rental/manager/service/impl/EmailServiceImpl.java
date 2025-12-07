@@ -128,17 +128,12 @@ public class EmailServiceImpl implements EmailService {
 
         userRepository.save(user);
         emailVerificationTokenRepository.delete(verificationToken);
-//        return String.format("%s/auth/verified?accessToken=%s&refreshToken=%s&email=%s&name=%s",
-//                frontendUrl,
-//                jwtDto.getToken(),
-//                jwtDto.getRefreshToken(),
-//                user.getEmail(),
-//                user.getName());
-        return String.format(
-                "Email verified!\nAccess Token: %s\nRefresh Token: %s",
+        
+        return String.format("%s/auth/verified?accessToken=%s&refreshToken=%s&email=%s&name=%s",
+                frontendUrl,
                 jwtDto.getToken(),
-                jwtDto.getRefreshToken()
-        );
-
+                jwtDto.getRefreshToken(),
+                user.getEmail(),
+                user.getName());
     }
 }

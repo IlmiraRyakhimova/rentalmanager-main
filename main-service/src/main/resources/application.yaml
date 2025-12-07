@@ -37,3 +37,7 @@ app:
   frontend:
     url: http://localhost:3000
 
+geocoding:
+  nominatim:
+    url: https://nominatim.openstreetmap.org
+    user-agent: RentalManagerApp/1.0

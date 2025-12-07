@@ -33,6 +33,16 @@ services:
       postgres-db:
         condition: service_healthy
 
+  frontend-service:
+    build: ./front
+    container_name: rental-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend-service
+    environment:
+      - NODE_ENV=production
+
 
 # запуск:
 #       docker-compose up -d (--build - для пересборки образов)
@@ -40,3 +50,5 @@ services:
 #       docker-compose down
 # просмотр логов:
 #       docker-compose logs -f
+# только фронтенд:
+#       docker-compose up -d frontend-service --build

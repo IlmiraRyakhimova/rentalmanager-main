@@ -1,7 +1,6 @@
 package com.rental.manager.dto.responsedto;
 
-
-import com.rental.manager.security.jwt.dto.JwtDTO;
+import com.rental.manager.entities.enums.UserRole;
 import lombok.Data;
 
 @Data
@@ -11,4 +10,6 @@ public class AuthResponseDTO {
     private String type = "Bearer";
     private String email;
     private String name;
+    private String phoneNumber;
+    private UserRole role;
 }

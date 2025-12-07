@@ -46,6 +46,8 @@ public class AuthServiceImpl implements AuthService {
         AuthResponseDTO response = new AuthResponseDTO();
         response.setName(user.getName());
         response.setEmail(user.getEmail());
+        response.setPhoneNumber(user.getPhoneNumber());
+        response.setRole(user.getRole());
         return response;
     }
 
@@ -69,6 +71,8 @@ public class AuthServiceImpl implements AuthService {
         response.setRefreshToken(jwtDto.getRefreshToken());
         response.setName(user.getName());
         response.setEmail(user.getEmail());
+        response.setPhoneNumber(user.getPhoneNumber());
+        response.setRole(user.getRole());
         return response;
     }
 
@@ -96,6 +100,8 @@ public class AuthServiceImpl implements AuthService {
         response.setRefreshToken(jwtDto.getRefreshToken());
         response.setName(user.getName());
         response.setEmail(user.getEmail());
+        response.setPhoneNumber(user.getPhoneNumber());
+        response.setRole(user.getRole());
 
         return response;
     }
