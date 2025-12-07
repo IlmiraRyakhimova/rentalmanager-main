@@ -96,7 +96,7 @@ public class EmailServiceImpl implements EmailService {
             throw new IllegalArgumentException("Email is already verified for: " + to);
         }
 
-//        emailVerificationTokenRepository.deleteByUser(user);
+        emailVerificationTokenRepository.deleteByUser(user);
         String token = UUID.randomUUID().toString();
         EmailVerificationToken verificationToken = new EmailVerificationToken();
         verificationToken.setToken(token);
@@ -104,7 +104,6 @@ public class EmailServiceImpl implements EmailService {
         verificationToken.setExpiryDate(LocalDateTime.now().plusMinutes(30));
         verificationToken.setCreatedAt(LocalDateTime.now());
         EmailVerificationToken saved = emailVerificationTokenRepository.save(verificationToken);
-        System.out.println("Saved token ID: " + saved.getId());
         sendVerificationEmail(user.getEmail(), token);
     }
 
