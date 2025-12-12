@@ -19,6 +19,8 @@ services:
     container_name: rental-backend
     volumes:
       - ./main-service/src:/app/src
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/rental_manager
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
@@ -27,6 +29,7 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       EMAIL_ADDRESS: ${EMAIL_ADDRESS}
       EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      TZ: Europe/Moscow
     ports:
       - "8080:8080"
     depends_on:

@@ -8,6 +8,7 @@ import com.rental.manager.dto.responsedto.ApartmentResponseDTO;
 import com.rental.manager.entities.User;
 import com.rental.manager.entities.Address;
 import com.rental.manager.entities.Apartment;
+import com.rental.manager.entities.enums.UserRole;
 import com.rental.manager.mappers.AddressMapper;
 import com.rental.manager.mappers.ApartmentMapper;
 import com.rental.manager.mappers.UserMapper;
@@ -19,6 +20,8 @@ import com.rental.manager.service.ApartmentService;
 import com.rental.manager.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,7 @@ import java.util.UUID;
 public class ApartmentServiceImpl implements ApartmentService {
 
     private static final String ENTITY_NOT_FOUND_MSG = "Apartment not found with id: ";
+    private final PasswordEncoder passwordEncoder;
 
     private final ApartmentRepository apartmentRepository;
     private final ApartmentMapper mapper;
@@ -41,6 +45,7 @@ public class ApartmentServiceImpl implements ApartmentService {
     private final AddressRepository addressRepository;
     private final AddressService addressService;
     private final UserService userService;
+    private final EmailServiceImpl emailService;
 
     @Override
     @Transactional
@@ -49,6 +54,10 @@ public class ApartmentServiceImpl implements ApartmentService {
 
         resolveOwner(apartment);
         resolveAddress(apartment);
+        String currentUserEmail = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+        User agent = userRepository.findByEmail(currentUserEmail);
+        apartment.setAgent(agent);
 
         Apartment saved = apartmentRepository.save(apartment);
         return mapper.toDTO(saved);
@@ -65,8 +74,12 @@ public class ApartmentServiceImpl implements ApartmentService {
         if (existingOwner != null) {
             apartment.setOwner(existingOwner);
         } else {
-            User savedOwner = userRepository.save(owner);
-            apartment.setOwner(savedOwner);
+            String ownerPassword = generateTemporaryPassword();
+            owner.setPassword(passwordEncoder.encode(ownerPassword));
+            owner.setRole(UserRole.OWNER);
+            owner.setEmailVerified(false);
+            apartment.setOwner(userRepository.save(owner));
+            emailService.sendOwnerCredentialsEmail(owner.getEmail(), owner.getName(), ownerPassword);
         }
     }
 
@@ -84,6 +97,11 @@ public class ApartmentServiceImpl implements ApartmentService {
 
         return null;
     }
+
+        private String generateTemporaryPassword() {
+            return UUID.randomUUID().toString().substring(0, 12);
+        }
+
 
     private void resolveAddress(Apartment apartment) {
         Address addr = apartment.getAddress();

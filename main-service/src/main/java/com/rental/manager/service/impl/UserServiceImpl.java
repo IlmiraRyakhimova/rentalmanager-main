@@ -1,5 +1,6 @@
 package com.rental.manager.service.impl;
 
+import com.rental.manager.dto.requestdto.ChangePasswordRequestDTO;
 import com.rental.manager.dto.requestdto.UserPatchRequestDTO;
 import com.rental.manager.dto.requestdto.UserRequestDTO;
 import com.rental.manager.dto.responsedto.UserResponseDTO;
@@ -8,6 +9,9 @@ import com.rental.manager.repository.UserRepository;
 import com.rental.manager.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.rental.manager.mappers.UserMapper;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +28,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponseDTO createUser(UserRequestDTO request) {
@@ -90,5 +95,22 @@ public class UserServiceImpl implements UserService {
 
     public UserResponseDTO getUserByPhoneNumber(String phoneNumber) {
         return mapper.toDTO(userRepository.findByPhoneNumber(phoneNumber));
+    }
+
+    public void changePassword(ChangePasswordRequestDTO request) {
+        String currentUserEmail = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+
+        User currentUser = userRepository.findByEmail(currentUserEmail);
+        if (!passwordEncoder.matches(request.getOldPassword(), currentUser.getPassword())) {
+            throw new BadCredentialsException("Неверный пароль.");
+        }
+
+        if (passwordEncoder.matches(request.getNewPassword(), currentUser.getPassword())) {
+            throw new IllegalArgumentException("Новый пароль должен отличаться от текущего.");
+        }
+
+        currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(currentUser);
     }
 }

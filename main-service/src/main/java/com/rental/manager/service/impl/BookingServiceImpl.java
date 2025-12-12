@@ -7,11 +7,14 @@ import com.rental.manager.dto.requestdto.BookingStatusPatchRequestDTO;
 import com.rental.manager.dto.responsedto.BookingResponseDTO;
 import com.rental.manager.entities.Booking;
 import com.rental.manager.entities.Apartment;
+import com.rental.manager.entities.Guest;
 import com.rental.manager.entities.enums.BookingStatus;
 import com.rental.manager.entities.enums.PaymentStatus;
 import com.rental.manager.mappers.BookingMapper;
+import com.rental.manager.mappers.GuestMapper;
 import com.rental.manager.repository.ApartmentRepository;
 import com.rental.manager.repository.BookingRepository;
+import com.rental.manager.repository.GuestRepository;
 import com.rental.manager.service.BookingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +33,9 @@ public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final ApartmentRepository apartmentRepository;
+    private final GuestRepository guestRepository;
     private final BookingMapper mapper;
+    private final GuestMapper guestMapper;
 
     @Override
     @Transactional
@@ -40,6 +45,7 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = mapper.toEntity(request);
         booking.setApartment(apartment);
+        resolveGuest(booking);
         return mapper.toDTO(bookingRepository.save(booking));
     }
 
@@ -51,14 +57,38 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException(APARTMENT_NOT_FOUND_MSG + request.getApartmentId()));
 
         booking.setApartment(apartment);
-        booking.setMainGuestName(request.getGuestName());
-        booking.setGuestEmail(request.getGuestEmail());
-        booking.setGuestPhoneNumber(request.getGuestPhoneNumber());
+        resolveGuest(booking);
         booking.setCheckInDate(request.getCheckInDate());
         booking.setCheckOutDate(request.getCheckOutDate());
         booking.setNumberOfAdults(request.getNumberOfAdults());
         booking.setNumberOfChildren(request.getNumberOfChildren());
+        booking.setNotes(request.getNotes());
         return mapper.toDTO(bookingRepository.save(booking));
+    }
+
+    private void resolveGuest(Booking booking) {
+        Guest guest = booking.getMainGuest();
+        if (guest == null) {
+            return;
+        }
+
+        Guest existingGuest = findExistingGuest(guest);
+        if (existingGuest != null) {
+            booking.setMainGuest(existingGuest);
+        } else {
+            booking.setMainGuest(guestRepository.save(guest));
+        }
+    }
+
+    private Guest findExistingGuest(Guest guest) {
+        if (guest.getPhoneNumber() != null && !guest.getPhoneNumber().isBlank()) {
+            return guestRepository.findByPhoneNumber(guest.getPhoneNumber());
+        }
+
+        if (guest.getEmail() != null && !guest.getEmail().isBlank()) {
+            return guestRepository.findByEmail(guest.getEmail());
+        }
+            return null;
     }
 
     @Override
@@ -71,15 +101,23 @@ public class BookingServiceImpl implements BookingService {
                     .orElseThrow(() -> new EntityNotFoundException(APARTMENT_NOT_FOUND_MSG + request.getApartmentId()));
             booking.setApartment(apartment);
         }
-        if (request.getGuestName() != null) {
-            booking.setMainGuestName(request.getGuestName());
+
+        if (request.getMainGuest() != null) {
+            Guest currentGuest = booking.getMainGuest();
+            Guest guest = guestMapper.toEntity(request.getMainGuest());
+            if (guest.getName() != null) {
+                currentGuest.setName(guest.getName());
+            }
+            if (guest.getEmail() != null) {
+                currentGuest.setEmail(guest.getEmail());
+            }
+            if (guest.getPhoneNumber() != null) {
+                currentGuest.setPhoneNumber(guest.getPhoneNumber());
+            }
+            booking.setMainGuest(currentGuest);
         }
-        if (request.getGuestEmail() != null) {
-            booking.setGuestEmail(request.getGuestEmail());
-        }
-        if (request.getGuestPhoneNumber() != null) {
-            booking.setGuestPhoneNumber(request.getGuestPhoneNumber());
-        }
+
+
         if (request.getCheckInDate() != null) {
             booking.setCheckInDate(request.getCheckInDate());
         }
@@ -91,6 +129,9 @@ public class BookingServiceImpl implements BookingService {
         }
         if (request.getNumberOfChildren() != null) {
             booking.setNumberOfChildren(request.getNumberOfChildren());
+        }
+        if(request.getNotes() != null) {
+            booking.setNotes(request.getNotes());
         }
         return mapper.toDTO(bookingRepository.save(booking));
     }
@@ -136,19 +177,19 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingResponseDTO>  getBookingsByGuestName(String guestName) {
-        List<Booking> bookings = bookingRepository.findByMainGuestNameContainingIgnoreCase(guestName);
+        List<Booking> bookings = bookingRepository.findByMainGuest_NameContainingIgnoreCase(guestName);
         return bookings.stream().map(mapper::toDTO).toList();
     }
 
     @Override
     public List<BookingResponseDTO> getBookingsByGuestEmail(String guestEmail) {
-        List<Booking> bookings = bookingRepository.findByGuestEmailContainingIgnoreCase(guestEmail);
+        List<Booking> bookings = bookingRepository.findByMainGuest_EmailContainingIgnoreCase(guestEmail);
         return bookings.stream().map(mapper::toDTO).toList();
     }
 
     @Override
     public List<BookingResponseDTO> getBookingsByGuestPhoneNumber(String guestPhoneNumber) {
-        List<Booking> bookings = bookingRepository.findByGuestPhoneNumberContainingIgnoreCase(guestPhoneNumber);
+        List<Booking> bookings = bookingRepository.findByMainGuest_PhoneNumberContainingIgnoreCase(guestPhoneNumber);
         return bookings.stream().map(mapper::toDTO).toList();
     }
 

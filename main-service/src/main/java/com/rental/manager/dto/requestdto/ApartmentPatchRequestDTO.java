@@ -6,11 +6,11 @@ import java.math.BigDecimal;
 @Data
 public class ApartmentPatchRequestDTO {
     private String title;
-    String accommodationType;
-    BigDecimal pricePerNight;
-    Double area;
-    Integer numberOfRooms;
-    Integer numberOfBathrooms;
-    AddressPatchRequestDTO address;
-    UserPatchRequestDTO owner;
+    private String accommodationType;
+    private BigDecimal pricePerNight;
+    private Double area;
+    private Integer numberOfRooms;
+    private Integer numberOfBathrooms;
+    private AddressPatchRequestDTO address;
+    private UserPatchRequestDTO owner;
 }

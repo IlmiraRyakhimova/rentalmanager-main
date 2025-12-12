@@ -50,6 +50,21 @@
 ```
 - **Response (200 OK):** аналогичен регистрации
 
+### 1.3 Забыли пароль
+- **Метод:** 'POST'
+- - **URL:** `/api/auth/forgot-password`
+- **Headers:**
+    - `Content-Type: application/json`
+- **Body:**
+```json
+{
+  "email": "ivan@example.com"
+}
+```
+- **Response (200 OK):** `Письмо для сброса пароля отправлено`
+
+
+
 ### 1.3 Обновление токена
 - **Метод:** `POST`
 - **URL:** `/api/auth/refresh-token`
@@ -329,6 +344,19 @@
 - По телефону владельца: `/api/bookings/search/by-apartment-owner-phone-number/{ownerPhoneNumber}`
 
 ---
+
+## 5. Настройки аккаунта(`/api/account-settings`)
+### 5.1 Изменить пароль
+- **Метод:** `POST`
+- **URL:** `/api/account-settings/change-password`
+- **Body:**
+```json
+{
+  "oldPassword": "MyPassword123",
+  "newPassword": "123MyPassword"
+}
+```
+- **Response (200 OK):** `Пароль изменен`
 
 ## Обработка ошибок
 

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 public class BookingMapper {
 
     private final ApartmentMapper apartmentMapper;
+    private final GuestMapper guestMapper;
     private final ApartmentRepository apartmentRepository;
 
 
@@ -23,9 +24,7 @@ public class BookingMapper {
         dto.setBookingCode(entity.getBookingCode());
         dto.setApartment(apartmentMapper.toDTO(entity.getApartment()));
         dto.setApartmentTitle(entity.getApartment().getTitle());
-        dto.setGuestName(entity.getMainGuestName());
-        dto.setGuestEmail(entity.getGuestEmail());
-        dto.setGuestPhoneNumber(entity.getGuestPhoneNumber());
+        dto.setMainGuest(guestMapper.toDto(entity.getMainGuest()));
         dto.setCheckInDate(entity.getCheckInDate());
         dto.setCheckOutDate(entity.getCheckOutDate());
         dto.setTotalGuests(entity.getTotalGuests());
@@ -33,6 +32,7 @@ public class BookingMapper {
         dto.setTotalPrice(entity.getTotalPrice());
         dto.setBookingStatus(entity.getBookingStatus());
         dto.setPaymentStatus(entity.getPaymentStatus());
+        dto.setNotes(entity.getNotes());
         return dto;
     }
 
@@ -40,17 +40,13 @@ public class BookingMapper {
 
         Booking entity = new Booking();
         Apartment apartment = apartmentRepository.findById(dto.getApartmentId()).orElseThrow();
-
-
-
         entity.setApartment(apartment);
-        entity.setMainGuestName(dto.getGuestName());
-        entity.setGuestEmail(dto.getGuestEmail());
-        entity.setGuestPhoneNumber(dto.getGuestPhoneNumber());
+        entity.setMainGuest(guestMapper.toEntity(dto.getMainGuest()));
         entity.setCheckInDate(dto.getCheckInDate());
         entity.setCheckOutDate(dto.getCheckOutDate());
         entity.setNumberOfAdults(dto.getNumberOfAdults());
         entity.setNumberOfChildren(dto.getNumberOfChildren());
+        entity.setNotes(dto.getNotes());
 
         return entity;
     }
@@ -59,18 +55,10 @@ public class BookingMapper {
         Booking entity = new Booking();
         if (dto.getApartmentId() != null) {
             Apartment apartment = apartmentRepository.findById(dto.getApartmentId()).orElseThrow();
-
-
             entity.setApartment(apartment);
         }
-        if (dto.getGuestName() != null) {
-            entity.setMainGuestName(dto.getGuestName());
-        }
-        if (dto.getGuestEmail() != null) {
-            entity.setGuestEmail(dto.getGuestEmail());
-        }
-        if (dto.getGuestPhoneNumber() != null) {
-            entity.setGuestPhoneNumber(dto.getGuestPhoneNumber());
+        if (dto.getMainGuest() != null) {
+            entity.setMainGuest(guestMapper.toEntity(dto.getMainGuest()));
         }
         if (dto.getCheckInDate() != null) {
             entity.setCheckInDate(dto.getCheckInDate());
@@ -83,6 +71,9 @@ public class BookingMapper {
         }
         if (dto.getNumberOfChildren() != null) {
             entity.setNumberOfChildren(dto.getNumberOfChildren());
+        }
+        if (dto.getNotes() != null) {
+            entity.setNotes(dto.getNotes());
         }
         return entity;
     }

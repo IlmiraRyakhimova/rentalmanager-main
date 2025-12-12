@@ -16,9 +16,7 @@ public class BookingResponseDTO {
     private String bookingCode;
     private ApartmentResponseDTO apartment;
     private String apartmentTitle;
-    private String guestName;
-    private String guestEmail;
-    private String guestPhoneNumber;
+    private GuestResponseDTO mainGuest;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private Integer totalGuests;
@@ -26,6 +24,7 @@ public class BookingResponseDTO {
     private BigDecimal totalPrice;
     private BookingStatus bookingStatus;
     private PaymentStatus paymentStatus;
+    private String notes;
 }
 
 

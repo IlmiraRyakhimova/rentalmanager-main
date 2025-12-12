@@ -2,6 +2,7 @@ package com.rental.manager.web.controller;
 
 
 import com.rental.manager.dto.requestdto.EmailVerificationRequestDTO;
+import com.rental.manager.dto.requestdto.PasswordResetRequestDTO;
 import com.rental.manager.dto.requestdto.SignInRequestDTO;
 import com.rental.manager.dto.requestdto.SignUpRequestDTO;
 import com.rental.manager.dto.responsedto.AuthResponseDTO;
@@ -54,6 +55,20 @@ public class AuthController {
     public ResponseEntity<String> resendVerificationEmail(@RequestBody EmailVerificationRequestDTO request) {
         emailService.createAndSendVerificationToken(request.getEmail());
         return ResponseEntity.ok("Письмо с подтверждением отправлено повторно.");
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody EmailVerificationRequestDTO request) {
+        emailService.createAndSendPasswordResetToken(request.getEmail());
+        return ResponseEntity.ok("Письмо для сброса пароля отправлено.");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody PasswordResetRequestDTO request) {
+        String redirectUrl = emailService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.status(302)
+                .header("Location", redirectUrl)
+                .build();
     }
 
 

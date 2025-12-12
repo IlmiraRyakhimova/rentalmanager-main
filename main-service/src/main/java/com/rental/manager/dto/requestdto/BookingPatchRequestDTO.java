@@ -8,11 +8,10 @@ import java.util.UUID;
 @Data
 public class BookingPatchRequestDTO {
     private UUID apartmentId;
-    private String guestName;
-    private String guestEmail;
-    private String guestPhoneNumber;
+    GuestPatchRequestDTO mainGuest;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private Integer numberOfAdults;
     private Integer numberOfChildren;
+    private String notes;
 }

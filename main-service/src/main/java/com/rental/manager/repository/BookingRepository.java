@@ -11,9 +11,9 @@ import java.util.UUID;
 public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
     Booking findByBookingCode(String bookingCode);
-    List<Booking> findByMainGuestNameContainingIgnoreCase(String guestName);
-    List<Booking> findByGuestPhoneNumberContainingIgnoreCase(String guestPhoneNumber);
-    List<Booking>  findByGuestEmailContainingIgnoreCase(String guestEmail);
+    List<Booking> findByMainGuest_NameContainingIgnoreCase(String guestName);
+    List<Booking> findByMainGuest_PhoneNumberContainingIgnoreCase(String guestPhoneNumber);
+    List<Booking>  findByMainGuest_EmailContainingIgnoreCase(String guestEmail);
     List<Booking> findByBookingStatus(BookingStatus bookingStatus);
     List<Booking> findByPaymentStatus(PaymentStatus paymentStatus);
 

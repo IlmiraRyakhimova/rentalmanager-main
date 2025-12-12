@@ -32,6 +32,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/owner/**").hasRole("OWNER")
+                        .requestMatchers("/api/apartments/**").hasRole("AGENT")
+                        .requestMatchers("/api/bookings/**").hasRole("AGENT")
+                        .requestMatchers("/api/account-settings/**").hasAnyAuthority("AGENT", "OWNER")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

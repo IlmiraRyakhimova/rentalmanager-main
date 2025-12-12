@@ -4,6 +4,7 @@ import com.rental.manager.entities.enums.BookingStatus;
 import com.rental.manager.entities.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -40,20 +41,15 @@ public class Booking {
     @Column(nullable = false, name = "check_out_date")
     private LocalDate checkOutDate;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "guest_id")
+    private Guest mainGuest;
+
     @Transient
     private Integer totalNights;
 
     @Transient
     private BigDecimal totalPrice;
-
-    @Column(name = "guest_name")
-    private String mainGuestName;
-
-    @Column(name = "guest_phone_number")
-    private String guestPhoneNumber;
-
-    @Column(name = "guest_email")
-    private String guestEmail;
 
     @Column(name = "number_of_adults")
     private int numberOfAdults;
