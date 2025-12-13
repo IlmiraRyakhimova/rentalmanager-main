@@ -4,7 +4,10 @@ import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import DashboardView from '@/views/DashboardView.vue'
-import EmailVerifiedView from '@/views/EmailVerifiedView.vue'
+import EmailVerifyView from '@/views/EmailVerifyView.vue'
+import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
+import ResetPasswordView from '@/views/ResetPasswordView.vue'
+import AddApartmentView from '@/views/AddApartmentView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,14 +31,32 @@ const router = createRouter({
       meta: { requiresGuest: true },
     },
     {
-      path: '/auth/verified',
-      name: 'email-verified',
-      component: EmailVerifiedView,
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: ForgotPasswordView,
+      meta: { requiresGuest: true },
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: ResetPasswordView,
+      meta: { requiresGuest: true },
+    },
+    {
+      path: '/auth/verify',
+      name: 'email-verify',
+      component: EmailVerifyView,
     },
     {
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/apartments/add',
+      name: 'add-apartment',
+      component: AddApartmentView,
       meta: { requiresAuth: true },
     },
   ],

@@ -48,7 +48,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendVerificationEmail(String to, String verificationToken) {
         String subject = "Подтверждение email";
         String message = "Нажмите на кнопку ниже, чтобы подтвердить email:";
-        String actionUrl = backendUrl + "/api/auth/verify-email?token=" + verificationToken;
+        String actionUrl = frontendUrl + "/auth/verify?token=" + verificationToken;
         sendEmail(to, subject,message , actionUrl, "Подтвердить email");
     }
 
@@ -56,7 +56,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendPasswordResetEmail(String to, String resetToken) {
         String subject = "Сброс пароля";
         String message = "Нажмите на кнопку ниже, чтобы сбросить пароль:";
-        String actionUrl = backendUrl + "/api/auth/reset-password?token=" + resetToken;
+        String actionUrl = frontendUrl + "/reset-password?token=" + resetToken;
         sendEmail(to, subject, message, actionUrl, "Сбросить пароль");
     }
 

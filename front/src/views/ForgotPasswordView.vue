@@ -4,10 +4,15 @@
       <div class="auth-card">
         <div class="auth-header">
           <h1 class="auth-title">RENTAL MANAGER</h1>
-          <p class="auth-subtitle">Вход для агентов</p>
+          <p class="auth-subtitle">Восстановление пароля</p>
         </div>
 
-        <form @submit.prevent="handleSubmit" class="auth-form">
+        <!-- Форма запроса восстановления -->
+        <form v-if="!emailSent" @submit.prevent="handleSubmit" class="auth-form">
+          <p class="form-description">
+            Введите email, указанный при регистрации. Мы отправим вам ссылку для сброса пароля.
+          </p>
+
           <!-- Email -->
           <div class="form-group">
             <label for="email" class="form-label">
@@ -27,40 +32,6 @@
             <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
           </div>
 
-          <!-- Пароль -->
-          <div class="form-group">
-            <label for="password" class="form-label">
-              Пароль <span class="required">*</span>
-            </label>
-            <div class="password-wrapper">
-              <input
-                id="password"
-                v-model="formData.password"
-                :type="showPassword ? 'text' : 'password'"
-                class="form-input"
-                :class="{ 'input-error': errors.password }"
-                placeholder="Введите пароль"
-                @blur="validateField('password')"
-                @input="clearError('password')"
-                autocomplete="current-password"
-              />
-              <button
-                type="button"
-                class="password-toggle"
-                @click="showPassword = !showPassword"
-                tabindex="-1"
-              >
-                {{ showPassword ? '👁️' : '👁️‍🗨️' }}
-              </button>
-            </div>
-            <span v-if="errors.password" class="error-message">{{ errors.password }}</span>
-          </div>
-
-          <!-- Забыли пароль -->
-          <div class="forgot-password-link">
-            <router-link to="/forgot-password" class="link">Забыли пароль?</router-link>
-          </div>
-
           <!-- Общая ошибка -->
           <div v-if="serverError" class="server-error">
             {{ serverError }}
@@ -69,14 +40,27 @@
           <!-- Кнопка отправки -->
           <button type="submit" class="submit-btn" :disabled="loading || !isFormValid">
             <span v-if="loading" class="spinner"></span>
-            <span v-else>Войти</span>
+            <span v-else>Отправить ссылку</span>
           </button>
         </form>
 
+        <!-- Успешная отправка -->
+        <div v-else class="success-message">
+          <div class="success-icon">✉️</div>
+          <h3>Письмо отправлено!</h3>
+          <p>
+            Мы отправили ссылку для сброса пароля на
+            <strong>{{ formData.email }}</strong>.
+            Проверьте вашу почту.
+          </p>
+          <p class="hint">Если письмо не пришло, проверьте папку "Спам".</p>
+          <button @click="resetForm" class="btn-secondary">Отправить повторно</button>
+        </div>
+
         <div class="auth-footer">
           <p class="footer-text">
-            Нет аккаунта?
-            <router-link to="/register" class="footer-link">Зарегистрироваться</router-link>
+            Вспомнили пароль?
+            <router-link to="/login" class="footer-link">Войти</router-link>
           </p>
         </div>
       </div>
@@ -86,21 +70,16 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-
-const router = useRouter()
-const authStore = useAuthStore()
+import { authApi } from '@/api/auth'
 
 const formData = ref({
   email: '',
-  password: '',
 })
 
 const errors = ref({})
-const showPassword = ref(false)
 const loading = ref(false)
 const serverError = ref('')
+const emailSent = ref(false)
 
 // Валидация полей
 const validators = {
@@ -108,10 +87,6 @@ const validators = {
     if (!value) return 'Email обязателен для заполнения'
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(value)) return 'Введите корректный email'
-    return null
-  },
-  password: (value) => {
-    if (!value) return 'Пароль обязателен для заполнения'
     return null
   },
 }
@@ -131,7 +106,7 @@ const clearError = (field) => {
 }
 
 const isFormValid = computed(() => {
-  return formData.value.email && formData.value.password && Object.keys(errors.value).length === 0
+  return formData.value.email && Object.keys(errors.value).length === 0
 })
 
 const handleSubmit = async () => {
@@ -144,19 +119,22 @@ const handleSubmit = async () => {
   serverError.value = ''
 
   try {
-    await authStore.signIn(formData.value)
-    router.push('/dashboard')
+    await authApi.forgotPassword(formData.value.email)
+    emailSent.value = true
   } catch (error) {
-    if (error.response?.status === 401) {
-      serverError.value = 'Неверный email или пароль'
-    } else if (error.response?.data?.message) {
+    if (error.response?.data?.message) {
       serverError.value = error.response.data.message
     } else {
-      serverError.value = 'Произошла ошибка при входе. Попробуйте позже.'
+      serverError.value = 'Произошла ошибка. Попробуйте позже.'
     }
   } finally {
     loading.value = false
   }
+}
+
+const resetForm = () => {
+  emailSent.value = false
+  serverError.value = ''
 }
 </script>
 
@@ -203,8 +181,7 @@ const handleSubmit = async () => {
   font-size: 28px;
   font-weight: 700;
   color: #1a202c;
-  margin: 0 0 8px 0;
-  letter-spacing: 1px;
+  margin: 0 0 8px;
 }
 
 .auth-subtitle {
@@ -219,10 +196,18 @@ const handleSubmit = async () => {
   gap: 20px;
 }
 
+.form-description {
+  color: #4a5568;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  text-align: center;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .form-label {
@@ -236,98 +221,61 @@ const handleSubmit = async () => {
 }
 
 .form-input {
-  width: 100%;
   padding: 12px 16px;
   border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 15px;
-  transition: all 0.2s;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
   outline: none;
-  box-sizing: border-box;
 }
 
 .form-input:focus {
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
 }
 
-.form-input.input-error {
+.input-error {
   border-color: #e53e3e;
 }
 
-.password-wrapper {
-  position: relative;
-}
-
-.password-toggle {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  padding: 4px;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-}
-
-.password-toggle:hover {
-  opacity: 1;
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15);
 }
 
 .error-message {
   font-size: 13px;
   color: #e53e3e;
-  margin-top: -4px;
-}
-
-.forgot-password-link {
-  text-align: right;
-  margin-top: -8px;
-}
-
-.forgot-password-link .link {
-  font-size: 13px;
-  color: #667eea;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.forgot-password-link .link:hover {
-  color: #764ba2;
-  text-decoration: underline;
 }
 
 .server-error {
-  padding: 12px;
-  background: #fff5f5;
-  border: 1px solid #feb2b2;
-  border-radius: 8px;
+  background: #fed7d7;
   color: #c53030;
+  padding: 12px 16px;
+  border-radius: 8px;
   font-size: 14px;
   text-align: center;
 }
 
 .submit-btn {
-  width: 100%;
-  padding: 14px;
+  padding: 14px 24px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
-  margin-top: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 50px;
 }
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 .submit-btn:disabled {
@@ -336,13 +284,12 @@ const handleSubmit = async () => {
 }
 
 .spinner {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: white;
   border-radius: 50%;
-  animation: spin 0.6s linear infinite;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
@@ -351,8 +298,54 @@ const handleSubmit = async () => {
   }
 }
 
+.success-message {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.success-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.success-message h3 {
+  color: #1a202c;
+  font-size: 20px;
+  margin: 0 0 12px;
+}
+
+.success-message p {
+  color: #4a5568;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 8px;
+}
+
+.success-message .hint {
+  color: #718096;
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+.btn-secondary {
+  padding: 12px 24px;
+  background: transparent;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: #667eea;
+  color: white;
+}
+
 .auth-footer {
-  margin-top: 24px;
+  margin-top: 32px;
   text-align: center;
 }
 
@@ -366,21 +359,10 @@ const handleSubmit = async () => {
   color: #667eea;
   text-decoration: none;
   font-weight: 600;
-  transition: color 0.2s;
+  transition: color 0.3s ease;
 }
 
 .footer-link:hover {
   color: #764ba2;
-  text-decoration: underline;
-}
-
-@media (max-width: 640px) {
-  .auth-card {
-    padding: 28px 24px;
-  }
-
-  .auth-title {
-    font-size: 24px;
-  }
 }
 </style>

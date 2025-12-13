@@ -46,4 +46,21 @@ export const authApi = {
   resendVerificationEmail(email) {
     return apiClient.post('/api/auth/resend-verification-email', { email })
   },
+
+  /**
+   * Запрос на восстановление пароля
+   * @param {string} email - Email пользователя
+   */
+  forgotPassword(email) {
+    return apiClient.post('/api/auth/forgot-password', { email })
+  },
+
+  /**
+   * Сброс пароля с токеном
+   * @param {string} token - Токен сброса пароля
+   * @param {string} newPassword - Новый пароль
+   */
+  resetPassword(token, newPassword) {
+    return apiClient.post('/api/auth/reset-password', { token, newPassword })
+  },
 }

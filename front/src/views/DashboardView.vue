@@ -13,10 +13,10 @@
     <main class="dashboard-main">
       <div class="welcome-section">
         <h2 class="section-title">Мои квартиры</h2>
-        <button @click="showAddModal = true" class="add-btn">
+        <router-link to="/apartments/add" class="add-btn">
           <span class="add-icon">+</span>
           Добавить апартаменты
-        </button>
+        </router-link>
       </div>
 
       <!-- Список квартир -->
@@ -29,52 +29,264 @@
         <div class="empty-icon">🏢</div>
         <h3>Пока нет квартир</h3>
         <p>Добавьте свою первую квартиру, чтобы начать управление</p>
-        <button @click="showAddModal = true" class="btn-primary">Добавить квартиру</button>
+        <router-link to="/apartments/add" class="btn-primary">Добавить квартиру</router-link>
       </div>
 
-      <div v-else class="apartments-grid">
-        <div v-for="apartment in apartments" :key="apartment.id" class="apartment-card">
-          <div class="apartment-header">
-            <h3 class="apartment-title">{{ apartment.title }}</h3>
-            <span class="apartment-type">{{ apartment.accommodationType }}</span>
-          </div>
-
-          <div class="apartment-details">
-            <div class="detail-item">
-              <span class="detail-icon">📍</span>
-              <span class="detail-text">
-                {{ apartment.address?.city }}, {{ apartment.address?.street }}
-                {{ apartment.address?.houseNumber }}
+      <div v-else class="apartments-list">
+        <div 
+          v-for="apartment in apartments" 
+          :key="apartment.id" 
+          class="apartment-row"
+          :class="{ expanded: expandedApartment === apartment.id }"
+        >
+          <!-- Заголовок (всегда видимый) -->
+          <div class="apartment-row-header" @click="toggleApartment(apartment.id)">
+            <div class="apartment-main-info">
+              <span class="expand-icon">{{ expandedApartment === apartment.id ? '▼' : '▶' }}</span>
+              <h3 class="apartment-title">{{ apartment.title }}</h3>
+              <span class="apartment-type-badge">{{ apartment.accommodationType }}</span>
+            </div>
+            <div class="apartment-quick-info">
+              <span class="quick-info-item">
+                <span class="info-icon">📍</span>
+                {{ apartment.address?.city }}, {{ apartment.address?.street }} {{ apartment.address?.buildingNumber }}
+              </span>
+              <span class="quick-info-item price">
+                <span class="info-icon">💰</span>
+                {{ apartment.pricePerNight }} ₽/ночь
+              </span>
+              <span class="quick-info-item">
+                <span class="info-icon">🛏️</span>
+                {{ apartment.numberOfRooms }} комн.
+              </span>
+              <span class="quick-info-item">
+                <span class="info-icon">📐</span>
+                {{ apartment.area }} м²
               </span>
             </div>
-
-            <div class="detail-item">
-              <span class="detail-icon">💰</span>
-              <span class="detail-text">{{ apartment.pricePerNight }} ₽/ночь</span>
-            </div>
-
-            <div class="detail-item">
-              <span class="detail-icon">🛏️</span>
-              <span class="detail-text">{{ apartment.numberOfRooms }} комнат</span>
-            </div>
-
-            <div class="detail-item">
-              <span class="detail-icon">📐</span>
-              <span class="detail-text">{{ apartment.area }} м²</span>
+            <div class="apartment-header-actions">
+              <button @click.stop="editApartment(apartment)" class="action-btn-small edit-btn" title="Редактировать">
+                ✏️
+              </button>
+              <button @click.stop="deleteApartmentConfirm(apartment)" class="action-btn-small delete-btn" title="Удалить">
+                🗑️
+              </button>
             </div>
           </div>
 
-          <div class="apartment-actions">
-            <button @click="editApartment(apartment)" class="action-btn edit-btn">
-              Редактировать
-            </button>
-            <button @click="deleteApartmentConfirm(apartment)" class="action-btn delete-btn">
-              Удалить
-            </button>
+          <!-- Развернутое содержимое -->
+          <div v-if="expandedApartment === apartment.id" class="apartment-row-content">
+            <div class="content-grid">
+              <!-- Информация о квартире -->
+              <div class="content-section">
+                <h4 class="section-title">📋 Детали</h4>
+                <div class="details-grid">
+                  <div class="detail-row">
+                    <span class="detail-label">Страна:</span>
+                    <span class="detail-value">{{ apartment.address?.country || '—' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Город:</span>
+                    <span class="detail-value">{{ apartment.address?.city || '—' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Район:</span>
+                    <span class="detail-value">{{ apartment.address?.district || '—' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Улица:</span>
+                    <span class="detail-value">{{ apartment.address?.street }} {{ apartment.address?.buildingNumber }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Этаж:</span>
+                    <span class="detail-value">{{ apartment.address?.floorNumber || '—' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Квартира:</span>
+                    <span class="detail-value">{{ apartment.address?.apartmentNumber || '—' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Ванных комнат:</span>
+                    <span class="detail-value">{{ apartment.numberOfBathrooms }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Владелец -->
+              <div class="content-section">
+                <h4 class="section-title">👤 Владелец</h4>
+                <div class="details-grid">
+                  <div class="detail-row">
+                    <span class="detail-label">Имя:</span>
+                    <span class="detail-value">{{ apartment.owner?.name || '—' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">{{ apartment.owner?.email || '—' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Телефон:</span>
+                    <span class="detail-value">{{ apartment.owner?.phoneNumber || '—' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Бронирования -->
+              <div class="content-section bookings-section">
+                <div class="section-header">
+                  <h4 class="section-title">📅 Бронирования</h4>
+                  <button @click="openBookingModal(apartment)" class="add-booking-btn">
+                    + Добавить бронирование
+                  </button>
+                </div>
+                <div v-if="apartmentBookings[apartment.id]?.length > 0" class="bookings-list">
+                  <div 
+                    v-for="booking in apartmentBookings[apartment.id]" 
+                    :key="booking.id" 
+                    class="booking-item"
+                    :class="'status-' + booking.bookingStatus?.toLowerCase()"
+                  >
+                    <div class="booking-info">
+                      <span class="booking-code">{{ booking.bookingCode }}</span>
+                      <span class="booking-guest">{{ booking.guestName }}</span>
+                      <span class="booking-dates">
+                        {{ formatDate(booking.checkInDate) }} — {{ formatDate(booking.checkOutDate) }}
+                      </span>
+                    </div>
+                    <div class="booking-statuses">
+                      <span class="booking-status" :class="'status-' + booking.bookingStatus?.toLowerCase()">
+                        {{ getBookingStatusText(booking.bookingStatus) }}
+                      </span>
+                      <span class="payment-status" :class="'payment-' + booking.paymentStatus?.toLowerCase()">
+                        {{ getPaymentStatusText(booking.paymentStatus) }}
+                      </span>
+                    </div>
+                    <div class="booking-actions">
+                      <button @click="editBooking(booking)" class="booking-action-btn" title="Редактировать">✏️</button>
+                      <button @click="deleteBooking(booking)" class="booking-action-btn delete" title="Удалить">🗑️</button>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="no-bookings">
+                  Бронирований пока нет
+                </div>
+              </div>
+            </div>
+
+            <div class="content-actions">
+              <button @click="editApartment(apartment)" class="action-btn edit-btn">
+                ✏️ Редактировать квартиру
+              </button>
+              <button @click="deleteApartmentConfirm(apartment)" class="action-btn delete-btn">
+                🗑️ Удалить квартиру
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </main>
+
+    <!-- Модальное окно бронирования -->
+    <div v-if="showBookingModal" class="modal-overlay" @click.self="closeBookingModal">
+      <div class="modal-content booking-modal">
+        <div class="modal-header">
+          <h2>{{ editingBooking ? 'Редактировать' : 'Новое' }} бронирование</h2>
+          <button @click="closeBookingModal" class="modal-close">&times;</button>
+        </div>
+
+        <form @submit.prevent="handleBookingSubmit" class="booking-form">
+          <div class="form-group">
+            <label for="guestName">Имя гостя <span class="required">*</span></label>
+            <input
+              id="guestName"
+              v-model="bookingFormData.guestName"
+              type="text"
+              class="form-input"
+              placeholder="Петр Петров"
+              required
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="guestEmail">Email гостя <span class="required">*</span></label>
+              <input
+                id="guestEmail"
+                v-model="bookingFormData.guestEmail"
+                type="email"
+                class="form-input"
+                placeholder="guest@example.com"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="guestPhoneNumber">Телефон <span class="required">*</span></label>
+              <input
+                id="guestPhoneNumber"
+                v-model="bookingFormData.guestPhoneNumber"
+                type="tel"
+                class="form-input"
+                placeholder="+79991234567"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="checkInDate">Дата заезда <span class="required">*</span></label>
+              <input
+                id="checkInDate"
+                v-model="bookingFormData.checkInDate"
+                type="date"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="checkOutDate">Дата выезда <span class="required">*</span></label>
+              <input
+                id="checkOutDate"
+                v-model="bookingFormData.checkOutDate"
+                type="date"
+                class="form-input"
+                required
+              />
+            </div>
+          </div>
+
+          <div v-if="editingBooking" class="form-row">
+            <div class="form-group">
+              <label for="bookingStatus">Статус бронирования</label>
+              <select id="bookingStatus" v-model="bookingFormData.bookingStatus" class="form-input">
+                <option value="PENDING">Ожидает</option>
+                <option value="CONFIRMED">Подтверждено</option>
+                <option value="CANCELLED">Отменено</option>
+                <option value="COMPLETED">Завершено</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="paymentStatus">Статус оплаты</label>
+              <select id="paymentStatus" v-model="bookingFormData.paymentStatus" class="form-input">
+                <option value="PENDING">Ожидает</option>
+                <option value="PAID">Оплачено</option>
+                <option value="REFUNDED">Возврат</option>
+              </select>
+            </div>
+          </div>
+
+          <div v-if="bookingError" class="form-error">{{ bookingError }}</div>
+
+          <div class="form-actions">
+            <button type="button" @click="closeBookingModal" class="btn-secondary">Отмена</button>
+            <button type="submit" class="btn-primary" :disabled="bookingLoading">
+              <span v-if="bookingLoading" class="spinner"></span>
+              <span v-else>{{ editingBooking ? 'Сохранить' : 'Создать' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <!-- Модальное окно добавления квартиры -->
     <div v-if="showAddModal" class="modal-overlay" @click.self="closeModal">
@@ -250,10 +462,10 @@
               </div>
 
               <div class="form-group">
-                <label for="houseNumber">Дом <span class="required">*</span></label>
+                <label for="buildingNumber">Дом <span class="required">*</span></label>
                 <input
-                  id="houseNumber"
-                  v-model="formData.address.houseNumber"
+                  id="buildingNumber"
+                  v-model="formData.address.buildingNumber"
                   type="text"
                   class="form-input"
                   placeholder="10"
@@ -307,19 +519,41 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useApartmentStore } from '@/stores/apartments'
+import { bookingsApi } from '@/api/bookings'
 import AddressAutocomplete from '@/components/AddressAutocomplete.vue'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const apartmentStore = useApartmentStore()
 
 const user = computed(() => authStore.user)
 const apartments = computed(() => apartmentStore.apartments)
 const loading = ref(false)
+
+// Раскрытие карточек квартир
+const expandedApartment = ref(null)
+const apartmentBookings = ref({})
+
+// Модалка бронирования
+const showBookingModal = ref(false)
+const editingBooking = ref(null)
+const currentBookingApartment = ref(null)
+const bookingLoading = ref(false)
+const bookingError = ref('')
+const bookingFormData = ref({
+  guestName: '',
+  guestEmail: '',
+  guestPhoneNumber: '',
+  checkInDate: '',
+  checkOutDate: '',
+  bookingStatus: 'PENDING',
+  paymentStatus: 'PENDING'
+})
 
 const showAddModal = ref(false)
 const editingApartment = ref(null)
@@ -346,7 +580,7 @@ const formData = ref({
     city: '',
     district: '',
     street: '',
-    houseNumber: '',
+    buildingNumber: '',
     floorNumber: null,
     apartmentNumber: null,
   },
@@ -377,7 +611,7 @@ const resetForm = () => {
       city: '',
       district: '',
       street: '',
-      houseNumber: '',
+      buildingNumber: '',
       floorNumber: null,
       apartmentNumber: null,
     },
@@ -404,7 +638,7 @@ const handleAddressSelect = (suggestion) => {
     formData.value.address.street = suggestion.street
   }
   if (suggestion.houseNumber) {
-    formData.value.address.houseNumber = suggestion.houseNumber
+    formData.value.address.buildingNumber = suggestion.houseNumber
   }
   if (suggestion.postalCode) {
     formData.value.address.postalCode = suggestion.postalCode
@@ -451,18 +685,175 @@ const deleteApartmentConfirm = async (apartment) => {
   }
 }
 
-onMounted(async () => {
-  if (user.value?.email) {
-    loading.value = true
-    try {
+const loadApartments = async () => {
+  loading.value = true
+  try {
+    // Для агентов загружаем все квартиры, для владельцев - только свои
+    if (user.value?.role === 'AGENT') {
+      await apartmentStore.fetchAll()
+    } else if (user.value?.email) {
       await apartmentStore.fetchMyApartments(user.value.email)
-    } catch (error) {
-      console.error('Error fetching apartments:', error)
-    } finally {
-      loading.value = false
     }
+  } catch (error) {
+    console.error('Error fetching apartments:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(async () => {
+  await loadApartments()
+})
+
+// Перезагружать квартиры при возврате на страницу Dashboard
+watch(() => route.path, (newPath, oldPath) => {
+  if (newPath === '/dashboard' && oldPath === '/apartments/add') {
+    loadApartments()
   }
 })
+
+// === Функции для работы с квартирами (раскрытие) ===
+const toggleApartment = async (apartmentId) => {
+  if (expandedApartment.value === apartmentId) {
+    expandedApartment.value = null
+  } else {
+    expandedApartment.value = apartmentId
+    // Загружаем бронирования для этой квартиры
+    await loadBookingsForApartment(apartmentId)
+  }
+}
+
+// === Функции для работы с бронированиями ===
+const loadBookingsForApartment = async (apartmentId) => {
+  try {
+    const response = await bookingsApi.getByApartmentId(apartmentId)
+    apartmentBookings.value[apartmentId] = response.data
+  } catch (error) {
+    console.error('Ошибка загрузки бронирований:', error)
+    apartmentBookings.value[apartmentId] = []
+  }
+}
+
+const openBookingModal = (apartment) => {
+  currentBookingApartment.value = apartment
+  editingBooking.value = null
+  bookingFormData.value = {
+    guestName: '',
+    guestEmail: '',
+    guestPhoneNumber: '',
+    checkInDate: '',
+    checkOutDate: '',
+    bookingStatus: 'PENDING',
+    paymentStatus: 'PENDING'
+  }
+  bookingError.value = ''
+  showBookingModal.value = true
+}
+
+const closeBookingModal = () => {
+  showBookingModal.value = false
+  editingBooking.value = null
+  currentBookingApartment.value = null
+}
+
+const editBooking = (booking) => {
+  editingBooking.value = booking
+  bookingFormData.value = {
+    guestName: booking.guestName,
+    guestEmail: booking.guestEmail,
+    guestPhoneNumber: booking.guestPhoneNumber,
+    checkInDate: booking.checkInDate,
+    checkOutDate: booking.checkOutDate,
+    bookingStatus: booking.bookingStatus || 'PENDING',
+    paymentStatus: booking.paymentStatus || 'PENDING'
+  }
+  bookingError.value = ''
+  showBookingModal.value = true
+}
+
+const deleteBooking = async (booking) => {
+  if (confirm(`Удалить бронирование ${booking.bookingCode}?`)) {
+    try {
+      await bookingsApi.delete(booking.id)
+      // Обновляем список бронирований
+      if (expandedApartment.value) {
+        await loadBookingsForApartment(expandedApartment.value)
+      }
+    } catch (error) {
+      alert('Ошибка при удалении бронирования')
+    }
+  }
+}
+
+const handleBookingSubmit = async () => {
+  bookingLoading.value = true
+  bookingError.value = ''
+
+  try {
+    if (editingBooking.value) {
+      // Обновление бронирования
+      await bookingsApi.update(editingBooking.value.id, {
+        ...bookingFormData.value,
+        apartmentId: editingBooking.value.apartmentId
+      })
+      // Обновляем статусы отдельно
+      await bookingsApi.updateBookingStatus(editingBooking.value.id, { 
+        bookingStatus: bookingFormData.value.bookingStatus 
+      })
+      await bookingsApi.updatePaymentStatus(editingBooking.value.id, { 
+        paymentStatus: bookingFormData.value.paymentStatus 
+      })
+    } else {
+      // Создание нового бронирования
+      await bookingsApi.create({
+        apartmentId: currentBookingApartment.value.id,
+        guestName: bookingFormData.value.guestName,
+        guestEmail: bookingFormData.value.guestEmail,
+        guestPhoneNumber: bookingFormData.value.guestPhoneNumber,
+        checkInDate: bookingFormData.value.checkInDate,
+        checkOutDate: bookingFormData.value.checkOutDate
+      })
+    }
+
+    closeBookingModal()
+    // Обновляем список бронирований
+    if (expandedApartment.value) {
+      await loadBookingsForApartment(expandedApartment.value)
+    }
+  } catch (error) {
+    bookingError.value = error.response?.data?.message || 'Произошла ошибка'
+  } finally {
+    bookingLoading.value = false
+  }
+}
+
+// Форматирование даты
+const formatDate = (dateStr) => {
+  if (!dateStr) return '—'
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+// Текст статуса бронирования
+const getBookingStatusText = (status) => {
+  const statuses = {
+    PENDING: 'Ожидает',
+    CONFIRMED: 'Подтверждено',
+    CANCELLED: 'Отменено',
+    COMPLETED: 'Завершено'
+  }
+  return statuses[status] || status
+}
+
+// Текст статуса оплаты
+const getPaymentStatusText = (status) => {
+  const statuses = {
+    PENDING: 'Ожидает оплаты',
+    PAID: 'Оплачено',
+    REFUNDED: 'Возврат'
+  }
+  return statuses[status] || status
+}
 </script>
 
 <style scoped>
@@ -565,6 +956,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  text-decoration: none;
 }
 
 .add-btn:hover {
@@ -623,6 +1015,369 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 1.5rem;
+}
+
+/* === Новый вид квартир - горизонтальный список === */
+.apartments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.apartment-row {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.apartment-row:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.apartment-row.expanded {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.apartment-row-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  gap: 1.5rem;
+}
+
+.apartment-row-header:hover {
+  background: #f8f9fa;
+}
+
+.apartment-main-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 300px;
+}
+
+.expand-icon {
+  color: #667eea;
+  font-size: 0.75rem;
+  width: 20px;
+  transition: transform 0.2s ease;
+}
+
+.apartment-row .apartment-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.apartment-type-badge {
+  padding: 0.25rem 0.6rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.apartment-quick-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+  color: #4a5568;
+  font-size: 0.9rem;
+}
+
+.quick-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.quick-info-item.price {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.info-icon {
+  font-size: 1rem;
+}
+
+.apartment-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn-small {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn-small.edit-btn {
+  background: #ebf4ff;
+  color: #667eea;
+}
+
+.action-btn-small.edit-btn:hover {
+  background: #667eea;
+  color: white;
+}
+
+.action-btn-small.delete-btn {
+  background: #fff5f5;
+  color: #e53e3e;
+}
+
+.action-btn-small.delete-btn:hover {
+  background: #e53e3e;
+  color: white;
+}
+
+/* Развернутое содержимое */
+.apartment-row-content {
+  border-top: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  background: #f8fafc;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.content-section {
+  background: white;
+  padding: 1.25rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.content-section.bookings-section {
+  grid-column: 1 / -1;
+}
+
+.content-section .section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.section-header .section-title {
+  margin-bottom: 0;
+}
+
+.details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.detail-label {
+  color: #718096;
+}
+
+.detail-value {
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.add-booking-btn {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-booking-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Список бронирований */
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.booking-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #cbd5e0;
+  transition: all 0.2s ease;
+}
+
+.booking-item:hover {
+  background: #f1f5f9;
+}
+
+.booking-item.status-pending {
+  border-left-color: #ecc94b;
+}
+
+.booking-item.status-confirmed {
+  border-left-color: #48bb78;
+}
+
+.booking-item.status-cancelled {
+  border-left-color: #e53e3e;
+}
+
+.booking-item.status-completed {
+  border-left-color: #667eea;
+}
+
+.booking-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.booking-code {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.booking-guest {
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.booking-dates {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.booking-statuses {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.booking-status,
+.payment-status {
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.booking-status.status-pending { background: #fef3c7; color: #92400e; }
+.booking-status.status-confirmed { background: #d1fae5; color: #065f46; }
+.booking-status.status-cancelled { background: #fee2e2; color: #991b1b; }
+.booking-status.status-completed { background: #ddd6fe; color: #5b21b6; }
+
+.payment-status.payment-pending { background: #fef3c7; color: #92400e; }
+.payment-status.payment-paid { background: #d1fae5; color: #065f46; }
+.payment-status.payment-refunded { background: #fce7f3; color: #9d174d; }
+
+.booking-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.booking-action-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: #e2e8f0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.booking-action-btn:hover {
+  background: #667eea;
+  color: white;
+}
+
+.booking-action-btn.delete:hover {
+  background: #e53e3e;
+}
+
+.no-bookings {
+  text-align: center;
+  padding: 2rem;
+  color: #718096;
+  font-style: italic;
+}
+
+.content-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Модалка бронирования */
+.booking-modal {
+  max-width: 550px;
+}
+
+.booking-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
 .apartment-card {
@@ -912,6 +1667,7 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  text-decoration: none;
 }
 
 .btn-primary:hover:not(:disabled) {
