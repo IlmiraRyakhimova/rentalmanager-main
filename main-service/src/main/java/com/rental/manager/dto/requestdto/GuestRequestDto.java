@@ -1,19 +1,23 @@
 package com.rental.manager.dto.requestdto;
 
 
+import com.rental.manager.validation.ValidEmail;
+import com.rental.manager.validation.ValidPhone;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class GuestRequestDTO {
+public class GuestRequestDto {
     @NotBlank
     private String name;
 
-    @Email
+    @ValidEmail
     private String email;
 
-    @NotBlank
+    @ValidPhone
     private String phoneNumber;
     private String notes;
 }

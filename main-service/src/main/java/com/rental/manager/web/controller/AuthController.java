@@ -1,11 +1,11 @@
 package com.rental.manager.web.controller;
 
 
-import com.rental.manager.dto.requestdto.EmailVerificationRequestDTO;
-import com.rental.manager.dto.requestdto.PasswordResetRequestDTO;
-import com.rental.manager.dto.requestdto.SignInRequestDTO;
-import com.rental.manager.dto.requestdto.SignUpRequestDTO;
-import com.rental.manager.dto.responsedto.AuthResponseDTO;
+import com.rental.manager.dto.requestdto.EmailVerificationRequestDto;
+import com.rental.manager.dto.requestdto.PasswordResetRequestDto;
+import com.rental.manager.dto.requestdto.SignInRequestDto;
+import com.rental.manager.dto.requestdto.SignUpRequestDto;
+import com.rental.manager.dto.responsedto.AuthResponseDto;
 import com.rental.manager.security.auth.AuthService;
 import com.rental.manager.security.jwt.dto.RefreshTokenDTO;
 import com.rental.manager.service.EmailService;
@@ -23,17 +23,17 @@ public class AuthController {
     private final EmailService emailService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<AuthResponseDTO> signUp(@RequestBody @Validated SignUpRequestDTO request) {
+    public ResponseEntity<AuthResponseDto> signUp(@RequestBody @Validated SignUpRequestDto request) {
         return ResponseEntity.ok(authService.signUp(request));
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<AuthResponseDTO> signIn(@RequestBody @Validated SignInRequestDTO request) {
+    public ResponseEntity<AuthResponseDto> signIn(@RequestBody @Validated SignInRequestDto request) {
         return ResponseEntity.ok(authService.signIn(request));
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<AuthResponseDTO> refreshAccessToken(@RequestBody @Validated RefreshTokenDTO refreshTokenDTO) {
+    public ResponseEntity<AuthResponseDto> refreshAccessToken(@RequestBody @Validated RefreshTokenDTO refreshTokenDTO) {
         return ResponseEntity.ok(authService.refreshAccessToken(refreshTokenDTO));
     }
 
@@ -50,19 +50,19 @@ public class AuthController {
     }
 
     @PostMapping("/resend-verification-email")
-    public ResponseEntity<String> resendVerificationEmail(@RequestBody EmailVerificationRequestDTO request) {
+    public ResponseEntity<String> resendVerificationEmail(@RequestBody EmailVerificationRequestDto request) {
         emailService.createAndSendVerificationToken(request.getEmail());
         return ResponseEntity.ok("Письмо с подтверждением отправлено повторно.");
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody EmailVerificationRequestDTO request) {
+    public ResponseEntity<String> forgotPassword(@RequestBody EmailVerificationRequestDto request) {
         emailService.createAndSendPasswordResetToken(request.getEmail());
         return ResponseEntity.ok("Письмо для сброса пароля отправлено.");
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetRequestDTO request) {
+    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetRequestDto request) {
         emailService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok("Пароль успешно изменен");
     }

@@ -1,8 +1,8 @@
 package com.rental.manager.security.auth;
 
-import com.rental.manager.dto.requestdto.SignInRequestDTO;
-import com.rental.manager.dto.requestdto.SignUpRequestDTO;
-import com.rental.manager.dto.responsedto.AuthResponseDTO;
+import com.rental.manager.dto.requestdto.SignInRequestDto;
+import com.rental.manager.dto.requestdto.SignUpRequestDto;
+import com.rental.manager.dto.responsedto.AuthResponseDto;
 import com.rental.manager.entities.User;
 import com.rental.manager.repository.UserRepository;
 import com.rental.manager.security.jwt.JwtService;
@@ -28,7 +28,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponseDTO signUp(SignUpRequestDTO request) {
+    public AuthResponseDto signUp(SignUpRequestDto request) {
         if (userRepository.findByEmail(request.getEmail()) != null) {
             throw new IllegalArgumentException("Email already in use");
         }
@@ -43,7 +43,7 @@ public class AuthServiceImpl implements AuthService {
         emailService.createAndSendVerificationToken(user.getEmail());
 
 
-        AuthResponseDTO response = new AuthResponseDTO();
+        AuthResponseDto response = new AuthResponseDto();
         response.setName(user.getName());
         response.setEmail(user.getEmail());
         response.setPhoneNumber(user.getPhoneNumber());
@@ -52,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponseDTO signIn(SignInRequestDTO request) {
+    public AuthResponseDto signIn(SignInRequestDto request) {
         User user = userRepository.findByEmail(request.getEmail());
         if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Invalid email or password");
@@ -62,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalStateException("Пожалуйста, подтвердите ваш email, чтобы войти в систему.");
         }
 
-        AuthResponseDTO response = new AuthResponseDTO();
+        AuthResponseDto response = new AuthResponseDto();
         JwtDTO jwtDto = jwtService.generateAuthToken(user.getEmail());
         user.setRefreshTokenHash(jwtService.hashRefreshToken(jwtDto.getRefreshToken()));
         userRepository.save(user);
@@ -77,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponseDTO refreshAccessToken(RefreshTokenDTO refreshTokenDTO) {
+    public AuthResponseDto refreshAccessToken(RefreshTokenDTO refreshTokenDTO) {
         String refreshToken = refreshTokenDTO.getRefreshToken();
 
         if (refreshToken == null || !jwtService.validateToken(refreshToken)) {
@@ -95,7 +95,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         JwtDTO jwtDto = jwtService.refreshBaseToken(user.getEmail(), refreshToken);
-        AuthResponseDTO response = new AuthResponseDTO();
+        AuthResponseDto response = new AuthResponseDto();
         response.setAccessToken(jwtDto.getToken());
         response.setRefreshToken(jwtDto.getRefreshToken());
         response.setName(user.getName());

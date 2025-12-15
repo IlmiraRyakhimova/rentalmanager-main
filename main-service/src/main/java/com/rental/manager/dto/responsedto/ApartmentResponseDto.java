@@ -1,17 +1,21 @@
 package com.rental.manager.dto.responsedto;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
-public class ApartmentResponseDTO {
+@AllArgsConstructor
+@Builder
+public class ApartmentResponseDto {
     private UUID id;
     private String title;
-    private UserResponseDTO owner;
-    private AddressResponseDTO address;
+    private UserResponseDto owner;
+    private AddressResponseDto address;
     private String accommodationType;
     private BigDecimal pricePerNight;
     private Double area;

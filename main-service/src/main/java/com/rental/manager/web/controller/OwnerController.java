@@ -1,7 +1,7 @@
 package com.rental.manager.web.controller;
 
-import com.rental.manager.dto.responsedto.ApartmentResponseDTO;
-import com.rental.manager.dto.responsedto.BookingResponseDTO;
+import com.rental.manager.dto.responsedto.ApartmentResponseDto;
+import com.rental.manager.dto.responsedto.BookingResponseDto;
 import com.rental.manager.service.ApartmentService;
 import com.rental.manager.service.BookingService;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +21,13 @@ public class OwnerController {
     private final BookingService bookingService;
 
     @GetMapping("/my-apartments")
-    public ResponseEntity<List<ApartmentResponseDTO>> getMyApartments(Principal principal) {
+    public ResponseEntity<List<ApartmentResponseDto>> getMyApartments(Principal principal) {
         String ownerEmail = principal.getName();
         return ResponseEntity.ok(apartmentService.getApartmentsByOwnerEmail(ownerEmail));
     }
 
     @GetMapping("/my-bookings")
-    public ResponseEntity<List<BookingResponseDTO>> getMyBookings(Principal principal) {
+    public ResponseEntity<List<BookingResponseDto>> getMyBookings(Principal principal) {
         String ownerEmail = principal.getName();
         return ResponseEntity.ok(bookingService.getBookingsByApartmentOwnerEmail(ownerEmail));
     }

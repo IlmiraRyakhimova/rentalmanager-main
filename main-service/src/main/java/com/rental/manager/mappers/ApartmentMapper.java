@@ -1,8 +1,8 @@
 package com.rental.manager.mappers;
 
-import com.rental.manager.dto.requestdto.ApartmentPatchRequestDTO;
-import com.rental.manager.dto.requestdto.ApartmentRequestDTO;
-import com.rental.manager.dto.responsedto.ApartmentResponseDTO;
+import com.rental.manager.dto.requestdto.ApartmentPatchRequestDto;
+import com.rental.manager.dto.requestdto.ApartmentRequestDto;
+import com.rental.manager.dto.responsedto.ApartmentResponseDto;
 import com.rental.manager.entities.Apartment;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,48 +13,43 @@ public class ApartmentMapper {
     private final UserMapper userMapper;
     private final AddressMapper addressMapper;
 
-    public ApartmentResponseDTO toDTO(Apartment entity) {
-        ApartmentResponseDTO dto = new ApartmentResponseDTO();
-        dto.setId(entity.getId());
-        dto.setTitle(entity.getTitle());
-        dto.setOwner(userMapper.toDTO(entity.getOwner()));
-        dto.setAddress(addressMapper.toDTO(entity.getAddress()));
-        dto.setAccommodationType(entity.getAccommodationType());
-        dto.setPricePerNight(entity.getPricePerNight());
-        dto.setArea(entity.getArea());
-        dto.setNumberOfRooms(entity.getNumberOfRooms());
-        dto.setNumberOfBathrooms(entity.getNumberOfBathrooms());
-        return dto;
+    public ApartmentResponseDto toDto(Apartment entity) {
+        return ApartmentResponseDto.builder()
+                .id(entity.getId())
+                .title(entity.getTitle())
+                .owner(userMapper.toDto(entity.getOwner()))
+                .address(addressMapper.toDto(entity.getAddress()))
+                .accommodationType(entity.getAccommodationType())
+                .pricePerNight(entity.getPricePerNight())
+                .area(entity.getArea())
+                .numberOfRooms(entity.getNumberOfRooms())
+                .numberOfBathrooms(entity.getNumberOfBathrooms())
+                .build();
     }
 
-    public Apartment toEntity(ApartmentRequestDTO dto)  {
-        Apartment entity = new Apartment();
-        entity.setTitle(dto.getTitle());
-        entity.setAccommodationType(dto.getAccommodationType());
-        entity.setOwner(userMapper.toEntity(dto.getOwner()));
-        entity.setAddress(addressMapper.toEntity(dto.getAddress()));
-        entity.setPricePerNight(dto.getPricePerNight());
-        entity.setArea(dto.getArea());
-        entity.setNumberOfRooms(dto.getNumberOfRooms());
-        entity.setNumberOfBathrooms(dto.getNumberOfBathrooms());
+    public Apartment toEntity(ApartmentRequestDto dto)  {
+        return Apartment.builder()
+                .title(dto.getTitle())
+                .accommodationType(dto.getAccommodationType())
+                .owner(userMapper.toEntity(dto.getOwner()))
+                .address(addressMapper.toEntity(dto.getAddress()))
+                .pricePerNight(dto.getPricePerNight())
+                .area(dto.getArea())
+                .numberOfRooms(dto.getNumberOfRooms())
+                .numberOfBathrooms(dto.getNumberOfBathrooms())
+                .build();
 
-        return entity;
+
     }
 
-    public Apartment toEntity(ApartmentPatchRequestDTO dto) {
-        Apartment entity = new Apartment();
+    public void updateEntity(Apartment entity, ApartmentPatchRequestDto dto) {
         if (dto.getTitle() != null) {
             entity.setTitle(dto.getTitle());
         }
         if (dto.getAccommodationType() != null) {
             entity.setAccommodationType(dto.getAccommodationType());
         }
-        if (dto.getOwner() != null) {
-            entity.setOwner(userMapper.toEntity(dto.getOwner()));
-        }
-        if (dto.getAddress() != null) {
-            entity.setAddress(addressMapper.toEntity(dto.getAddress()));
-        }
+
         if (dto.getPricePerNight() != null) {
             entity.setPricePerNight(dto.getPricePerNight());
         }
@@ -67,6 +62,5 @@ public class ApartmentMapper {
         if (dto.getNumberOfBathrooms() != null) {
             entity.setNumberOfBathrooms(dto.getNumberOfBathrooms());
         }
-        return entity;
     }
 }

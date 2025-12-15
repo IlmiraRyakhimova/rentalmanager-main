@@ -1,9 +1,9 @@
 package com.rental.manager.service;
 
-import com.rental.manager.dto.requestdto.ChangePasswordRequestDTO;
-import com.rental.manager.dto.requestdto.UserPatchRequestDTO;
-import com.rental.manager.dto.requestdto.UserRequestDTO;
-import com.rental.manager.dto.responsedto.UserResponseDTO;
+import com.rental.manager.dto.requestdto.ChangePasswordRequestDto;
+import com.rental.manager.dto.requestdto.UserPatchRequestDto;
+import com.rental.manager.dto.requestdto.UserRequestDto;
+import com.rental.manager.dto.responsedto.UserResponseDto;
 
 
 import java.util.List;
@@ -11,15 +11,15 @@ import java.util.UUID;
 
 public interface UserService {
 
-    UserResponseDTO createUser(UserRequestDTO request);
-    UserResponseDTO updateUser(UUID id, UserRequestDTO request);
-    UserResponseDTO patchUser(UUID id, UserPatchRequestDTO request);
+    UserResponseDto createUser(UserRequestDto request);
+    UserResponseDto updateUser(UUID id, UserRequestDto request);
+    UserResponseDto patchUser(UUID id, UserPatchRequestDto request);
     void deleteUser(UUID id);
 
-    UserResponseDTO getUserById(UUID id);
-    List<UserResponseDTO> getUserByName(String name);
-    List<UserResponseDTO> getAllUsers();
-    UserResponseDTO getUserByEmail(String email);
-    UserResponseDTO getUserByPhoneNumber(String phoneNumber);
-    void changePassword(ChangePasswordRequestDTO request);
+    UserResponseDto getUserById(UUID id);
+    List<UserResponseDto> getUserByName(String name);
+    List<UserResponseDto> getAllUsers();
+    UserResponseDto getUserByEmail(String email);
+    UserResponseDto getUserByPhoneNumber(String phoneNumber);
+    void changePassword(ChangePasswordRequestDto request);
 }

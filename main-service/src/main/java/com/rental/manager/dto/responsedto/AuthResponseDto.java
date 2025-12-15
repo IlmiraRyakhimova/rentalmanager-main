@@ -4,7 +4,7 @@ import com.rental.manager.entities.enums.UserRole;
 import lombok.Data;
 
 @Data
-public class AuthResponseDTO {
+public class AuthResponseDto {
     private String accessToken;
     private String refreshToken;
     private String type = "Bearer";

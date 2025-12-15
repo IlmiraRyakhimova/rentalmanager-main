@@ -1,8 +1,8 @@
 package com.rental.manager.service;
 
-import com.rental.manager.dto.requestdto.ApartmentPatchRequestDTO;
-import com.rental.manager.dto.requestdto.ApartmentRequestDTO;
-import com.rental.manager.dto.responsedto.ApartmentResponseDTO;
+import com.rental.manager.dto.requestdto.ApartmentPatchRequestDto;
+import com.rental.manager.dto.requestdto.ApartmentRequestDto;
+import com.rental.manager.dto.responsedto.ApartmentResponseDto;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,31 +10,31 @@ import java.util.UUID;
 
 public interface ApartmentService {
 
-    ApartmentResponseDTO createApartment(ApartmentRequestDTO request);
-    ApartmentResponseDTO updateApartment(UUID id, ApartmentRequestDTO request);
-    ApartmentResponseDTO patchApartment(UUID id, ApartmentPatchRequestDTO request);
+    ApartmentResponseDto createApartment(ApartmentRequestDto request);
+    ApartmentResponseDto updateApartment(UUID id, ApartmentRequestDto request);
+    ApartmentResponseDto patchApartment(UUID id, ApartmentPatchRequestDto request);
     void deleteApartment(UUID id);
 
-    ApartmentResponseDTO getApartmentById(UUID id);
-    List<ApartmentResponseDTO> getApartmentsByOwnerId(UUID ownerId);
-    List<ApartmentResponseDTO> getApartmentsByOwnerName(String ownerName);
-    List <ApartmentResponseDTO> getApartmentsByOwnerEmail(String ownerEmail);
-    List<ApartmentResponseDTO> getApartmentsByOwnerPhoneNumber(String ownerPhoneNumber);
+    ApartmentResponseDto getApartmentById(UUID id);
+    List<ApartmentResponseDto> getApartmentsByOwnerId(UUID ownerId);
+    List<ApartmentResponseDto> getApartmentsByOwnerName(String ownerName);
+    List <ApartmentResponseDto> getApartmentsByOwnerEmail(String ownerEmail);
+    List<ApartmentResponseDto> getApartmentsByOwnerPhoneNumber(String ownerPhoneNumber);
 
 
-    List<ApartmentResponseDTO> getApartmentsByTitle(String title);
-    List<ApartmentResponseDTO> getApartmentsByAccommodationType(String accommodationType);
+    List<ApartmentResponseDto> getApartmentsByTitle(String title);
+    List<ApartmentResponseDto> getApartmentsByAccommodationType(String accommodationType);
 
-    List<ApartmentResponseDTO> getApartmentsByPostalCode(String postalCode);
-    List<ApartmentResponseDTO> getApartmentsByCountry(String country);
-    List<ApartmentResponseDTO> getApartmentsByCity(String city);
-    List<ApartmentResponseDTO> getApartmentsByDistrict(String district);
-    List<ApartmentResponseDTO> getApartmentsByStreet(String street);
+    List<ApartmentResponseDto> getApartmentsByPostalCode(String postalCode);
+    List<ApartmentResponseDto> getApartmentsByCountry(String country);
+    List<ApartmentResponseDto> getApartmentsByCity(String city);
+    List<ApartmentResponseDto> getApartmentsByDistrict(String district);
+    List<ApartmentResponseDto> getApartmentsByStreet(String street);
 
-    List<ApartmentResponseDTO> getApartmentsByPricePerNightRange(BigDecimal minPrice, BigDecimal maxPrice);
-    List<ApartmentResponseDTO> getApartmentsByAreaRange(Double minArea, Double maxArea);
-    List<ApartmentResponseDTO> getApartmentsByNumberOfRooms(Integer numberOfRooms);
-    List<ApartmentResponseDTO> getApartmentsByNumberOfBathrooms(Integer numberOfBathrooms);
+    List<ApartmentResponseDto> getApartmentsByPricePerNightRange(BigDecimal minPrice, BigDecimal maxPrice);
+    List<ApartmentResponseDto> getApartmentsByAreaRange(Double minArea, Double maxArea);
+    List<ApartmentResponseDto> getApartmentsByNumberOfRooms(Integer numberOfRooms);
+    List<ApartmentResponseDto> getApartmentsByNumberOfBathrooms(Integer numberOfBathrooms);
 
-    List<ApartmentResponseDTO> getAllApartments();
+    List<ApartmentResponseDto> getAllApartments();
 }

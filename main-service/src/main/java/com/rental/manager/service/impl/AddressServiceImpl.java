@@ -1,8 +1,8 @@
 package com.rental.manager.service.impl;
 
-import com.rental.manager.dto.requestdto.AddressPatchRequestDTO;
-import com.rental.manager.dto.requestdto.AddressRequestDTO;
-import com.rental.manager.dto.responsedto.AddressResponseDTO;
+import com.rental.manager.dto.requestdto.AddressPatchRequestDto;
+import com.rental.manager.dto.requestdto.AddressRequestDto;
+import com.rental.manager.dto.responsedto.AddressResponseDto;
 import com.rental.manager.entities.Address;
 import com.rental.manager.mappers.AddressMapper;
 import com.rental.manager.repository.AddressRepository;
@@ -24,13 +24,13 @@ public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
     private final AddressMapper mapper;
     @Override
-    public AddressResponseDTO createAddress(AddressRequestDTO request) {
+    public AddressResponseDto createAddress(AddressRequestDto request) {
         Address address = mapper.toEntity(request);
-        return mapper.toDTO(addressRepository.save(address));
+        return mapper.toDto(addressRepository.save(address));
     }
 
     @Override
-    public AddressResponseDTO updateAddress(UUID id, AddressRequestDTO request) {
+    public AddressResponseDto updateAddress(UUID id, AddressRequestDto request) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id));
         address.setStreet(request.getStreet());
@@ -38,38 +38,15 @@ public class AddressServiceImpl implements AddressService {
         address.setCity(request.getCity());
         address.setCountry(request.getCountry());
         address.setPostalCode(request.getPostalCode());
-        return mapper.toDTO(addressRepository.save(address));
+        return mapper.toDto(addressRepository.save(address));
     }
 
     @Override
-    public AddressResponseDTO patchAddress(UUID id, AddressPatchRequestDTO request) {
+    public AddressResponseDto patchAddress(UUID id, AddressPatchRequestDto request) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id));
-        if (request.getApartmentNumber() != null) {
-            address.setApartmentNumber(request.getApartmentNumber());
-        }
-        if (request.getFloorNumber() != null) {
-            address.setFloorNumber(request.getFloorNumber());
-        }
-        if (request.getBuildingNumber() != null) {
-            address.setBuildingNumber(request.getBuildingNumber());
-        }
-        if (request.getStreet() != null) {
-            address.setStreet(request.getStreet());
-        }
-        if (request.getDistrict() != null) {
-            address.setDistrict(request.getDistrict());
-        }
-        if (request.getCity() != null) {
-            address.setCity(request.getCity());
-        }
-        if (request.getCountry() != null) {
-            address.setCountry(request.getCountry());
-        }
-        if (request.getPostalCode() != null) {
-            address.setPostalCode(request.getPostalCode());
-        }
-        return mapper.toDTO(addressRepository.save(address));
+        mapper.updateEntity(address, request);
+        return mapper.toDto(addressRepository.save(address));
     }
 
 
@@ -81,39 +58,39 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public AddressResponseDTO getAddressById(UUID id) {
-        return mapper.toDTO(addressRepository.findById(id)
+    public AddressResponseDto getAddressById(UUID id) {
+        return mapper.toDto(addressRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id)));
     }
 
     @Override
-    public List<AddressResponseDTO> getAddressesByPostalCode(String postalCode) {
+    public List<AddressResponseDto> getAddressesByPostalCode(String postalCode) {
         List<Address> addresses = addressRepository.findByPostalCode(postalCode);
-        return addresses.stream().map(mapper::toDTO).toList();
+        return addresses.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<AddressResponseDTO> getAddressesByCountry(String country) {
+    public List<AddressResponseDto> getAddressesByCountry(String country) {
         List<Address> addresses = addressRepository.findByCountryContainingIgnoreCase(country);
-        return addresses.stream().map(mapper::toDTO).toList();
+        return addresses.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<AddressResponseDTO> getAddressesByCity(String city) {
+    public List<AddressResponseDto> getAddressesByCity(String city) {
         List<Address> addresses = addressRepository.findByCityContainingIgnoreCase(city);
-        return addresses.stream().map(mapper::toDTO).toList();
+        return addresses.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<AddressResponseDTO> getAddressesByDistrict(String district) {
+    public List<AddressResponseDto> getAddressesByDistrict(String district) {
         List<Address> addresses = addressRepository.findByDistrictContainingIgnoreCase(district);
-        return addresses.stream().map(mapper::toDTO).toList();
+        return addresses.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<AddressResponseDTO> getAddressesByStreet(String street) {
+    public List<AddressResponseDto> getAddressesByStreet(String street) {
         List<Address> addresses = addressRepository.findByStreetContainingIgnoreCase(street);
-        return addresses.stream().map(mapper::toDTO).toList();
+        return addresses.stream().map(mapper::toDto).toList();
     }
 
 

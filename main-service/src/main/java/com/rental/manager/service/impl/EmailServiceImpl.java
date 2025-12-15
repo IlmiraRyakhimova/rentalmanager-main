@@ -65,7 +65,7 @@ public class EmailServiceImpl implements EmailService {
     public void createAndSendPasswordResetToken(String to) {
         User user = userRepository.findByEmail(to);
         if (user == null) {
-            throw new EntityNotFoundException("User not found with email: " + to);
+            throw new EntityNotFoundException("Пользователь не найден с email: " + to);
         }
 
         if (!user.isEmailVerified()) {
@@ -157,11 +157,11 @@ public class EmailServiceImpl implements EmailService {
     public void createAndSendVerificationToken(String to) {
         User user = userRepository.findByEmail(to);
         if (user == null) {
-            throw new EntityNotFoundException("User not found with email: " + to);
+            throw new EntityNotFoundException("Пользователь не найден с email: " + to);
         }
 
         if (user.isEmailVerified()) {
-            throw new IllegalArgumentException("Email is already verified for: " + to);
+            throw new IllegalArgumentException("Email уже подтвержден для: " + to);
         }
 
         emailVerificationTokenRepository.deleteByUser(user);
@@ -195,12 +195,6 @@ public class EmailServiceImpl implements EmailService {
 
         userRepository.save(user);
         emailVerificationTokenRepository.delete(verificationToken);
-        System.out.println("=== EMAIL VERIFIED ===");
-        System.out.println("User: " + user.getEmail());
-        System.out.println("Access Token: " + jwtDto.getToken());
-        System.out.println("Refresh Token: " + jwtDto.getRefreshToken());
-        System.out.println("=====================");
-
         
         return String.format("%s/auth/verified?accessToken=%s&refreshToken=%s&email=%s&name=%s",
                 frontendUrl,

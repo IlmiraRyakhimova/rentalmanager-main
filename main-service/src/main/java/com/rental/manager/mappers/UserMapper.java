@@ -1,35 +1,35 @@
 package com.rental.manager.mappers;
 
-import com.rental.manager.dto.requestdto.UserPatchRequestDTO;
-import com.rental.manager.dto.requestdto.UserRequestDTO;
-import com.rental.manager.dto.responsedto.UserResponseDTO;
+import com.rental.manager.dto.requestdto.UserPatchRequestDto;
+import com.rental.manager.dto.requestdto.UserRequestDto;
+import com.rental.manager.dto.responsedto.UserResponseDto;
 import com.rental.manager.entities.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
 
-    public UserResponseDTO toDTO(User entity) {
-        UserResponseDTO dto = new UserResponseDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setPhoneNumber(entity.getPhoneNumber());
-        dto.setEmail(entity.getEmail());
-        dto.setRole(entity.getRole());
-        return dto;
+    public UserResponseDto toDto(User entity) {
+        return UserResponseDto.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .phoneNumber(entity.getPhoneNumber())
+                .email(entity.getEmail())
+                .role(entity.getRole())
+                .build();
+
     }
 
-    public User toEntity(UserRequestDTO dto) {
-        User entity = new User();
-        entity.setName(dto.getName());
-        entity.setEmail(dto.getEmail());
-        entity.setPhoneNumber(dto.getPhoneNumber());
-        entity.setRole(dto.getRole());
-        return entity;
+    public User toEntity(UserRequestDto dto) {
+        return User.builder()
+                .name(dto.getName())
+                .email(dto.getEmail())
+                .phoneNumber(dto.getPhoneNumber())
+                .role(dto.getRole())
+                .build();
     }
 
-    public User toEntity(UserPatchRequestDTO dto) {
-        User entity = new User();
+    public void updateEntity(User entity, UserPatchRequestDto dto) {
         if (dto.getName() != null) {
             entity.setName(dto.getName());
         }
@@ -39,6 +39,5 @@ public class UserMapper {
         if (dto.getPhoneNumber() != null) {
             entity.setPhoneNumber(dto.getPhoneNumber());
         }
-        return entity;
     }
 }

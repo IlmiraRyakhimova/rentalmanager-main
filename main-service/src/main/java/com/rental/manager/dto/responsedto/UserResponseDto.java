@@ -1,11 +1,13 @@
 package com.rental.manager.dto.responsedto;
 
 import com.rental.manager.entities.enums.UserRole;
+import lombok.Builder;
 import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class UserResponseDTO {
+@Builder
+public class UserResponseDto {
     private UUID id;
     private String name;
     private String email;

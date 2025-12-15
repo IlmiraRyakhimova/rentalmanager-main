@@ -1,14 +1,14 @@
 package com.rental.manager.security.auth;
 
-import com.rental.manager.dto.requestdto.SignInRequestDTO;
-import com.rental.manager.dto.requestdto.SignUpRequestDTO;
-import com.rental.manager.dto.responsedto.AuthResponseDTO;
+import com.rental.manager.dto.requestdto.SignInRequestDto;
+import com.rental.manager.dto.requestdto.SignUpRequestDto;
+import com.rental.manager.dto.responsedto.AuthResponseDto;
 import com.rental.manager.security.jwt.dto.RefreshTokenDTO;
 
 public interface AuthService {
-    AuthResponseDTO signUp(SignUpRequestDTO request);
-    AuthResponseDTO signIn(SignInRequestDTO request);
-    AuthResponseDTO refreshAccessToken(RefreshTokenDTO refreshTokenDTO);
+    AuthResponseDto signUp(SignUpRequestDto request);
+    AuthResponseDto signIn(SignInRequestDto request);
+    AuthResponseDto refreshAccessToken(RefreshTokenDTO refreshTokenDTO);
     void logOut();
 
 }

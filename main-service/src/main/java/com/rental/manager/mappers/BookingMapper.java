@@ -1,11 +1,12 @@
 package com.rental.manager.mappers;
 
-import com.rental.manager.dto.requestdto.BookingPatchRequestDTO;
-import com.rental.manager.dto.requestdto.BookingRequestDTO;
-import com.rental.manager.dto.responsedto.BookingResponseDTO;
+import com.rental.manager.dto.requestdto.BookingPatchRequestDto;
+import com.rental.manager.dto.requestdto.BookingRequestDto;
+import com.rental.manager.dto.responsedto.BookingResponseDto;
 import com.rental.manager.entities.Booking;
 import com.rental.manager.entities.Apartment;
 import com.rental.manager.repository.ApartmentRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,47 +19,45 @@ public class BookingMapper {
     private final ApartmentRepository apartmentRepository;
 
 
-    public BookingResponseDTO toDTO(Booking entity) {
-        BookingResponseDTO dto = new BookingResponseDTO();
-        dto.setId(entity.getId());
-        dto.setBookingCode(entity.getBookingCode());
-        dto.setApartment(apartmentMapper.toDTO(entity.getApartment()));
-        dto.setApartmentTitle(entity.getApartment().getTitle());
-        dto.setMainGuest(guestMapper.toDto(entity.getMainGuest()));
-        dto.setCheckInDate(entity.getCheckInDate());
-        dto.setCheckOutDate(entity.getCheckOutDate());
-        dto.setTotalGuests(entity.getTotalGuests());
-        dto.setTotalNights(entity.getTotalNights());
-        dto.setTotalPrice(entity.getTotalPrice());
-        dto.setBookingStatus(entity.getBookingStatus());
-        dto.setPaymentStatus(entity.getPaymentStatus());
-        dto.setNotes(entity.getNotes());
-        return dto;
+    public BookingResponseDto toDto(Booking entity) {
+        return BookingResponseDto.builder()
+                .id(entity.getId())
+                .bookingCode(entity.getBookingCode())
+                .apartment(apartmentMapper.toDto(entity.getApartment()))
+                .apartmentTitle(entity.getApartment().getTitle())
+                .mainGuest(guestMapper.toDto(entity.getMainGuest()))
+                .checkInDate(entity.getCheckInDate())
+                .checkOutDate(entity.getCheckOutDate())
+                .totalGuests(entity.getTotalGuests())
+                .totalNights(entity.getTotalNights())
+                .totalPrice(entity.getTotalPrice())
+                .bookingStatus(entity.getBookingStatus())
+                .paymentStatus(entity.getPaymentStatus())
+                .notes(entity.getNotes())
+                .build();
     }
 
-    public Booking toEntity(BookingRequestDTO dto) {
+    public Booking toEntity(BookingRequestDto dto) {
 
-        Booking entity = new Booking();
-        Apartment apartment = apartmentRepository.findById(dto.getApartmentId()).orElseThrow();
-        entity.setApartment(apartment);
-        entity.setMainGuest(guestMapper.toEntity(dto.getMainGuest()));
-        entity.setCheckInDate(dto.getCheckInDate());
-        entity.setCheckOutDate(dto.getCheckOutDate());
-        entity.setNumberOfAdults(dto.getNumberOfAdults());
-        entity.setNumberOfChildren(dto.getNumberOfChildren());
-        entity.setNotes(dto.getNotes());
-
-        return entity;
+        return Booking.builder()
+                .apartment(apartmentRepository.findById(dto.getApartmentId()).orElseThrow())
+                .mainGuest(guestMapper.toEntity(dto.getMainGuest()))
+                .checkInDate(dto.getCheckInDate())
+                .checkOutDate(dto.getCheckOutDate())
+                .numberOfAdults(dto.getNumberOfAdults())
+                .numberOfChildren(dto.getNumberOfChildren())
+                .notes(dto.getNotes())
+                .build();
     }
 
-    public Booking toEntity(BookingPatchRequestDTO dto) {
-        Booking entity = new Booking();
+    public void updateEntity(Booking entity, BookingPatchRequestDto dto) {
         if (dto.getApartmentId() != null) {
-            Apartment apartment = apartmentRepository.findById(dto.getApartmentId()).orElseThrow();
+            Apartment apartment = apartmentRepository.findById(dto.getApartmentId())
+                    .orElseThrow(() -> new EntityNotFoundException("Апартаменты не найдены с id: " + dto.getApartmentId()));
             entity.setApartment(apartment);
         }
         if (dto.getMainGuest() != null) {
-            entity.setMainGuest(guestMapper.toEntity(dto.getMainGuest()));
+            guestMapper.updateEntity(entity.getMainGuest(), dto.getMainGuest());
         }
         if (dto.getCheckInDate() != null) {
             entity.setCheckInDate(dto.getCheckInDate());
@@ -75,6 +74,5 @@ public class BookingMapper {
         if (dto.getNotes() != null) {
             entity.setNotes(dto.getNotes());
         }
-        return entity;
     }
 }

@@ -1,43 +1,42 @@
 package com.rental.manager.mappers;
 
-import com.rental.manager.dto.requestdto.AddressPatchRequestDTO;
-import com.rental.manager.dto.requestdto.AddressRequestDTO;
-import com.rental.manager.dto.responsedto.AddressResponseDTO;
+import com.rental.manager.dto.requestdto.AddressPatchRequestDto;
+import com.rental.manager.dto.requestdto.AddressRequestDto;
+import com.rental.manager.dto.responsedto.AddressResponseDto;
 import com.rental.manager.entities.Address;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AddressMapper {
 
-    public AddressResponseDTO toDTO(Address entity) {
-        AddressResponseDTO dto = new AddressResponseDTO();
-        dto.setId(entity.getId());
-        dto.setPostalCode(entity.getPostalCode());
-        dto.setCountry(entity.getCountry());
-        dto.setCity(entity.getCity());
-        dto.setDistrict(entity.getDistrict());
-        dto.setStreet(entity.getStreet());
-        dto.setBuildingNumber(entity.getBuildingNumber());
-        dto.setFloorNumber(entity.getFloorNumber());
-        dto.setApartmentNumber(entity.getApartmentNumber());
-        return dto;
+    public AddressResponseDto toDto(Address entity) {
+        return AddressResponseDto.builder()
+                .id(entity.getId())
+                .postalCode(entity.getPostalCode())
+                .country(entity.getCountry())
+                .city(entity.getCity())
+                .district(entity.getDistrict())
+                .street(entity.getStreet())
+                .buildingNumber(entity.getBuildingNumber())
+                .floorNumber(entity.getFloorNumber())
+                .apartmentNumber(entity.getApartmentNumber())
+                .build();
     }
 
-    public Address toEntity(AddressRequestDTO dto) {
-        Address entity = new Address();
-        entity.setPostalCode(dto.getPostalCode());
-        entity.setCountry(dto.getCountry());
-        entity.setCity(dto.getCity());
-        entity.setDistrict(dto.getDistrict());
-        entity.setStreet(dto.getStreet());
-        entity.setBuildingNumber(dto.getBuildingNumber());
-        entity.setFloorNumber(dto.getFloorNumber());
-        entity.setApartmentNumber(dto.getApartmentNumber());
-        return entity;
+    public Address toEntity(AddressRequestDto dto) {
+        return Address.builder()
+                .postalCode(dto.getPostalCode())
+                .country(dto.getCountry())
+                .city(dto.getCity())
+                .district(dto.getDistrict())
+                .street(dto.getStreet())
+                .buildingNumber(dto.getBuildingNumber())
+                .floorNumber(dto.getFloorNumber())
+                .apartmentNumber(dto.getApartmentNumber())
+                .build();
     }
 
-    public Address toEntity(AddressPatchRequestDTO dto) {
-        Address entity = new Address();
+    public void updateEntity(Address entity, AddressPatchRequestDto dto) {
         if (dto.getPostalCode() != null) {
             entity.setPostalCode(dto.getPostalCode());
         }
@@ -62,7 +61,6 @@ public class AddressMapper {
         if (dto.getApartmentNumber() != null) {
             entity.setApartmentNumber(dto.getApartmentNumber());
         }
-        return entity;
     }
 
 

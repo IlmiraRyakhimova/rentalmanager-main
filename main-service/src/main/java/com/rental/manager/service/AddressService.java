@@ -1,25 +1,25 @@
 package com.rental.manager.service;
 
-import com.rental.manager.dto.requestdto.AddressPatchRequestDTO;
-import com.rental.manager.dto.requestdto.AddressRequestDTO;
-import com.rental.manager.dto.responsedto.AddressResponseDTO;
+import com.rental.manager.dto.requestdto.AddressPatchRequestDto;
+import com.rental.manager.dto.requestdto.AddressRequestDto;
+import com.rental.manager.dto.responsedto.AddressResponseDto;
 
 
 import java.util.List;
 import java.util.UUID;
 
 public interface AddressService {
-    AddressResponseDTO createAddress(AddressRequestDTO request);
-    AddressResponseDTO updateAddress(UUID id, AddressRequestDTO request);
-    AddressResponseDTO patchAddress(UUID id, AddressPatchRequestDTO request);
+    AddressResponseDto createAddress(AddressRequestDto request);
+    AddressResponseDto updateAddress(UUID id, AddressRequestDto request);
+    AddressResponseDto patchAddress(UUID id, AddressPatchRequestDto request);
     void deleteAddress(UUID id);
 
-    AddressResponseDTO getAddressById(UUID id);
-    List<AddressResponseDTO> getAddressesByPostalCode(String postalCode);
-    List<AddressResponseDTO> getAddressesByCountry(String country);
-    List<AddressResponseDTO> getAddressesByCity(String city);
-    List<AddressResponseDTO> getAddressesByDistrict(String district);
-    List<AddressResponseDTO> getAddressesByStreet(String street);
+    AddressResponseDto getAddressById(UUID id);
+    List<AddressResponseDto> getAddressesByPostalCode(String postalCode);
+    List<AddressResponseDto> getAddressesByCountry(String country);
+    List<AddressResponseDto> getAddressesByCity(String city);
+    List<AddressResponseDto> getAddressesByDistrict(String district);
+    List<AddressResponseDto> getAddressesByStreet(String street);
 
 
 }

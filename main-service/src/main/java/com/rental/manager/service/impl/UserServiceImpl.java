@@ -1,9 +1,9 @@
 package com.rental.manager.service.impl;
 
-import com.rental.manager.dto.requestdto.ChangePasswordRequestDTO;
-import com.rental.manager.dto.requestdto.UserPatchRequestDTO;
-import com.rental.manager.dto.requestdto.UserRequestDTO;
-import com.rental.manager.dto.responsedto.UserResponseDTO;
+import com.rental.manager.dto.requestdto.ChangePasswordRequestDto;
+import com.rental.manager.dto.requestdto.UserPatchRequestDto;
+import com.rental.manager.dto.requestdto.UserRequestDto;
+import com.rental.manager.dto.responsedto.UserResponseDto;
 import com.rental.manager.entities.User;
 import com.rental.manager.repository.UserRepository;
 import com.rental.manager.service.UserService;
@@ -14,7 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.rental.manager.mappers.UserMapper;
-import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
@@ -24,43 +23,35 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private static final String ENTITY_NOT_FOUND_MSG = "User not found with id: ";
+    private static final String ENTITY_NOT_FOUND_MSG = "Пользователь не найден с id: ";
 
     private final UserRepository userRepository;
     private final UserMapper mapper;
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserResponseDTO createUser(UserRequestDTO request) {
+    public UserResponseDto createUser(UserRequestDto request) {
         User user = mapper.toEntity(request);
-        return mapper.toDTO(userRepository.save(user));
+        return mapper.toDto(userRepository.save(user));
     }
 
     @Override
-    public UserResponseDTO updateUser(UUID id, UserRequestDTO request) {
+    public UserResponseDto updateUser(UUID id, UserRequestDto request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id));
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setRole(request.getRole());
-        return mapper.toDTO(userRepository.save(user));
+        return mapper.toDto(userRepository.save(user));
     }
 
     @Override
-    public UserResponseDTO patchUser(UUID id, UserPatchRequestDTO request) {
+    public UserResponseDto patchUser(UUID id, UserPatchRequestDto request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id));
-        if (request.getName() != null) {
-            user.setName(request.getName());
-        }
-        if (request.getEmail() != null) {
-            user.setEmail(request.getEmail());
-        }
-        if (request.getPhoneNumber() != null) {
-            user.setPhoneNumber(request.getPhoneNumber());
-        }
-        return mapper.toDTO(userRepository.save(user));
+        mapper.updateEntity(user, request);
+        return mapper.toDto(userRepository.save(user));
     }
 
 
@@ -71,33 +62,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO getUserById(UUID id) {
-        return mapper.toDTO(userRepository.findById(id)
+    public UserResponseDto getUserById(UUID id) {
+        return mapper.toDto(userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id)));
     }
 
     @Override
-    public List<UserResponseDTO> getUserByName(String name) {
+    public List<UserResponseDto> getUserByName(String name) {
         List<User> users = userRepository.findByNameContainingIgnoreCase(name);
-        return users.stream().map(mapper::toDTO).toList();
+        return users.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<UserResponseDTO> getAllUsers() {
+    public List<UserResponseDto> getAllUsers() {
         List<User> users = userRepository.findAll();
-        return users.stream().map(mapper::toDTO).toList();
+        return users.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public UserResponseDTO getUserByEmail(String email) {
-        return mapper.toDTO(userRepository.findByEmail(email));
+    public UserResponseDto getUserByEmail(String email) {
+        return mapper.toDto(userRepository.findByEmail(email));
     }
 
-    public UserResponseDTO getUserByPhoneNumber(String phoneNumber) {
-        return mapper.toDTO(userRepository.findByPhoneNumber(phoneNumber));
+    public UserResponseDto getUserByPhoneNumber(String phoneNumber) {
+        return mapper.toDto(userRepository.findByPhoneNumber(phoneNumber));
     }
 
-    public void changePassword(ChangePasswordRequestDTO request) {
+    public void changePassword(ChangePasswordRequestDto request) {
         String currentUserEmail = SecurityContextHolder.getContext()
                 .getAuthentication().getName();
 

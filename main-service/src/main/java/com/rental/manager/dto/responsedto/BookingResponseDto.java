@@ -3,6 +3,8 @@ package com.rental.manager.dto.responsedto;
 
 import com.rental.manager.entities.enums.BookingStatus;
 import com.rental.manager.entities.enums.PaymentStatus;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 
@@ -11,12 +13,14 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
-public class BookingResponseDTO {
+@AllArgsConstructor
+@Builder
+public class BookingResponseDto {
     private UUID id;
     private String bookingCode;
-    private ApartmentResponseDTO apartment;
+    private ApartmentResponseDto apartment;
     private String apartmentTitle;
-    private GuestResponseDTO mainGuest;
+    private GuestResponseDto mainGuest;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private Integer totalGuests;

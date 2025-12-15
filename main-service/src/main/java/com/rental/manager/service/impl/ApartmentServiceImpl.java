@@ -1,10 +1,8 @@
 package com.rental.manager.service.impl;
 
-import com.rental.manager.dto.requestdto.AddressPatchRequestDTO;
-import com.rental.manager.dto.requestdto.ApartmentPatchRequestDTO;
-import com.rental.manager.dto.requestdto.ApartmentRequestDTO;
-import com.rental.manager.dto.requestdto.UserPatchRequestDTO;
-import com.rental.manager.dto.responsedto.ApartmentResponseDTO;
+import com.rental.manager.dto.requestdto.ApartmentPatchRequestDto;
+import com.rental.manager.dto.requestdto.ApartmentRequestDto;
+import com.rental.manager.dto.responsedto.ApartmentResponseDto;
 import com.rental.manager.entities.User;
 import com.rental.manager.entities.Address;
 import com.rental.manager.entities.Apartment;
@@ -49,7 +47,7 @@ public class ApartmentServiceImpl implements ApartmentService {
 
     @Override
     @Transactional
-    public ApartmentResponseDTO createApartment(ApartmentRequestDTO request) {
+    public ApartmentResponseDto createApartment(ApartmentRequestDto request) {
         Apartment apartment = mapper.toEntity(request);
 
         resolveOwner(apartment);
@@ -60,7 +58,7 @@ public class ApartmentServiceImpl implements ApartmentService {
         apartment.setAgent(agent);
 
         Apartment saved = apartmentRepository.save(apartment);
-        return mapper.toDTO(saved);
+        return mapper.toDto(saved);
     }
 
     private void resolveOwner(Apartment apartment) {
@@ -144,7 +142,7 @@ public class ApartmentServiceImpl implements ApartmentService {
 
     @Override
     @Transactional
-    public ApartmentResponseDTO updateApartment(UUID id, ApartmentRequestDTO request) {
+    public ApartmentResponseDto updateApartment(UUID id, ApartmentRequestDto request) {
         Apartment apartment = apartmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id));
         apartment.setOwner(userMapper.toEntity(request.getOwner()));
@@ -155,39 +153,26 @@ public class ApartmentServiceImpl implements ApartmentService {
         apartment.setArea(request.getArea());
         apartment.setNumberOfRooms(request.getNumberOfRooms());
         apartment.setNumberOfBathrooms(request.getNumberOfBathrooms());
-        return mapper.toDTO(apartmentRepository.save(apartment));
+        return mapper.toDto(apartmentRepository.save(apartment));
     }
 
     @Override
     @Transactional
-    public ApartmentResponseDTO patchApartment(UUID id,
-                                                ApartmentPatchRequestDTO request) {
+    public ApartmentResponseDto patchApartment(UUID id,
+                                               ApartmentPatchRequestDto request) {
         Apartment apartment = apartmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id));
 
-        if (request.getTitle() != null) apartment.setTitle(request.getTitle());
-        if (request.getAccommodationType() != null) apartment.setAccommodationType(request.getAccommodationType());
-        if (request.getPricePerNight() != null) apartment.setPricePerNight(request.getPricePerNight());
-        if (request.getArea() != null) apartment.setArea(request.getArea());
-        if (request.getNumberOfRooms() != null) apartment.setNumberOfRooms(request.getNumberOfRooms());
-        if (request.getNumberOfBathrooms() != null) apartment.setNumberOfBathrooms(request.getNumberOfBathrooms());
+       mapper.updateEntity(apartment, request);
 
-        AddressPatchRequestDTO address = request.getAddress();
-
-        if (address != null && (address.getPostalCode() != null || address.getCountry() != null || address.getCity() != null ||
-                address.getDistrict() != null || address.getStreet() != null || address.getBuildingNumber() != null ||
-                address.getFloorNumber() != null || address.getApartmentNumber() != null)) {
-            addressService.patchAddress(apartment.getAddress().getId(), address);
+        if (request.getAddress() != null) {
+            addressService.patchAddress(apartment.getAddress().getId(), request.getAddress());
         }
 
-        UserPatchRequestDTO owner = request.getOwner();
-
-        if (owner != null && (owner.getName() != null || owner.getEmail() != null || owner.getPhoneNumber() != null)) {
-            userService.patchUser(apartment.getOwner().getId(), owner);
+        if (request.getOwner() != null) {
+            userService.patchUser(apartment.getOwner().getId(), request.getOwner());
         }
-
-        Apartment saved = apartmentRepository.save(apartment);
-        return mapper.toDTO(saved);
+        return mapper.toDto(apartmentRepository.save(apartment));
     }
 
 
@@ -197,106 +182,106 @@ public class ApartmentServiceImpl implements ApartmentService {
     }
 
     @Override
-    public ApartmentResponseDTO getApartmentById(UUID id) {
-        return mapper.toDTO(apartmentRepository.findById(id)
+    public ApartmentResponseDto getApartmentById(UUID id) {
+        return mapper.toDto(apartmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND_MSG + id)));
 
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByOwnerId(UUID ownerId) {
+    public List<ApartmentResponseDto> getApartmentsByOwnerId(UUID ownerId) {
         List<Apartment> apartments = apartmentRepository.findByOwnerId(ownerId);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByOwnerName(String ownerName) {
+    public List<ApartmentResponseDto> getApartmentsByOwnerName(String ownerName) {
         List<Apartment> apartments = apartmentRepository.findByOwnerNameContainingIgnoreCase(ownerName);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByOwnerEmail(String ownerEmail) {
+    public List<ApartmentResponseDto> getApartmentsByOwnerEmail(String ownerEmail) {
         List<Apartment> apartments = apartmentRepository.findByOwnerEmailContainingIgnoreCase(ownerEmail);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByOwnerPhoneNumber(String ownerPhoneNumber) {
+    public List<ApartmentResponseDto> getApartmentsByOwnerPhoneNumber(String ownerPhoneNumber) {
         List<Apartment> apartments = apartmentRepository.findByOwnerPhoneNumberContainingIgnoreCase(ownerPhoneNumber);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByTitle(String title) {
+    public List<ApartmentResponseDto> getApartmentsByTitle(String title) {
         List<Apartment> apartments = apartmentRepository.findByTitleContainingIgnoreCase(title);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByAccommodationType(String accommodationType) {
+    public List<ApartmentResponseDto> getApartmentsByAccommodationType(String accommodationType) {
         List<Apartment> apartments = apartmentRepository.findByAccommodationTypeContainingIgnoreCase(accommodationType);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByPostalCode(String postalCode) {
+    public List<ApartmentResponseDto> getApartmentsByPostalCode(String postalCode) {
         List<Apartment> apartments = apartmentRepository.findByAddressPostalCode(postalCode);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByCountry(String country) {
+    public List<ApartmentResponseDto> getApartmentsByCountry(String country) {
         List<Apartment> apartments = apartmentRepository.findByAddressCountryContainingIgnoreCase(country);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByCity(String city) {
+    public List<ApartmentResponseDto> getApartmentsByCity(String city) {
         List<Apartment> apartments = apartmentRepository.findByAddressCityContainingIgnoreCase(city);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByDistrict(String district) {
+    public List<ApartmentResponseDto> getApartmentsByDistrict(String district) {
         List<Apartment> apartments = apartmentRepository.findByAddressDistrictContainingIgnoreCase(district);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByStreet(String street) {
+    public List<ApartmentResponseDto> getApartmentsByStreet(String street) {
         List<Apartment> apartments = apartmentRepository.findByAddressStreetContainingIgnoreCase(street);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByPricePerNightRange(BigDecimal minPrice, BigDecimal maxPrice) {
+    public List<ApartmentResponseDto> getApartmentsByPricePerNightRange(BigDecimal minPrice, BigDecimal maxPrice) {
         List<Apartment> apartments = apartmentRepository.findByPricePerNightBetween(minPrice, maxPrice);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByAreaRange(Double minArea, Double maxArea) {
+    public List<ApartmentResponseDto> getApartmentsByAreaRange(Double minArea, Double maxArea) {
         List<Apartment> apartments = apartmentRepository.findByAreaBetween(minArea, maxArea);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByNumberOfRooms(Integer numberOfRooms) {
+    public List<ApartmentResponseDto> getApartmentsByNumberOfRooms(Integer numberOfRooms) {
         List<Apartment> apartments = apartmentRepository.findByNumberOfRooms(numberOfRooms);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getApartmentsByNumberOfBathrooms(Integer numberOfBathrooms) {
+    public List<ApartmentResponseDto> getApartmentsByNumberOfBathrooms(Integer numberOfBathrooms) {
         List<Apartment> apartments = apartmentRepository.findByNumberOfBathrooms(numberOfBathrooms);
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 
     @Override
-    public List<ApartmentResponseDTO> getAllApartments() {
+    public List<ApartmentResponseDto> getAllApartments() {
         List<Apartment> apartments = apartmentRepository.findAll();
-        return apartments.stream().map(mapper::toDTO).toList();
+        return apartments.stream().map(mapper::toDto).toList();
     }
 }

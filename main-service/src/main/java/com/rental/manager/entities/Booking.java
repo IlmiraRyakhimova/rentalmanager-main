@@ -3,9 +3,7 @@ package com.rental.manager.entities;
 import com.rental.manager.entities.enums.BookingStatus;
 import com.rental.manager.entities.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -20,6 +18,8 @@ import java.util.Random;
 @Table(name = "bookings")
 @Getter
 @Setter
+@AllArgsConstructor
+@Builder
 public class Booking {
 
     private static final Random RANDOM = new Random();

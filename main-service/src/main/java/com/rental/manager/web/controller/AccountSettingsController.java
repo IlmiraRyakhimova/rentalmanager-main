@@ -1,6 +1,6 @@
 package com.rental.manager.web.controller;
 
-import com.rental.manager.dto.requestdto.ChangePasswordRequestDTO;
+import com.rental.manager.dto.requestdto.ChangePasswordRequestDto;
 import com.rental.manager.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ public class AccountSettingsController {
     private final UserService userService;
 
     @PostMapping("/change-password")
-    ResponseEntity<String> changePassword(@RequestBody @Validated ChangePasswordRequestDTO request) {
+    ResponseEntity<String> changePassword(@RequestBody @Validated ChangePasswordRequestDto request) {
         userService.changePassword(request);
         return ResponseEntity.ok("Пароль изменен");
     }

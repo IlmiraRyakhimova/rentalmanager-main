@@ -1,8 +1,8 @@
 package com.rental.manager.mappers;
 
-import com.rental.manager.dto.requestdto.GuestPatchRequestDTO;
-import com.rental.manager.dto.requestdto.GuestRequestDTO;
-import com.rental.manager.dto.responsedto.GuestResponseDTO;
+import com.rental.manager.dto.requestdto.GuestPatchRequestDto;
+import com.rental.manager.dto.requestdto.GuestRequestDto;
+import com.rental.manager.dto.responsedto.GuestResponseDto;
 import com.rental.manager.entities.Guest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,28 +11,28 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class GuestMapper {
 
-    public GuestResponseDTO toDto(Guest entity) {
-        GuestResponseDTO dto = new GuestResponseDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setEmail(entity.getEmail());
-        dto.setPhoneNumber(entity.getPhoneNumber());
-        dto.setName(entity.getNotes());
-        return dto;
+    public GuestResponseDto toDto(Guest entity) {
+        return GuestResponseDto.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .email(entity.getEmail())
+                .phoneNumber(entity.getPhoneNumber())
+                .notes(entity.getNotes())
+                .build();
+
     }
 
 
-    public Guest toEntity(GuestRequestDTO dto) {
-        Guest entity = new Guest();
-        entity.setName(dto.getName());
-        entity.setEmail(dto.getEmail());
-        entity.setPhoneNumber(dto.getPhoneNumber());
-        entity.setNotes(dto.getNotes());
-        return entity;
+    public Guest toEntity(GuestRequestDto dto) {
+        return Guest.builder()
+                .name(dto.getName())
+                .email(dto.getEmail())
+                .phoneNumber(dto.getPhoneNumber())
+                .notes(dto.getNotes())
+                .build();
     }
 
-    public Guest toEntity(GuestPatchRequestDTO dto) {
-        Guest entity = new Guest();
+    public void updateEntity(Guest entity, GuestPatchRequestDto dto) {
         if(dto.getName() != null) {
             entity.setName(dto.getName());
         }
@@ -45,6 +45,5 @@ public class GuestMapper {
         if (dto.getNotes() != null) {
             entity.setNotes(dto.getNotes());
         }
-        return entity;
     }
 }

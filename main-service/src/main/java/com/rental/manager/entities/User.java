@@ -2,6 +2,9 @@ package com.rental.manager.entities;
 
 import com.rental.manager.entities.enums.UserRole;
 import jakarta.persistence.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +20,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +32,7 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column
     private String email;
 
     @Column(nullable = false)
@@ -41,7 +47,6 @@ public class User {
 
     @Column
     private String refreshTokenHash;
-
 
     @CreationTimestamp
     @Column(name = "created_at")

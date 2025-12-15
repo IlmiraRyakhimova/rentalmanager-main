@@ -6,6 +6,6 @@ import lombok.Data;
 
 
 @Data
-public class BookingStatusPatchRequestDTO {
+public class BookingStatusPatchRequestDto {
     private BookingStatus bookingStatus;
 }
