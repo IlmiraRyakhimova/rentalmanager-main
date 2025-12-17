@@ -8,7 +8,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -44,16 +43,7 @@ public class JwtServiceImpl implements JwtService {
 
     public String generateToken(String email) {
         long currentMillis = System.currentTimeMillis();
-        long currentSeconds = currentMillis / 1000;
         Date date = new Date(currentMillis + expiration);
-        System.out.println("=== JWT Generation Debug ===");
-        System.out.println("System.currentTimeMillis(): " + currentMillis);
-        System.out.println("Current Date: " + new Date(currentMillis));
-        System.out.println("Unix timestamp (seconds): " + currentSeconds);
-        System.out.println("Expiration ms: " + expiration);
-        System.out.println("Expiration Date: " + date);
-        System.out.println("Email: " + email);
-        System.out.println("===========================");
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())

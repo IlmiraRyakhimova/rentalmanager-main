@@ -13,9 +13,27 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken')
-    if (token) {
+
+    // Проверка на невалидные токены
+    const isValidToken = token && token !== 'null' && token !== 'undefined' && token.length > 20
+
+    console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, {
+      hasToken: !!token,
+      isValidToken,
+      tokenType: typeof token,
+      tokenValue: token === 'null' ? 'STRING "null"!!!' : (token ? `${token.substring(0, 20)}...` : 'none'),
+      tokenLength: token?.length
+    })
+
+    if (isValidToken) {
       config.headers.Authorization = `Bearer ${token}`
+    } else if (token) {
+      console.error('[API Request] Invalid token detected:', {
+        token,
+        reason: token === 'null' ? 'Token is string "null"' : token === 'undefined' ? 'Token is string "undefined"' : 'Token too short'
+      })
     }
+
     return config
   },
   (error) => {
@@ -29,6 +47,7 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
+    // Обработка 401 (Unauthorized) - попытка обновить токен
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
 
@@ -51,6 +70,27 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('user')
         window.location.href = '/login'
         return Promise.reject(refreshError)
+      }
+    }
+
+    // Обработка 403 (Forbidden) - недостаточно прав или невалидный токен
+    if (error.response?.status === 403) {
+      const token = localStorage.getItem('accessToken')
+      const isTokenInvalid = !token || token === 'null' || token === 'undefined' || !token.startsWith('eyJ')
+
+      console.error('403 Forbidden: Доступ запрещен.', {
+        hasToken: !!token,
+        isTokenInvalid,
+        tokenPreview: token?.substring(0, 20)
+      })
+
+      // Если токен отсутствует или невалиден, очищаем и перенаправляем на логин
+      if (isTokenInvalid) {
+        console.log('[Auth] Clearing invalid auth data and redirecting to login')
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        localStorage.removeItem('user')
+        window.location.href = '/login'
       }
     }
 

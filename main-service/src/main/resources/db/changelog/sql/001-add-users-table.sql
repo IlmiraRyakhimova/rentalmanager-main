@@ -30,7 +30,7 @@ CREATE TABLE apartment_addresses (
     city VARCHAR(255),
     district VARCHAR(255),
     street VARCHAR(255),
-    house_number VARCHAR(50),
+    building_number VARCHAR(50),
     floor_number INTEGER,
     apartment_number INTEGER,
     distance_from_city_center_km DOUBLE PRECISION,
@@ -99,6 +99,14 @@ CREATE TABLE email_verification_tokens (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+--changeset ilmira:001-9
+CREATE TABLE password_reset_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    token VARCHAR(255) NOT NULL,
+    user_id UUID REFERENCES users(id),
+    expiry_date TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 
 
