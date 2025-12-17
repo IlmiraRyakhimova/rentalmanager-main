@@ -5,6 +5,7 @@ import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import EmailVerifyView from '@/views/EmailVerifyView.vue'
+import EmailPendingView from '@/views/EmailPendingView.vue'
 import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
 import ResetPasswordView from '@/views/ResetPasswordView.vue'
 import AddApartmentView from '@/views/AddApartmentView.vue'
@@ -28,6 +29,12 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: RegisterView,
+      meta: { requiresGuest: true },
+    },
+    {
+      path: '/email-pending',
+      name: 'email-pending',
+      component: EmailPendingView,
       meta: { requiresGuest: true },
     },
     {
@@ -79,4 +86,3 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
-

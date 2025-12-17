@@ -135,7 +135,7 @@
           <!-- Кнопка отправки -->
           <button type="submit" class="submit-btn" :disabled="loading || !isFormValid">
             <span v-if="loading" class="spinner"></span>
-            <span v-else>Зарегистрироваться</span>
+            <span v-else>Подтвердить email и зарегистрироваться</span>
           </button>
         </form>
 
@@ -261,7 +261,7 @@ const handleSubmit = async () => {
   try {
     const { confirmPassword, ...signUpData } = formData.value
     await authStore.signUp(signUpData)
-    router.push('/dashboard')
+    router.push({ name: 'email-pending', query: { email: formData.value.email } })
   } catch (error) {
     if (error.response?.data?.message) {
       serverError.value = error.response.data.message

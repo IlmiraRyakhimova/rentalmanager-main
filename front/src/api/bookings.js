@@ -19,7 +19,7 @@ export const bookingsApi = {
   /**
    * Создать новое бронирование
    * @param {Object} bookingData - Данные бронирования
-   * @param {string} bookingData.apartmentId - ID квартиры
+   * @param {string} bookingData.apartmentId - ID апартаментов
    * @param {string} bookingData.guestName - Имя гостя
    * @param {string} bookingData.guestEmail - Email гостя
    * @param {string} bookingData.guestPhoneNumber - Телефон гостя
@@ -75,8 +75,8 @@ export const bookingsApi = {
   },
 
   /**
-   * Поиск по ID квартиры
-   * @param {string} apartmentId - ID квартиры
+   * Поиск по ID апартаментов
+   * @param {string} apartmentId - ID апартаментов
    */
   getByApartmentId(apartmentId) {
     return apiClient.get(`/api/bookings/search/by-apartment-id/${apartmentId}`)

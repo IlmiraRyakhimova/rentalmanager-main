@@ -2,40 +2,40 @@ import apiClient from './axios'
 
 export const apartmentApi = {
   /**
-   * Получить все квартиры
+   * Получить все апартаменты
    */
   getAll() {
     return apiClient.get('/api/apartments')
   },
 
   /**
-   * Получить квартиру по ID
-   * @param {string} id - ID квартиры
+   * Получить апартаменты по ID
+   * @param {string} id - ID апартаментов
    */
   getById(id) {
     return apiClient.get(`/api/apartments/${id}`)
   },
 
   /**
-   * Создать новую квартиру
-   * @param {Object} apartmentData - Данные квартиры
+   * Создать новые апартаменты
+   * @param {Object} apartmentData - Данные апартаментов
    */
   create(apartmentData) {
     return apiClient.post('/api/apartments', apartmentData)
   },
 
   /**
-   * Обновить квартиру полностью
-   * @param {string} id - ID квартиры
-   * @param {Object} apartmentData - Данные квартиры
+   * Обновить апартаменты полностью
+   * @param {string} id - ID апартаментов
+   * @param {Object} apartmentData - Данные апартаментов
    */
   update(id, apartmentData) {
     return apiClient.put(`/api/apartments/${id}`, apartmentData)
   },
 
   /**
-   * Обновить квартиру частично
-   * @param {string} id - ID квартиры
+   * Обновить апартаменты частично
+   * @param {string} id - ID апартаментов
    * @param {Object} partialData - Частичные данные
    */
   patch(id, partialData) {
@@ -43,15 +43,15 @@ export const apartmentApi = {
   },
 
   /**
-   * Удалить квартиру
-   * @param {string} id - ID квартиры
+   * Удалить апартаменты
+   * @param {string} id - ID апартаментов
    */
   delete(id) {
     return apiClient.delete(`/api/apartments/${id}`)
   },
 
   /**
-   * Поиск квартир по владельцу (текущий пользователь)
+   * Поиск апартаментов по владельцу (текущий пользователь)
    * @param {string} ownerId - ID владельца
    */
   getByOwnerId(ownerId) {

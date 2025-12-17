@@ -18,7 +18,7 @@
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">🏢</div>
-            <h3 class="feature-title">Управление квартирами</h3>
+            <h3 class="feature-title">Управление апартаментами</h3>
             <p class="feature-text">Добавляйте и управляйте объектами недвижимости</p>
           </div>
           <div class="feature-item">

@@ -195,7 +195,7 @@
     "city": "Москва",
     "district": "Центральный",
     "street": "Тверская",
-    "houseNumber": "10",
+    "buildingNumber": "10",
     "floorNumber": 5,
     "apartmentNumber": 42
   },

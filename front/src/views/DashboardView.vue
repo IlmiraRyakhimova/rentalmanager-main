@@ -12,30 +12,30 @@
 
     <main class="dashboard-main">
       <div class="welcome-section">
-        <h2 class="section-title">Мои квартиры</h2>
+        <h2 class="section-title">Мои апартаменты</h2>
         <router-link to="/apartments/add" class="add-btn">
           <span class="add-icon">+</span>
           Добавить апартаменты
         </router-link>
       </div>
 
-      <!-- Список квартир -->
+      <!-- Список апартаментов -->
       <div v-if="loading" class="loading-container">
         <div class="spinner-large"></div>
-        <p>Загрузка квартир...</p>
+        <p>Загрузка апартаментов...</p>
       </div>
 
       <div v-else-if="apartments.length === 0" class="empty-state">
         <div class="empty-icon">🏢</div>
-        <h3>Пока нет квартир</h3>
-        <p>Добавьте свою первую квартиру, чтобы начать управление</p>
-        <router-link to="/apartments/add" class="btn-primary">Добавить квартиру</router-link>
+        <h3>Пока нет апартаментов</h3>
+        <p>Добавьте свои первые апартаменты, чтобы начать управление</p>
+        <router-link to="/apartments/add" class="btn-primary">Добавить апартаменты</router-link>
       </div>
 
       <div v-else class="apartments-list">
-        <div 
-          v-for="apartment in apartments" 
-          :key="apartment.id" 
+        <div
+          v-for="apartment in apartments"
+          :key="apartment.id"
           class="apartment-row"
           :class="{ expanded: expandedApartment === apartment.id }"
         >
@@ -77,7 +77,7 @@
           <!-- Развернутое содержимое -->
           <div v-if="expandedApartment === apartment.id" class="apartment-row-content">
             <div class="content-grid">
-              <!-- Информация о квартире -->
+              <!-- Информация об апартаментах -->
               <div class="content-section">
                 <h4 class="section-title">📋 Детали</h4>
                 <div class="details-grid">
@@ -140,9 +140,9 @@
                   </button>
                 </div>
                 <div v-if="apartmentBookings[apartment.id]?.length > 0" class="bookings-list">
-                  <div 
-                    v-for="booking in apartmentBookings[apartment.id]" 
-                    :key="booking.id" 
+                  <div
+                    v-for="booking in apartmentBookings[apartment.id]"
+                    :key="booking.id"
                     class="booking-item"
                     :class="'status-' + booking.bookingStatus?.toLowerCase()"
                   >
@@ -175,10 +175,10 @@
 
             <div class="content-actions">
               <button @click="editApartment(apartment)" class="action-btn edit-btn">
-                ✏️ Редактировать квартиру
+                ✏️ Редактировать апартаменты
               </button>
               <button @click="deleteApartmentConfirm(apartment)" class="action-btn delete-btn">
-                🗑️ Удалить квартиру
+                🗑️ Удалить апартаменты
               </button>
             </div>
           </div>
@@ -288,7 +288,7 @@
       </div>
     </div>
 
-    <!-- Модальное окно добавления квартиры -->
+    <!-- Модальное окно добавления апартаментов -->
     <div v-if="showAddModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
         <div class="modal-header">
@@ -308,7 +308,7 @@
                 v-model="formData.title"
                 type="text"
                 class="form-input"
-                placeholder="Уютная квартира в центре"
+                placeholder="Уютные апартаменты в центре"
                 required
               />
             </div>
@@ -535,7 +535,7 @@ const user = computed(() => authStore.user)
 const apartments = computed(() => apartmentStore.apartments)
 const loading = ref(false)
 
-// Раскрытие карточек квартир
+// Раскрытие карточек апартаментов
 const expandedApartment = ref(null)
 const apartmentBookings = ref({})
 
@@ -676,11 +676,11 @@ const editApartment = (apartment) => {
 }
 
 const deleteApartmentConfirm = async (apartment) => {
-  if (confirm(`Удалить квартиру "${apartment.title}"?`)) {
+  if (confirm(`Удалить апартаменты "${apartment.title}"?`)) {
     try {
       await apartmentStore.deleteApartment(apartment.id)
     } catch (error) {
-      alert('Ошибка при удалении квартиры')
+      alert('Ошибка при удалении апартаментов')
     }
   }
 }
@@ -688,7 +688,7 @@ const deleteApartmentConfirm = async (apartment) => {
 const loadApartments = async () => {
   loading.value = true
   try {
-    // Для агентов загружаем все квартиры, для владельцев - только свои
+    // Для агентов загружаем все апартаменты, для владельцев - только свои
     if (user.value?.role === 'AGENT') {
       await apartmentStore.fetchAll()
     } else if (user.value?.email) {
@@ -705,20 +705,20 @@ onMounted(async () => {
   await loadApartments()
 })
 
-// Перезагружать квартиры при возврате на страницу Dashboard
+// Перезагружать апартаменты при возврате на страницу Dashboard
 watch(() => route.path, (newPath, oldPath) => {
   if (newPath === '/dashboard' && oldPath === '/apartments/add') {
     loadApartments()
   }
 })
 
-// === Функции для работы с квартирами (раскрытие) ===
+// === Функции для работы с апартаментами (раскрытие) ===
 const toggleApartment = async (apartmentId) => {
   if (expandedApartment.value === apartmentId) {
     expandedApartment.value = null
   } else {
     expandedApartment.value = apartmentId
-    // Загружаем бронирования для этой квартиры
+    // Загружаем бронирования для этих апартаментов
     await loadBookingsForApartment(apartmentId)
   }
 }
@@ -797,11 +797,11 @@ const handleBookingSubmit = async () => {
         apartmentId: editingBooking.value.apartmentId
       })
       // Обновляем статусы отдельно
-      await bookingsApi.updateBookingStatus(editingBooking.value.id, { 
-        bookingStatus: bookingFormData.value.bookingStatus 
+      await bookingsApi.updateBookingStatus(editingBooking.value.id, {
+        bookingStatus: bookingFormData.value.bookingStatus
       })
-      await bookingsApi.updatePaymentStatus(editingBooking.value.id, { 
-        paymentStatus: bookingFormData.value.paymentStatus 
+      await bookingsApi.updatePaymentStatus(editingBooking.value.id, {
+        paymentStatus: bookingFormData.value.paymentStatus
       })
     } else {
       // Создание нового бронирования
@@ -1017,7 +1017,7 @@ const getPaymentStatusText = (status) => {
   gap: 1.5rem;
 }
 
-/* === Новый вид квартир - горизонтальный список === */
+/* === Новый вид апартаментов - горизонтальный список === */
 .apartments-list {
   display: flex;
   flex-direction: column;

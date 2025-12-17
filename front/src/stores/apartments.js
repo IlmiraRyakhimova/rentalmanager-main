@@ -8,7 +8,7 @@ export const useApartmentStore = defineStore('apartment', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  // Получить все квартиры
+  // Получить все апартаменты
   async function fetchAll() {
     loading.value = true
     error.value = null
@@ -18,14 +18,14 @@ export const useApartmentStore = defineStore('apartment', () => {
       apartments.value = response.data
       return response.data
     } catch (err) {
-      error.value = err.response?.data?.message || 'Ошибка при загрузке квартир'
+      error.value = err.response?.data?.message || 'Ошибка при загрузке апартаментов'
       throw err
     } finally {
       loading.value = false
     }
   }
 
-  // Получить квартиры текущего пользователя
+  // Получить апартаменты текущего пользователя
   async function fetchMyApartments(ownerEmail) {
     loading.value = true
     error.value = null
@@ -35,14 +35,14 @@ export const useApartmentStore = defineStore('apartment', () => {
       apartments.value = response.data
       return response.data
     } catch (err) {
-      error.value = err.response?.data?.message || 'Ошибка при загрузке квартир'
+      error.value = err.response?.data?.message || 'Ошибка при загрузке апартаментов'
       throw err
     } finally {
       loading.value = false
     }
   }
 
-  // Создать квартиру
+  // Создать апартаменты
   async function createApartment(apartmentData) {
     loading.value = true
     error.value = null
@@ -52,14 +52,14 @@ export const useApartmentStore = defineStore('apartment', () => {
       apartments.value.push(response.data)
       return response.data
     } catch (err) {
-      error.value = err.response?.data?.message || 'Ошибка при создании квартиры'
+      error.value = err.response?.data?.message || 'Ошибка при создании апартаментов'
       throw err
     } finally {
       loading.value = false
     }
   }
 
-  // Обновить квартиру
+  // Обновить апартаменты
   async function updateApartment(id, apartmentData) {
     loading.value = true
     error.value = null
@@ -72,14 +72,14 @@ export const useApartmentStore = defineStore('apartment', () => {
       }
       return response.data
     } catch (err) {
-      error.value = err.response?.data?.message || 'Ошибка при обновлении квартиры'
+      error.value = err.response?.data?.message || 'Ошибка при обновлении апартаментов'
       throw err
     } finally {
       loading.value = false
     }
   }
 
-  // Удалить квартиру
+  // Удалить апартаменты
   async function deleteApartment(id) {
     loading.value = true
     error.value = null
@@ -88,7 +88,7 @@ export const useApartmentStore = defineStore('apartment', () => {
       await apartmentApi.delete(id)
       apartments.value = apartments.value.filter((apt) => apt.id !== id)
     } catch (err) {
-      error.value = err.response?.data?.message || 'Ошибка при удалении квартиры'
+      error.value = err.response?.data?.message || 'Ошибка при удалении апартаментов'
       throw err
     } finally {
       loading.value = false
