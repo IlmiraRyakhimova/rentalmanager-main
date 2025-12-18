@@ -229,7 +229,7 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
   padding: 20px;
 }
 
@@ -323,8 +323,8 @@ const handleSubmit = async () => {
 }
 
 .form-input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .input-error {
@@ -391,7 +391,7 @@ const handleSubmit = async () => {
 
 .submit-btn {
   padding: 14px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -408,7 +408,7 @@ const handleSubmit = async () => {
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
 .submit-btn:disabled {
@@ -466,13 +466,13 @@ const handleSubmit = async () => {
 }
 
 .footer-link {
-  color: #667eea;
+  color: #3b82f6;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 .footer-link:hover {
-  color: #764ba2;
+  color: #0ea5e9;
 }
 </style>

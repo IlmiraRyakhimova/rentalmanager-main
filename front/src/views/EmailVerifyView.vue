@@ -89,7 +89,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
   padding: 20px;
 }
 
@@ -130,8 +130,8 @@ onMounted(async () => {
 .spinner-large {
   width: 60px;
   height: 60px;
-  border: 5px solid rgba(102, 126, 234, 0.2);
-  border-top-color: #667eea;
+  border: 5px solid rgba(59, 130, 246, 0.2);
+  border-top-color: #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -179,7 +179,7 @@ h1 {
 }
 
 .success-message strong {
-  color: #667eea;
+  color: #3b82f6;
 }
 
 .info-text {
@@ -191,7 +191,7 @@ h1 {
 .redirect-timer {
   font-size: 48px;
   font-weight: 700;
-  color: #667eea;
+  color: #3b82f6;
   animation: pulse 1s infinite;
 }
 
@@ -218,12 +218,12 @@ h1 {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
   color: white;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 </style>

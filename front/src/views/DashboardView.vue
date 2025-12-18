@@ -148,7 +148,7 @@
                   >
                     <div class="booking-info">
                       <span class="booking-code">{{ booking.bookingCode }}</span>
-                      <span class="booking-guest">{{ booking.guestName }}</span>
+                      <span class="booking-guest">{{ booking.mainGuest?.name || booking.guestName }}</span>
                       <span class="booking-dates">
                         {{ formatDate(booking.checkInDate) }} — {{ formatDate(booking.checkOutDate) }}
                       </span>
@@ -194,97 +194,172 @@
           <button @click="closeBookingModal" class="modal-close">&times;</button>
         </div>
 
-        <form @submit.prevent="handleBookingSubmit" class="booking-form">
-          <div class="form-group">
-            <label for="guestName">Имя гостя <span class="required">*</span></label>
-            <input
-              id="guestName"
-              v-model="bookingFormData.guestName"
-              type="text"
-              class="form-input"
-              placeholder="Петр Петров"
-              required
-            />
+        <div class="booking-modal-content">
+          <!-- Календарь -->
+          <div class="calendar-section">
+            <div class="calendar-header">
+              <button type="button" @click="prevMonth" class="calendar-nav">&lt;</button>
+              <span class="calendar-title">{{ monthYearLabel }}</span>
+              <button type="button" @click="nextMonth" class="calendar-nav">&gt;</button>
+            </div>
+            <div class="calendar-grid">
+              <div class="calendar-weekday" v-for="day in ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']" :key="day">
+                {{ day }}
+              </div>
+              <div
+                v-for="(day, index) in calendarDays"
+                :key="index"
+                class="calendar-day"
+                :class="{
+                  'other-month': !day.currentMonth,
+                  'booked': day.booked,
+                  'selected-start': day.date === bookingFormData.checkInDate,
+                  'selected-end': day.date === bookingFormData.checkOutDate,
+                  'in-range': isInSelectedRange(day.date),
+                  'today': day.isToday
+                }"
+                @click="selectDate(day)"
+              >
+                {{ day.day }}
+              </div>
+            </div>
+            <div class="calendar-legend">
+              <span class="legend-item"><span class="legend-dot booked"></span> Забронировано</span>
+              <span class="legend-item"><span class="legend-dot selected"></span> Выбрано</span>
+            </div>
           </div>
 
-          <div class="form-row">
+          <!-- Форма бронирования -->
+          <form @submit.prevent="handleBookingSubmit" class="booking-form">
+            <div class="form-section-title">Даты проживания</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="checkInDate">Дата заезда <span class="required">*</span></label>
+                <input
+                  id="checkInDate"
+                  v-model="bookingFormData.checkInDate"
+                  type="date"
+                  class="form-input"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="checkOutDate">Дата выезда <span class="required">*</span></label>
+                <input
+                  id="checkOutDate"
+                  v-model="bookingFormData.checkOutDate"
+                  type="date"
+                  class="form-input"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-section-title">Информация о госте</div>
             <div class="form-group">
-              <label for="guestEmail">Email гостя <span class="required">*</span></label>
+              <label for="guestName">Имя гостя <span class="required">*</span></label>
               <input
-                id="guestEmail"
-                v-model="bookingFormData.guestEmail"
-                type="email"
+                id="guestName"
+                v-model="bookingFormData.mainGuest.name"
+                type="text"
                 class="form-input"
-                placeholder="guest@example.com"
+                placeholder="Петр Петров"
                 required
               />
             </div>
-            <div class="form-group">
-              <label for="guestPhoneNumber">Телефон <span class="required">*</span></label>
-              <input
-                id="guestPhoneNumber"
-                v-model="bookingFormData.guestPhoneNumber"
-                type="tel"
-                class="form-input"
-                placeholder="+79991234567"
-                required
-              />
-            </div>
-          </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="checkInDate">Дата заезда <span class="required">*</span></label>
-              <input
-                id="checkInDate"
-                v-model="bookingFormData.checkInDate"
-                type="date"
-                class="form-input"
-                required
-              />
+            <div class="form-row">
+              <div class="form-group">
+                <label for="guestEmail">Email гостя <span class="required">*</span></label>
+                <input
+                  id="guestEmail"
+                  v-model="bookingFormData.mainGuest.email"
+                  type="email"
+                  class="form-input"
+                  placeholder="guest@example.com"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="guestPhoneNumber">Телефон <span class="required">*</span></label>
+                <input
+                  id="guestPhoneNumber"
+                  v-model="bookingFormData.mainGuest.phoneNumber"
+                  type="tel"
+                  class="form-input"
+                  placeholder="+79991234567"
+                  required
+                />
+              </div>
             </div>
-            <div class="form-group">
-              <label for="checkOutDate">Дата выезда <span class="required">*</span></label>
-              <input
-                id="checkOutDate"
-                v-model="bookingFormData.checkOutDate"
-                type="date"
-                class="form-input"
-                required
-              />
-            </div>
-          </div>
 
-          <div v-if="editingBooking" class="form-row">
-            <div class="form-group">
-              <label for="bookingStatus">Статус бронирования</label>
-              <select id="bookingStatus" v-model="bookingFormData.bookingStatus" class="form-input">
-                <option value="PENDING">Ожидает</option>
-                <option value="CONFIRMED">Подтверждено</option>
-                <option value="CANCELLED">Отменено</option>
-                <option value="COMPLETED">Завершено</option>
-              </select>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="numberOfAdults">Взрослых</label>
+                <input
+                  id="numberOfAdults"
+                  v-model.number="bookingFormData.numberOfAdults"
+                  type="number"
+                  class="form-input"
+                  min="1"
+                  max="20"
+                />
+              </div>
+              <div class="form-group">
+                <label for="numberOfChildren">Детей</label>
+                <input
+                  id="numberOfChildren"
+                  v-model.number="bookingFormData.numberOfChildren"
+                  type="number"
+                  class="form-input"
+                  min="0"
+                  max="20"
+                />
+              </div>
             </div>
+
             <div class="form-group">
-              <label for="paymentStatus">Статус оплаты</label>
-              <select id="paymentStatus" v-model="bookingFormData.paymentStatus" class="form-input">
-                <option value="PENDING">Ожидает</option>
-                <option value="PAID">Оплачено</option>
-                <option value="REFUNDED">Возврат</option>
-              </select>
+              <label for="bookingNotes">Примечания</label>
+              <textarea
+                id="bookingNotes"
+                v-model="bookingFormData.notes"
+                class="form-input form-textarea"
+                placeholder="Дополнительные пожелания..."
+                rows="2"
+              ></textarea>
             </div>
-          </div>
 
-          <div v-if="bookingError" class="form-error">{{ bookingError }}</div>
+            <div v-if="editingBooking" class="form-row">
+              <div class="form-group">
+                <label for="bookingStatus">Статус бронирования</label>
+                <select id="bookingStatus" v-model="bookingFormData.bookingStatus" class="form-input">
+                  <option value="PENDING">Ожидает</option>
+                  <option value="CONFIRMED">Подтверждено</option>
+                  <option value="CANCELLED">Отменено</option>
+                  <option value="COMPLETED">Завершено</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="paymentStatus">Статус оплаты</label>
+                <select id="paymentStatus" v-model="bookingFormData.paymentStatus" class="form-input">
+                  <option value="PENDING">Ожидает</option>
+                  <option value="PAID">Оплачено</option>
+                  <option value="REFUNDED">Возврат</option>
+                </select>
+              </div>
+            </div>
 
-          <div class="form-actions">
-            <button type="button" @click="closeBookingModal" class="btn-secondary">Отмена</button>
-            <button type="submit" class="btn-primary" :disabled="bookingLoading">
-              <span v-if="bookingLoading" class="spinner"></span>
-              <span v-else>{{ editingBooking ? 'Сохранить' : 'Создать' }}</span>
-            </button>
-          </div>
-        </form>
+            <div v-if="bookingError" class="form-error">{{ bookingError }}</div>
+
+            <div class="form-actions">
+              <button type="button" @click="closeBookingModal" class="btn-secondary">Отмена</button>
+              <button type="submit" class="btn-primary" :disabled="bookingLoading">
+                <span v-if="bookingLoading" class="spinner"></span>
+                <span v-else>{{ editingBooking ? 'Сохранить' : 'Создать' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -546,14 +621,24 @@ const currentBookingApartment = ref(null)
 const bookingLoading = ref(false)
 const bookingError = ref('')
 const bookingFormData = ref({
-  guestName: '',
-  guestEmail: '',
-  guestPhoneNumber: '',
+  mainGuest: {
+    name: '',
+    email: '',
+    phoneNumber: '',
+    notes: ''
+  },
+  numberOfAdults: 1,
+  numberOfChildren: 0,
   checkInDate: '',
   checkOutDate: '',
+  notes: '',
   bookingStatus: 'PENDING',
   paymentStatus: 'PENDING'
 })
+
+// Календарь
+const currentMonth = ref(new Date())
+const bookedDates = ref([])
 
 const showAddModal = ref(false)
 const editingApartment = ref(null)
@@ -738,15 +823,23 @@ const openBookingModal = (apartment) => {
   currentBookingApartment.value = apartment
   editingBooking.value = null
   bookingFormData.value = {
-    guestName: '',
-    guestEmail: '',
-    guestPhoneNumber: '',
+    mainGuest: {
+      name: '',
+      email: '',
+      phoneNumber: '',
+      notes: ''
+    },
+    numberOfAdults: 1,
+    numberOfChildren: 0,
     checkInDate: '',
     checkOutDate: '',
+    notes: '',
     bookingStatus: 'PENDING',
     paymentStatus: 'PENDING'
   }
   bookingError.value = ''
+  currentMonth.value = new Date()
+  updateBookedDates(apartment.id)
   showBookingModal.value = true
 }
 
@@ -759,16 +852,134 @@ const closeBookingModal = () => {
 const editBooking = (booking) => {
   editingBooking.value = booking
   bookingFormData.value = {
-    guestName: booking.guestName,
-    guestEmail: booking.guestEmail,
-    guestPhoneNumber: booking.guestPhoneNumber,
+    mainGuest: {
+      name: booking.mainGuest?.name || booking.guestName || '',
+      email: booking.mainGuest?.email || booking.guestEmail || '',
+      phoneNumber: booking.mainGuest?.phoneNumber || booking.guestPhoneNumber || '',
+      notes: booking.mainGuest?.notes || ''
+    },
+    numberOfAdults: booking.numberOfAdults || 1,
+    numberOfChildren: booking.numberOfChildren || 0,
     checkInDate: booking.checkInDate,
     checkOutDate: booking.checkOutDate,
+    notes: booking.notes || '',
     bookingStatus: booking.bookingStatus || 'PENDING',
     paymentStatus: booking.paymentStatus || 'PENDING'
   }
   bookingError.value = ''
+  if (booking.apartment?.id) {
+    updateBookedDates(booking.apartment.id, booking.id)
+  }
   showBookingModal.value = true
+}
+
+// === Функции календаря ===
+const updateBookedDates = async (apartmentId, excludeBookingId = null) => {
+  const bookings = apartmentBookings.value[apartmentId] || []
+  const dates = []
+
+  bookings.forEach(booking => {
+    if (excludeBookingId && booking.id === excludeBookingId) return
+    if (booking.bookingStatus === 'CANCELLED') return
+
+    const start = new Date(booking.checkInDate)
+    const end = new Date(booking.checkOutDate)
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      dates.push(d.toISOString().split('T')[0])
+    }
+  })
+
+  bookedDates.value = dates
+}
+
+const monthYearLabel = computed(() => {
+  const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+  return `${months[currentMonth.value.getMonth()]} ${currentMonth.value.getFullYear()}`
+})
+
+const calendarDays = computed(() => {
+  const year = currentMonth.value.getFullYear()
+  const month = currentMonth.value.getMonth()
+  const firstDay = new Date(year, month, 1)
+  const lastDay = new Date(year, month + 1, 0)
+  const today = new Date().toISOString().split('T')[0]
+
+  const days = []
+
+  // Дни предыдущего месяца
+  let startDayOfWeek = firstDay.getDay()
+  if (startDayOfWeek === 0) startDayOfWeek = 7 // Воскресенье = 7
+  startDayOfWeek-- // Начинаем с понедельника
+
+  for (let i = startDayOfWeek; i > 0; i--) {
+    const d = new Date(year, month, 1 - i)
+    days.push({
+      day: d.getDate(),
+      date: d.toISOString().split('T')[0],
+      currentMonth: false,
+      booked: bookedDates.value.includes(d.toISOString().split('T')[0]),
+      isToday: d.toISOString().split('T')[0] === today
+    })
+  }
+
+  // Дни текущего месяца
+  for (let i = 1; i <= lastDay.getDate(); i++) {
+    const d = new Date(year, month, i)
+    const dateStr = d.toISOString().split('T')[0]
+    days.push({
+      day: i,
+      date: dateStr,
+      currentMonth: true,
+      booked: bookedDates.value.includes(dateStr),
+      isToday: dateStr === today
+    })
+  }
+
+  // Дни следующего месяца
+  const remaining = 42 - days.length
+  for (let i = 1; i <= remaining; i++) {
+    const d = new Date(year, month + 1, i)
+    days.push({
+      day: i,
+      date: d.toISOString().split('T')[0],
+      currentMonth: false,
+      booked: bookedDates.value.includes(d.toISOString().split('T')[0]),
+      isToday: d.toISOString().split('T')[0] === today
+    })
+  }
+
+  return days
+})
+
+const prevMonth = () => {
+  currentMonth.value = new Date(currentMonth.value.getFullYear(), currentMonth.value.getMonth() - 1, 1)
+}
+
+const nextMonth = () => {
+  currentMonth.value = new Date(currentMonth.value.getFullYear(), currentMonth.value.getMonth() + 1, 1)
+}
+
+const selectDate = (day) => {
+  if (day.booked) return
+
+  if (!bookingFormData.value.checkInDate || bookingFormData.value.checkOutDate) {
+    bookingFormData.value.checkInDate = day.date
+    bookingFormData.value.checkOutDate = ''
+  } else {
+    if (day.date < bookingFormData.value.checkInDate) {
+      bookingFormData.value.checkOutDate = bookingFormData.value.checkInDate
+      bookingFormData.value.checkInDate = day.date
+    } else {
+      bookingFormData.value.checkOutDate = day.date
+    }
+  }
+}
+
+const isInSelectedRange = (date) => {
+  if (!bookingFormData.value.checkInDate || !bookingFormData.value.checkOutDate) return false
+  return date > bookingFormData.value.checkInDate && date < bookingFormData.value.checkOutDate
 }
 
 const deleteBooking = async (booking) => {
@@ -793,8 +1004,13 @@ const handleBookingSubmit = async () => {
     if (editingBooking.value) {
       // Обновление бронирования
       await bookingsApi.update(editingBooking.value.id, {
-        ...bookingFormData.value,
-        apartmentId: editingBooking.value.apartmentId
+        apartmentId: editingBooking.value.apartment?.id || editingBooking.value.apartmentId,
+        mainGuest: bookingFormData.value.mainGuest,
+        numberOfAdults: bookingFormData.value.numberOfAdults,
+        numberOfChildren: bookingFormData.value.numberOfChildren,
+        checkInDate: bookingFormData.value.checkInDate,
+        checkOutDate: bookingFormData.value.checkOutDate,
+        notes: bookingFormData.value.notes
       })
       // Обновляем статусы отдельно
       await bookingsApi.updateBookingStatus(editingBooking.value.id, {
@@ -807,11 +1023,12 @@ const handleBookingSubmit = async () => {
       // Создание нового бронирования
       await bookingsApi.create({
         apartmentId: currentBookingApartment.value.id,
-        guestName: bookingFormData.value.guestName,
-        guestEmail: bookingFormData.value.guestEmail,
-        guestPhoneNumber: bookingFormData.value.guestPhoneNumber,
+        mainGuest: bookingFormData.value.mainGuest,
+        numberOfAdults: bookingFormData.value.numberOfAdults,
+        numberOfChildren: bookingFormData.value.numberOfChildren,
         checkInDate: bookingFormData.value.checkInDate,
-        checkOutDate: bookingFormData.value.checkOutDate
+        checkOutDate: bookingFormData.value.checkOutDate,
+        notes: bookingFormData.value.notes
       })
     }
 
@@ -821,7 +1038,7 @@ const handleBookingSubmit = async () => {
       await loadBookingsForApartment(expandedApartment.value)
     }
   } catch (error) {
-    bookingError.value = error.response?.data?.message || 'Произошла ошибка'
+    bookingError.value = error.response?.data?.message || 'Произошла ошибка при сохранении бронирования'
   } finally {
     bookingLoading.value = false
   }
@@ -859,7 +1076,7 @@ const getPaymentStatusText = (status) => {
 <style scoped>
 .dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
 }
 
 .dashboard-header {
@@ -882,7 +1099,7 @@ const getPaymentStatusText = (status) => {
 .dashboard-title {
   font-size: 1.75rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -903,9 +1120,9 @@ const getPaymentStatusText = (status) => {
 
 .logout-btn {
   padding: 0.6rem 1.5rem;
-  border: 2px solid #667eea;
+  border: 2px solid #3b82f6;
   background: transparent;
-  color: #667eea;
+  color: #3b82f6;
   border-radius: 8px;
   font-size: 0.95rem;
   font-weight: 600;
@@ -914,7 +1131,7 @@ const getPaymentStatusText = (status) => {
 }
 
 .logout-btn:hover {
-  background: #667eea;
+  background: #3b82f6;
   color: white;
   transform: translateY(-1px);
 }
@@ -945,7 +1162,7 @@ const getPaymentStatusText = (status) => {
 
 .add-btn {
   padding: 0.8rem 1.8rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -961,7 +1178,7 @@ const getPaymentStatusText = (status) => {
 
 .add-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
 .add-icon {
@@ -1061,7 +1278,7 @@ const getPaymentStatusText = (status) => {
 }
 
 .expand-icon {
-  color: #667eea;
+  color: #3b82f6;
   font-size: 0.75rem;
   width: 20px;
   transition: transform 0.2s ease;
@@ -1076,7 +1293,7 @@ const getPaymentStatusText = (status) => {
 
 .apartment-type-badge {
   padding: 0.25rem 0.6rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
   color: white;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -1101,7 +1318,7 @@ const getPaymentStatusText = (status) => {
 }
 
 .quick-info-item.price {
-  color: #667eea;
+  color: #3b82f6;
   font-weight: 600;
 }
 
@@ -1128,12 +1345,12 @@ const getPaymentStatusText = (status) => {
 }
 
 .action-btn-small.edit-btn {
-  background: #ebf4ff;
-  color: #667eea;
+  background: #dbeafe;
+  color: #3b82f6;
 }
 
 .action-btn-small.edit-btn:hover {
-  background: #667eea;
+  background: #3b82f6;
   color: white;
 }
 
@@ -1228,7 +1445,7 @@ const getPaymentStatusText = (status) => {
 
 .add-booking-btn {
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
   color: white;
   border: none;
   border-radius: 6px;
@@ -1240,7 +1457,7 @@ const getPaymentStatusText = (status) => {
 
 .add-booking-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 /* Список бронирований */
@@ -1278,7 +1495,7 @@ const getPaymentStatusText = (status) => {
 }
 
 .booking-item.status-completed {
-  border-left-color: #667eea;
+  border-left-color: #3b82f6;
 }
 
 .booking-info {
@@ -1290,7 +1507,7 @@ const getPaymentStatusText = (status) => {
 .booking-code {
   font-family: monospace;
   font-size: 0.85rem;
-  color: #667eea;
+  color: #3b82f6;
   font-weight: 600;
 }
 
@@ -1320,7 +1537,7 @@ const getPaymentStatusText = (status) => {
 .booking-status.status-pending { background: #fef3c7; color: #92400e; }
 .booking-status.status-confirmed { background: #d1fae5; color: #065f46; }
 .booking-status.status-cancelled { background: #fee2e2; color: #991b1b; }
-.booking-status.status-completed { background: #ddd6fe; color: #5b21b6; }
+.booking-status.status-completed { background: #dbeafe; color: #1e40af; }
 
 .payment-status.payment-pending { background: #fef3c7; color: #92400e; }
 .payment-status.payment-paid { background: #d1fae5; color: #065f46; }
@@ -1346,7 +1563,7 @@ const getPaymentStatusText = (status) => {
 }
 
 .booking-action-btn:hover {
-  background: #667eea;
+  background: #3b82f6;
   color: white;
 }
 
@@ -1371,13 +1588,171 @@ const getPaymentStatusText = (status) => {
 
 /* Модалка бронирования */
 .booking-modal {
-  max-width: 550px;
+  max-width: 900px;
+}
+
+.booking-modal-content {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 0;
+}
+
+.calendar-section {
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.calendar-nav {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #4a5568;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-nav:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.calendar-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #718096;
+  padding: 0.5rem 0;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+
+.calendar-day:hover:not(.booked):not(.other-month) {
+  background: #dbeafe;
+}
+
+.calendar-day.other-month {
+  color: #cbd5e0;
+  background: transparent;
+}
+
+.calendar-day.today {
+  font-weight: 700;
+  border: 2px solid #3b82f6;
+}
+
+.calendar-day.booked {
+  background: #fecaca;
+  color: #991b1b;
+  cursor: not-allowed;
+}
+
+.calendar-day.selected-start,
+.calendar-day.selected-end {
+  background: #3b82f6;
+  color: white;
+  font-weight: 600;
+}
+
+.calendar-day.in-range {
+  background: #bfdbfe;
+  color: #1e40af;
+}
+
+.calendar-legend {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.legend-dot.booked {
+  background: #fecaca;
+}
+
+.legend-dot.selected {
+  background: #3b82f6;
+}
+
+.booking-form {
+  padding: 1.5rem;
+}
+
+.form-section-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #3b82f6;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 60px;
 }
 
 .booking-form .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+}
+
+@media (max-width: 800px) {
+  .booking-modal-content {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-section {
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+  }
 }
 
 .apartment-card {
@@ -1411,7 +1786,7 @@ const getPaymentStatusText = (status) => {
 
 .apartment-type {
   padding: 0.4rem 0.8rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
   color: white;
   border-radius: 6px;
   font-size: 0.8rem;
@@ -1458,12 +1833,12 @@ const getPaymentStatusText = (status) => {
 
 .edit-btn {
   background: #f7fafc;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: #3b82f6;
+  border: 2px solid #3b82f6;
 }
 
 .edit-btn:hover {
-  background: #667eea;
+  background: #3b82f6;
   color: white;
 }
 
@@ -1622,8 +1997,8 @@ const getPaymentStatusText = (status) => {
 
 .form-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .form-row {
@@ -1655,7 +2030,7 @@ const getPaymentStatusText = (status) => {
 .btn-primary {
   flex: 1;
   padding: 0.9rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -1672,7 +2047,7 @@ const getPaymentStatusText = (status) => {
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
 .btn-primary:disabled {

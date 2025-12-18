@@ -1,3 +1,4 @@
+// filepath: /Users/ilmiraryakhimova/Desktop/rentalmanager/rentalmanager-main/front/src/stores/auth.js
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { authApi } from '@/api/auth'
@@ -9,7 +10,7 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  const isAuthenticated = computed(() => !!accessToken.value)
+  const isAuthenticated = computed(() => !!accessToken.value && accessToken.value !== 'null')
 
   // Инициализация из localStorage
   function initAuth() {
@@ -26,8 +27,16 @@ export const useAuthStore = defineStore('auth', () => {
     })
 
     // Проверка на невалидные токены (строки "null" или "undefined")
-    const isAccessTokenValid = storedToken && storedToken !== 'null' && storedToken !== 'undefined' && storedToken.length > 20
-    const isRefreshTokenValid = storedRefreshToken && storedRefreshToken !== 'null' && storedRefreshToken !== 'undefined' && storedRefreshToken.length > 20
+    const isAccessTokenValid = storedToken &&
+                               storedToken !== 'null' &&
+                               storedToken !== 'undefined' &&
+                               storedToken.length > 20 &&
+                               storedToken.startsWith('eyJ')
+    const isRefreshTokenValid = storedRefreshToken &&
+                                storedRefreshToken !== 'null' &&
+                                storedRefreshToken !== 'undefined' &&
+                                storedRefreshToken.length > 20 &&
+                                storedRefreshToken.startsWith('eyJ')
 
     if (!isAccessTokenValid || !isRefreshTokenValid) {
       console.warn('[Auth] initAuth - Invalid tokens detected, clearing localStorage:', {
@@ -43,23 +52,33 @@ export const useAuthStore = defineStore('auth', () => {
       return
     }
 
-    if (storedToken && storedRefreshToken && storedUser) {
-      accessToken.value = storedToken
-      refreshToken.value = storedRefreshToken
-      user.value = JSON.parse(storedUser)
+    // Восстанавливаем данные из localStorage
+    accessToken.value = storedToken
+    refreshToken.value = storedRefreshToken
 
-      console.log('[Auth] initAuth - Auth restored:', {
-        user: user.value,
-        isAuthenticated: isAuthenticated.value
-      })
-    } else {
-      console.log('[Auth] initAuth - No auth data found in localStorage')
+    if (storedUser) {
+      try {
+        user.value = JSON.parse(storedUser)
+      } catch (e) {
+        console.error('[Auth] Error parsing stored user:', e)
+        user.value = null
+      }
     }
+
+    console.log('[Auth] initAuth - Auth restored:', {
+      isAuthenticated: isAuthenticated.value,
+      user: user.value
+    })
   }
 
   // Сохранение данных авторизации
   function saveAuthData(authData) {
-    console.log('[Auth] saveAuthData called with:', authData)
+    console.log('[Auth] saveAuthData - Received data:', {
+      hasAccessToken: !!authData?.accessToken,
+      hasRefreshToken: !!authData?.refreshToken,
+      accessTokenPreview: authData?.accessToken?.substring(0, 30) + '...',
+      refreshTokenPreview: authData?.refreshToken?.substring(0, 30) + '...'
+    })
 
     // Строгая валидация токенов
     const accessTokenValue = authData?.accessToken
@@ -98,25 +117,12 @@ export const useAuthStore = defineStore('auth', () => {
       role: authData.role,
     }
 
-    console.log('[Auth] Saving to localStorage:', {
-      accessToken: accessToken.value?.substring(0, 30) + '...',
-      refreshToken: refreshToken.value?.substring(0, 30) + '...',
-      user: user.value
-    })
-
+    // Сохраняем в localStorage
     localStorage.setItem('accessToken', accessTokenValue)
     localStorage.setItem('refreshToken', refreshTokenValue)
     localStorage.setItem('user', JSON.stringify(user.value))
 
-    console.log('[Auth] Saved to localStorage. Verifying...')
-    const savedToken = localStorage.getItem('accessToken')
-    const savedRefresh = localStorage.getItem('refreshToken')
-    console.log('[Auth] Verification:', {
-      accessToken: savedToken?.substring(0, 30) + '...',
-      refreshToken: savedRefresh?.substring(0, 30) + '...',
-      isAccessTokenValid: savedToken && savedToken !== 'null' && savedToken !== 'undefined',
-      isRefreshTokenValid: savedRefresh && savedRefresh !== 'null' && savedRefresh !== 'undefined'
-    })
+    console.log('[Auth] saveAuthData - Data saved successfully')
   }
 
   // Очистка данных авторизации
@@ -124,7 +130,6 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken.value = null
     refreshToken.value = null
     user.value = null
-
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('user')
@@ -137,7 +142,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const response = await authApi.signUp(userData)
-      saveAuthData(response.data)
+      // При регистрации не сохраняем токены, так как нужно подтвердить email
       return response.data
     } catch (err) {
       error.value = err.response?.data?.message || 'Ошибка при регистрации'
@@ -219,5 +224,7 @@ export const useAuthStore = defineStore('auth', () => {
     signIn,
     logOut,
     resendVerification,
+    clearAuthData,
   }
 })
+

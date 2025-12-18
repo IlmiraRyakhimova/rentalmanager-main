@@ -171,7 +171,7 @@ const formatDetails = (suggestion) => {
 
 .autocomplete-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -183,7 +183,7 @@ const formatDetails = (suggestion) => {
   width: 18px;
   height: 18px;
   border: 2px solid #e2e8f0;
-  border-top-color: #667eea;
+  border-top-color: #3b82f6;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

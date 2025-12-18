@@ -39,7 +39,7 @@ const email = computed(() => route.query.email || '')
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
   padding: 20px;
 }
 
@@ -94,7 +94,7 @@ const email = computed(() => route.query.email || '')
 }
 
 .email-info strong {
-  color: #667eea;
+  color: #3b82f6;
 }
 
 .actions {
@@ -106,7 +106,7 @@ const email = computed(() => route.query.email || '')
 .btn-primary {
   display: block;
   padding: 14px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
   color: white;
   text-decoration: none;
   border-radius: 10px;
@@ -117,24 +117,24 @@ const email = computed(() => route.query.email || '')
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 .btn-secondary {
   display: block;
   padding: 14px 24px;
   background: transparent;
-  color: #667eea;
+  color: #3b82f6;
   text-decoration: none;
   border-radius: 10px;
   font-size: 16px;
   font-weight: 600;
-  border: 2px solid #667eea;
+  border: 2px solid #3b82f6;
   transition: background 0.2s, color 0.2s;
 }
 
 .btn-secondary:hover {
-  background: #667eea;
+  background: #3b82f6;
   color: white;
 }
 </style>

@@ -61,6 +61,17 @@
             <router-link to="/forgot-password" class="link">Забыли пароль?</router-link>
           </div>
 
+          <!-- Подтвердить email -->
+          <div class="verify-email-section">
+            <button
+              type="button"
+              class="verify-email-btn"
+              @click="showVerifyEmailModal = true"
+            >
+              📧 Подтвердить email
+            </button>
+          </div>
+
           <!-- Общая ошибка -->
           <div v-if="serverError" class="server-error">
             {{ serverError }}
@@ -81,6 +92,44 @@
         </div>
       </div>
     </div>
+
+    <!-- Модальное окно подтверждения email -->
+    <div v-if="showVerifyEmailModal" class="modal-overlay" @click.self="showVerifyEmailModal = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Подтверждение email</h2>
+          <button @click="showVerifyEmailModal = false" class="modal-close">&times;</button>
+        </div>
+        <form @submit.prevent="handleResendVerification" class="verify-form">
+          <p class="modal-description">
+            Введите ваш email для повторной отправки письма с подтверждением.
+            Это необходимо, если вы зарегистрировались как собственник при добавлении апартаментов.
+          </p>
+          <div class="form-group">
+            <label for="verifyEmail" class="form-label">Email</label>
+            <input
+              id="verifyEmail"
+              v-model="verifyEmail"
+              type="email"
+              class="form-input"
+              placeholder="owner@example.com"
+              required
+            />
+          </div>
+          <div v-if="verifyError" class="server-error">{{ verifyError }}</div>
+          <div v-if="verifySuccess" class="success-message">{{ verifySuccess }}</div>
+          <div class="modal-actions">
+            <button type="button" @click="showVerifyEmailModal = false" class="btn-secondary">
+              Отмена
+            </button>
+            <button type="submit" class="btn-primary" :disabled="verifyLoading">
+              <span v-if="verifyLoading" class="spinner"></span>
+              <span v-else>Отправить письмо</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -88,6 +137,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { authApi } from '@/api/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -101,6 +151,13 @@ const errors = ref({})
 const showPassword = ref(false)
 const loading = ref(false)
 const serverError = ref('')
+
+// Модальное окно подтверждения email
+const showVerifyEmailModal = ref(false)
+const verifyEmail = ref('')
+const verifyLoading = ref(false)
+const verifyError = ref('')
+const verifySuccess = ref('')
 
 // Валидация полей
 const validators = {
@@ -158,6 +215,31 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
+
+const handleResendVerification = async () => {
+  verifyLoading.value = true
+  verifyError.value = ''
+  verifySuccess.value = ''
+
+  try {
+    await authApi.resendVerificationEmail(verifyEmail.value)
+    verifySuccess.value = 'Письмо с подтверждением отправлено на указанный email'
+    setTimeout(() => {
+      showVerifyEmailModal.value = false
+      router.push({ path: '/email-pending', query: { email: verifyEmail.value } })
+    }, 1500)
+  } catch (error) {
+    if (error.response?.status === 404) {
+      verifyError.value = 'Пользователь с таким email не найден'
+    } else if (error.response?.data?.message) {
+      verifyError.value = error.response.data.message
+    } else {
+      verifyError.value = 'Произошла ошибка. Попробуйте позже.'
+    }
+  } finally {
+    verifyLoading.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -166,7 +248,7 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
   padding: 20px;
 }
 
@@ -247,8 +329,8 @@ const handleSubmit = async () => {
 }
 
 .form-input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .form-input.input-error {
@@ -290,15 +372,155 @@ const handleSubmit = async () => {
 
 .forgot-password-link .link {
   font-size: 13px;
-  color: #667eea;
+  color: #3b82f6;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .forgot-password-link .link:hover {
-  color: #764ba2;
+  color: #0ea5e9;
   text-decoration: underline;
+}
+
+.verify-email-section {
+  margin-top: 8px;
+}
+
+.verify-email-btn {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 2px solid #3b82f6;
+  color: #3b82f6;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.verify-email-btn:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 450px;
+  width: 100%;
+  padding: 32px;
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #718096;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: #1a202c;
+}
+
+.modal-description {
+  font-size: 14px;
+  color: #4a5568;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+}
+
+.verify-form .form-group {
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-secondary {
+  flex: 1;
+  padding: 12px;
+  background: transparent;
+  border: 2px solid #e2e8f0;
+  color: #718096;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 12px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.success-message {
+  padding: 12px;
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  border-radius: 8px;
+  color: #276749;
+  font-size: 14px;
+  text-align: center;
 }
 
 .server-error {
@@ -314,7 +536,7 @@ const handleSubmit = async () => {
 .submit-btn {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -327,7 +549,7 @@ const handleSubmit = async () => {
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
 }
 
 .submit-btn:disabled {
@@ -363,14 +585,14 @@ const handleSubmit = async () => {
 }
 
 .footer-link {
-  color: #667eea;
+  color: #3b82f6;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s;
 }
 
 .footer-link:hover {
-  color: #764ba2;
+  color: #0ea5e9;
   text-decoration: underline;
 }
 

@@ -83,16 +83,20 @@ public class Booking {
         this.bookingStatus = BookingStatus.PENDING;
         this.paymentStatus = PaymentStatus.UNPAID;
         this.createdAt = LocalDateTime.now();
-        generateBookingCode();
     }
 
-    public void generateBookingCode() {
+    @PrePersist
+    public void prePersist() {
         if (this.bookingCode == null) {
             String timestamp = String.valueOf(System.currentTimeMillis());
-
-
             int randomNumber = Math.abs(RANDOM.nextInt(1000));
             this.bookingCode = "RNT-" + timestamp.substring(timestamp.length() - 6) + "-" + randomNumber;
+        }
+        if (this.bookingStatus == null) {
+            this.bookingStatus = BookingStatus.PENDING;
+        }
+        if (this.paymentStatus == null) {
+            this.paymentStatus = PaymentStatus.UNPAID;
         }
     }
 
