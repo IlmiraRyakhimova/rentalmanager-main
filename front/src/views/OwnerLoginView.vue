@@ -4,7 +4,7 @@
       <div class="auth-card">
         <div class="auth-header">
           <h1 class="auth-title">RENTAL MANAGER</h1>
-          <p class="auth-subtitle">Вход для агентов</p>
+          <p class="auth-subtitle">Вход для собственников</p>
         </div>
 
         <form @submit.prevent="handleSubmit" class="auth-form">
@@ -19,7 +19,7 @@
               type="email"
               class="form-input"
               :class="{ 'input-error': errors.email }"
-              placeholder="agent@example.com"
+              placeholder="owner@example.com"
               @blur="validateField('email')"
               @input="clearError('email')"
               autocomplete="email"
@@ -75,12 +75,8 @@
 
         <div class="auth-footer">
           <p class="footer-text">
-            Нет аккаунта?
-            <router-link to="/register" class="footer-link">Зарегистрироваться</router-link>
-          </p>
-          <p class="footer-text" style="margin-top: 8px;">
-            Вы собственник?
-            <router-link to="/owner-login" class="footer-link">Вход для собственников</router-link>
+            Вы агент?
+            <router-link to="/login" class="footer-link">Вход для агентов</router-link>
           </p>
         </div>
       </div>
@@ -102,20 +98,19 @@ const formData = ref({
 })
 
 const errors = ref({})
-const showPassword = ref(false)
-const loading = ref(false)
 const serverError = ref('')
+const loading = ref(false)
+const showPassword = ref(false)
 
-// Валидация полей
 const validators = {
   email: (value) => {
-    if (!value) return 'Email обязателен для заполнения'
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(value)) return 'Введите корректный email'
+    if (!value) return 'Email обязателен'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Введите корректный email'
     return null
   },
   password: (value) => {
-    if (!value) return 'Пароль обязателен для заполнения'
+    if (!value) return 'Пароль обязателен'
+    if (value.length < 6) return 'Пароль должен быть не менее 6 символов'
     return null
   },
 }
@@ -149,12 +144,16 @@ const handleSubmit = async () => {
 
   try {
     const response = await authStore.signIn(formData.value)
-    // Перенаправление в зависимости от роли
-    if (response.role === 'OWNER') {
-      router.push('/owner-dashboard')
-    } else {
-      router.push('/dashboard')
+    
+    // Проверяем что это действительно собственник
+    if (response.role !== 'OWNER') {
+      serverError.value = 'Этот аккаунт не является аккаунтом собственника'
+      await authStore.clearAuthData()
+      loading.value = false
+      return
     }
+    
+    router.push('/owner-dashboard')
   } catch (error) {
     if (error.response?.status === 401) {
       serverError.value = 'Неверный email или пароль'
@@ -175,27 +174,27 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
 }
 
 .auth-container {
   width: 100%;
-  max-width: 440px;
+  max-width: 450px;
 }
 
 .auth-card {
   background: white;
-  border-radius: 16px;
+  border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   padding: 40px;
-  animation: slideUp 0.5s ease-out;
+  animation: fadeIn 0.6s ease-out;
 }
 
-@keyframes slideUp {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -209,17 +208,18 @@ const handleSubmit = async () => {
 }
 
 .auth-title {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   color: #1a202c;
   margin: 0 0 8px 0;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
 }
 
 .auth-subtitle {
   font-size: 16px;
-  color: #718096;
+  color: #667eea;
   margin: 0;
+  font-weight: 500;
 }
 
 .auth-form {
@@ -245,23 +245,21 @@ const handleSubmit = async () => {
 }
 
 .form-input {
-  width: 100%;
   padding: 12px 16px;
   border: 2px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 15px;
-  transition: all 0.2s;
+  transition: all 0.3s;
   outline: none;
-  box-sizing: border-box;
 }
 
 .form-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .form-input.input-error {
-  border-color: #e53e3e;
+  border-color: #fc8181;
 }
 
 .password-wrapper {
@@ -276,10 +274,10 @@ const handleSubmit = async () => {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 20px;
   padding: 4px;
   opacity: 0.6;
-  transition: opacity 0.2s;
+  transition: opacity 0.3s;
 }
 
 .password-toggle:hover {
@@ -287,9 +285,8 @@ const handleSubmit = async () => {
 }
 
 .error-message {
-  font-size: 13px;
   color: #e53e3e;
-  margin-top: -4px;
+  font-size: 13px;
 }
 
 .forgot-password-link {
@@ -297,176 +294,33 @@ const handleSubmit = async () => {
   margin-top: -8px;
 }
 
-.forgot-password-link .link {
-  font-size: 13px;
-  color: #3b82f6;
+.link {
+  color: #667eea;
+  font-size: 14px;
   text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
+  transition: color 0.3s;
 }
 
-.forgot-password-link .link:hover {
-  color: #0ea5e9;
+.link:hover {
+  color: #764ba2;
   text-decoration: underline;
 }
 
-.verify-email-section {
-  margin-top: 8px;
-}
-
-.verify-email-btn {
-  width: 100%;
-  padding: 12px;
-  background: transparent;
-  border: 2px solid #3b82f6;
-  color: #3b82f6;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.verify-email-btn:hover {
-  background: rgba(59, 130, 246, 0.1);
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 1rem;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 16px;
-  max-width: 450px;
-  width: 100%;
-  padding: 32px;
-  animation: slideUp 0.3s ease-out;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.modal-header h2 {
-  font-size: 22px;
-  font-weight: 700;
-  color: #1a202c;
-  margin: 0;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 28px;
-  color: #718096;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-}
-
-.modal-close:hover {
-  color: #1a202c;
-}
-
-.modal-description {
-  font-size: 14px;
-  color: #4a5568;
-  line-height: 1.6;
-  margin: 0 0 20px 0;
-}
-
-.verify-form .form-group {
-  margin-bottom: 20px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 24px;
-}
-
-.btn-secondary {
-  flex: 1;
-  padding: 12px;
-  background: transparent;
-  border: 2px solid #e2e8f0;
-  color: #718096;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
-}
-
-.btn-primary {
-  flex: 1;
-  padding: 12px;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.success-message {
-  padding: 12px;
-  background: #f0fff4;
-  border: 1px solid #9ae6b4;
-  border-radius: 8px;
-  color: #276749;
-  font-size: 14px;
-  text-align: center;
-}
-
 .server-error {
-  padding: 12px;
-  background: #fff5f5;
-  border: 1px solid #feb2b2;
-  border-radius: 8px;
+  padding: 12px 16px;
+  background: #fed7d7;
   color: #c53030;
+  border-radius: 8px;
   font-size: 14px;
   text-align: center;
 }
 
 .submit-btn {
-  width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -476,7 +330,7 @@ const handleSubmit = async () => {
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
 }
 
 .submit-btn:disabled {
@@ -491,7 +345,7 @@ const handleSubmit = async () => {
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: white;
   border-radius: 50%;
-  animation: spin 0.6s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -506,30 +360,31 @@ const handleSubmit = async () => {
 }
 
 .footer-text {
-  font-size: 14px;
   color: #718096;
+  font-size: 14px;
   margin: 0;
 }
 
 .footer-link {
-  color: #3b82f6;
+  color: #667eea;
   text-decoration: none;
   font-weight: 600;
-  transition: color 0.2s;
+  transition: color 0.3s;
 }
 
 .footer-link:hover {
-  color: #0ea5e9;
+  color: #764ba2;
   text-decoration: underline;
 }
 
-@media (max-width: 640px) {
+/* Responsive */
+@media (max-width: 480px) {
   .auth-card {
-    padding: 28px 24px;
+    padding: 30px 20px;
   }
 
   .auth-title {
-    font-size: 24px;
+    font-size: 28px;
   }
 }
 </style>

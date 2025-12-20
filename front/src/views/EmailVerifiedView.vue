@@ -45,7 +45,7 @@ const userName = ref('')
 const countdown = ref(3)
 
 onMounted(async () => {
-  const { accessToken, refreshToken, email, name } = route.query
+  const { accessToken, refreshToken, email, name, role } = route.query
 
   if (!accessToken || !refreshToken || !email || !name) {
     error.value = 'Неверные параметры верификации'
@@ -60,12 +60,13 @@ onMounted(async () => {
       refreshToken,
       email,
       name,
+      role: role || 'AGENT', // По умолчанию AGENT для обратной совместимости
     }
 
     // Используем внутренний метод для сохранения
     localStorage.setItem('accessToken', accessToken)
     localStorage.setItem('refreshToken', refreshToken)
-    localStorage.setItem('user', JSON.stringify({ email, name }))
+    localStorage.setItem('user', JSON.stringify({ email, name, role: authData.role }))
 
     // Обновляем store
     authStore.initAuth()
@@ -73,12 +74,15 @@ onMounted(async () => {
     userName.value = name
     loading.value = false
 
+    // Определяем куда перенаправить в зависимости от роли
+    const dashboardPath = authData.role === 'OWNER' ? '/owner-dashboard' : '/dashboard'
+
     // Обратный отсчет и редирект
     const timer = setInterval(() => {
       countdown.value--
       if (countdown.value === 0) {
         clearInterval(timer)
-        router.push('/dashboard')
+        router.push(dashboardPath)
       }
     }, 1000)
   } catch (err) {

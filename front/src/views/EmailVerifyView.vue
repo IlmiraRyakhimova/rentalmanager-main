@@ -55,20 +55,27 @@ onMounted(async () => {
   try {
     // Вызываем API бэкенда для верификации
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
-    await axios.get(`${API_URL}/api/auth/verify-email?token=${token}`)
+    const response = await axios.get(`${API_URL}/api/auth/verify-email?token=${token}`)
 
-    // Если верификация успешна
-    userName.value = 'Пользователь'
-    loading.value = false
+    // Бекенд возвращает URL для редиректа с токенами
+    const redirectUrl = response.data
+    
+    if (redirectUrl && typeof redirectUrl === 'string' && redirectUrl.includes('/auth/verified')) {
+      // Перенаправляем на URL с токенами
+      window.location.href = redirectUrl
+    } else {
+      // Старая логика для обратной совместимости
+      userName.value = 'Пользователь'
+      loading.value = false
 
-    // Обратный отсчет и редирект на страницу входа
-    const timer = setInterval(() => {
-      countdown.value--
-      if (countdown.value === 0) {
-        clearInterval(timer)
-        router.push('/login')
-      }
-    }, 1000)
+      const timer = setInterval(() => {
+        countdown.value--
+        if (countdown.value === 0) {
+          clearInterval(timer)
+          router.push('/login')
+        }
+      }, 1000)
+    }
   } catch (err) {
     console.error('Verification error:', err)
     if (err.response?.status === 404) {

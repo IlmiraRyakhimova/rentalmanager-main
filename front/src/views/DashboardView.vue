@@ -129,6 +129,15 @@
                     <span class="detail-value">{{ apartment.owner?.phoneNumber || '—' }}</span>
                   </div>
                 </div>
+                <button 
+                  v-if="apartment.owner?.email" 
+                  @click="resendOwnerEmail(apartment.owner.email, apartment.owner.name)"
+                  class="resend-email-btn"
+                  :disabled="resendingEmail === apartment.owner.email"
+                >
+                  <span v-if="resendingEmail === apartment.owner.email">Отправка...</span>
+                  <span v-else>📧 Переотправить письмо собственнику</span>
+                </button>
               </div>
 
               <!-- Бронирования -->
@@ -599,6 +608,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useApartmentStore } from '@/stores/apartments'
 import { bookingsApi } from '@/api/bookings'
+import { authApi } from '@/api/auth'
 import AddressAutocomplete from '@/components/AddressAutocomplete.vue'
 
 const router = useRouter()
@@ -609,6 +619,9 @@ const apartmentStore = useApartmentStore()
 const user = computed(() => authStore.user)
 const apartments = computed(() => apartmentStore.apartments)
 const loading = ref(false)
+
+// Переотправка письма собственнику
+const resendingEmail = ref(null)
 
 // Раскрытие карточек апартаментов
 const expandedApartment = ref(null)
@@ -676,6 +689,21 @@ const handleLogout = async () => {
   router.push('/')
 }
 
+// Переотправка письма собственнику
+const resendOwnerEmail = async (email, name) => {
+  if (resendingEmail.value) return
+  
+  resendingEmail.value = email
+  try {
+    await authApi.resendOwnerCredentials(email)
+    alert(`Письмо с новым паролем отправлено на ${email}`)
+  } catch (error) {
+    alert(error.response?.data?.message || 'Ошибка при отправке письма')
+  } finally {
+    resendingEmail.value = null
+  }
+}
+
 const resetForm = () => {
   formData.value = {
     title: '',
@@ -734,11 +762,8 @@ const handleSubmit = async () => {
   formLoading.value = true
   formError.value = ''
 
-  // Устанавливаем данные владельца из профиля
-  formData.value.owner.name = user.value?.name || ''
-  formData.value.owner.email = user.value?.email || ''
-  formData.value.owner.phoneNumber = user.value?.phoneNumber || ''
-  formData.value.owner.role = user.value?.role || 'AGENT'
+  // При редактировании не меняем владельца
+  // Владелец устанавливается только при создании через AddApartmentView
 
   try {
     if (editingApartment.value) {
@@ -1441,6 +1466,30 @@ const getPaymentStatusText = (status) => {
 .detail-value {
   color: #2d3748;
   font-weight: 500;
+}
+
+.resend-email-btn {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.resend-email-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.resend-email-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .add-booking-btn {

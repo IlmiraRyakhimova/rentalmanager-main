@@ -63,4 +63,12 @@ export const authApi = {
   resetPassword(token, newPassword) {
     return apiClient.post('/api/auth/reset-password', { token, newPassword })
   },
+
+  /**
+   * Переотправка письма с паролем собственнику
+   * @param {string} email - Email собственника
+   */
+  resendOwnerCredentials(email) {
+    return apiClient.post('/api/auth/resend-owner-credentials', { email })
+  },
 }

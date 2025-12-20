@@ -10,9 +10,10 @@
 
         <div class="action-buttons">
           <router-link to="/register" class="btn btn-primary">
-            Зарегистрироваться
+            Зарегистрироваться как агент
           </router-link>
-          <router-link to="/login" class="btn btn-secondary"> Войти как агент </router-link>
+          <router-link to="/login" class="btn btn-secondary">Вход для агентов</router-link>
+          <router-link to="/owner-login" class="btn btn-owner">Вход для собственников</router-link>
         </div>
 
         <div class="features">
@@ -140,6 +141,17 @@
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.btn-owner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-owner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
 }
 
 .features {
