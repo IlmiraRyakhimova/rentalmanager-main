@@ -78,6 +78,8 @@ public class ApartmentServiceImpl implements ApartmentService {
             owner.setEmailVerified(false);
             apartment.setOwner(userRepository.save(owner));
             emailService.sendOwnerCredentialsEmail(owner.getEmail(), owner.getName(), ownerPassword);
+            // Отправляем письмо с подтверждением email сразу после создания
+            emailService.createAndSendVerificationToken(owner.getEmail());
         }
     }
 

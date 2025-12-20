@@ -45,8 +45,8 @@ public class AuthController {
 
     @GetMapping("/verify-email")
     public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
-        emailService.verifyEmail(token);
-        return ResponseEntity.ok("Email успешно подтвержден");
+        String redirectUrl = emailService.verifyEmail(token);
+        return ResponseEntity.ok(redirectUrl);
     }
 
     @PostMapping("/resend-verification-email")
@@ -65,6 +65,12 @@ public class AuthController {
     public ResponseEntity<String> resetPassword(@RequestBody PasswordResetRequestDto request) {
         emailService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok("Пароль успешно изменен");
+    }
+
+    @PostMapping("/resend-owner-credentials")
+    public ResponseEntity<String> resendOwnerCredentials(@RequestBody EmailVerificationRequestDto request) {
+        emailService.resendOwnerCredentialsEmail(request.getEmail());
+        return ResponseEntity.ok("Письмо с новым паролем отправлено собственнику.");
     }
 
 

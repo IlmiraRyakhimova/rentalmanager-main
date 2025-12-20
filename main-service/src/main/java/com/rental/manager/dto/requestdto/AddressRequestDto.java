@@ -21,6 +21,5 @@ public class AddressRequestDto {
     private String buildingNumber;
     private Integer floorNumber;
 
-    @NotNull
     private Integer apartmentNumber;
 }

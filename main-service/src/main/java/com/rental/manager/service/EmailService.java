@@ -9,4 +9,5 @@ public interface EmailService {
     String resetPassword(String resetToken, String newPassword);
     void sendEmail(String to, String token, String subject, String path, String message);
     void sendOwnerCredentialsEmail(String to, String name, String password);
+    void resendOwnerCredentialsEmail(String ownerEmail);
 }

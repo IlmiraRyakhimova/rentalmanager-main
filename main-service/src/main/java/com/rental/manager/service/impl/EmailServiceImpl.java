@@ -147,7 +147,7 @@ public class EmailServiceImpl implements EmailService {
         Пожалуйста, при входе в систему подтвердите свой email и измените пароль после первого входа.
         """.formatted(name, to, password);
 
-        String loginUrl = frontendUrl + "/auth/sign-in";
+        String loginUrl = frontendUrl + "/owner-login";
         sendEmail(to, subject, message, loginUrl, "Войти в систему");
 
     }
@@ -196,11 +196,37 @@ public class EmailServiceImpl implements EmailService {
         userRepository.save(user);
         emailVerificationTokenRepository.delete(verificationToken);
         
-        return String.format("%s/auth/verified?accessToken=%s&refreshToken=%s&email=%s&name=%s",
+        return String.format("%s/auth/verified?accessToken=%s&refreshToken=%s&email=%s&name=%s&role=%s",
                 frontendUrl,
                 jwtDto.getToken(),
                 jwtDto.getRefreshToken(),
                 user.getEmail(),
-                user.getName());
+                user.getName(),
+                user.getRole().name());
+    }
+
+    @Override
+    @Transactional
+    public void resendOwnerCredentialsEmail(String ownerEmail) {
+        User user = userRepository.findByEmail(ownerEmail);
+        if (user == null) {
+            throw new EntityNotFoundException("Собственник не найден с email: " + ownerEmail);
+        }
+
+        if (user.getRole() != com.rental.manager.entities.enums.UserRole.OWNER) {
+            throw new IllegalArgumentException("Пользователь не является собственником");
+        }
+
+        // Генерируем новый пароль
+        String newPassword = UUID.randomUUID().toString().substring(0, 8);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setEmailVerified(false); // Сбрасываем верификацию
+        userRepository.save(user);
+
+        // Отправляем письмо с новыми учетными данными
+        sendOwnerCredentialsEmail(ownerEmail, user.getName(), newPassword);
+
+        // Создаём токен верификации
+        createAndSendVerificationToken(ownerEmail);
     }
 }
