@@ -1,8 +1,6 @@
 package com.rental.manager.service.impl;
 
-import com.rental.manager.dto.requestdto.ChangePasswordRequestDto;
-import com.rental.manager.dto.requestdto.UserPatchRequestDto;
-import com.rental.manager.dto.requestdto.UserRequestDto;
+import com.rental.manager.dto.requestdto.*;
 import com.rental.manager.dto.responsedto.UserResponseDto;
 import com.rental.manager.entities.User;
 import com.rental.manager.repository.UserRepository;
@@ -102,6 +100,26 @@ public class UserServiceImpl implements UserService {
         }
 
         currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(currentUser);
+    }
+
+    public void changePhoneNumber(ChangePhoneNumberRequest request) {
+        String currentUserEmail = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+
+        User currentUser = userRepository.findByEmail(currentUserEmail);
+
+        currentUser.setPhoneNumber(request.getPhoneNumber());
+        userRepository.save(currentUser);
+    }
+
+    public void changeUserName(ChangeUserNameRequest request) {
+        String currentUserEmail = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+
+        User currentUser = userRepository.findByEmail(currentUserEmail);
+
+        currentUser.setName(request.getUserName());
         userRepository.save(currentUser);
     }
 }

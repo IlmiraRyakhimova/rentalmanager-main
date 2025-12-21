@@ -1,8 +1,6 @@
 package com.rental.manager.service;
 
-import com.rental.manager.dto.requestdto.ChangePasswordRequestDto;
-import com.rental.manager.dto.requestdto.UserPatchRequestDto;
-import com.rental.manager.dto.requestdto.UserRequestDto;
+import com.rental.manager.dto.requestdto.*;
 import com.rental.manager.dto.responsedto.UserResponseDto;
 
 
@@ -22,4 +20,6 @@ public interface UserService {
     UserResponseDto getUserByEmail(String email);
     UserResponseDto getUserByPhoneNumber(String phoneNumber);
     void changePassword(ChangePasswordRequestDto request);
+    void changePhoneNumber(ChangePhoneNumberRequest request);
+    void changeUserName(ChangeUserNameRequest request);
 }
