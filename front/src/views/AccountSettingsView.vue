@@ -177,7 +177,14 @@ const error = ref(null)
 const success = ref(null)
 
 // Инициализация формы профиля данными пользователя
-onMounted(() => {
+onMounted(async () => {
+  // Загружаем актуальные данные пользователя с сервера
+  try {
+    await authStore.fetchUserProfile()
+  } catch (err) {
+    console.error('Не удалось загрузить профиль пользователя:', err)
+  }
+
   if (user.value) {
     profileForm.value = {
       name: user.value.name || '',
@@ -224,12 +231,12 @@ async function handleUpdateProfile() {
   try {
     // Изменяем имя пользователя
     await apiClient.post('/api/account-settings/change-user-name', {
-      newName: profileForm.value.name
+      userName: profileForm.value.name
     })
 
     // Изменяем номер телефона
     await apiClient.post('/api/account-settings/change-phone-number', {
-      newPhoneNumber: profileForm.value.phoneNumber
+      phoneNumber: profileForm.value.phoneNumber
     })
 
     // Обновляем данные пользователя в store

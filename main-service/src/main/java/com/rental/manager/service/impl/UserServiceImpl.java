@@ -86,6 +86,16 @@ public class UserServiceImpl implements UserService {
         return mapper.toDto(userRepository.findByPhoneNumber(phoneNumber));
     }
 
+    public UserResponseDto getCurrentUser() {
+        String currentUserEmail = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+        User currentUser = userRepository.findByEmail(currentUserEmail);
+        if (currentUser == null) {
+            throw new EntityNotFoundException("Пользователь не найден");
+        }
+        return mapper.toDto(currentUser);
+    }
+
     public void changePassword(ChangePasswordRequestDto request) {
         String currentUserEmail = SecurityContextHolder.getContext()
                 .getAuthentication().getName();

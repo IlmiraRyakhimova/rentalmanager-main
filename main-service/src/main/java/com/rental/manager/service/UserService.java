@@ -19,6 +19,7 @@ public interface UserService {
     List<UserResponseDto> getAllUsers();
     UserResponseDto getUserByEmail(String email);
     UserResponseDto getUserByPhoneNumber(String phoneNumber);
+    UserResponseDto getCurrentUser();
     void changePassword(ChangePasswordRequestDto request);
     void changePhoneNumber(ChangePhoneNumberRequest request);
     void changeUserName(ChangeUserNameRequest request);

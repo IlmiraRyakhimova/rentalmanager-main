@@ -71,6 +71,17 @@ apiClient.interceptors.response.use(
           localStorage.setItem('accessToken', data.accessToken)
           localStorage.setItem('refreshToken', data.refreshToken)
 
+          // Обновляем данные пользователя, включая phoneNumber
+          if (data.name || data.email || data.phoneNumber || data.role) {
+            const userData = {
+              name: data.name,
+              email: data.email,
+              phoneNumber: data.phoneNumber,
+              role: data.role
+            }
+            localStorage.setItem('user', JSON.stringify(userData))
+          }
+
           originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
           return apiClient(originalRequest)
         }
