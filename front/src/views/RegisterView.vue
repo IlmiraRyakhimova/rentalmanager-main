@@ -55,7 +55,7 @@
               type="tel"
               class="form-input"
               :class="{ 'input-error': errors.phoneNumber }"
-              placeholder="+79991234567"
+              placeholder="+66812345678"
               @blur="validateField('phoneNumber')"
               @input="clearError('phoneNumber')"
             />

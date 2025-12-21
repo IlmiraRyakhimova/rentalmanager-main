@@ -4,11 +4,6 @@
       <div class="header-content">
         <h1 class="dashboard-title">RENTAL MANAGER</h1>
         <div class="user-info">
-          <select v-model="selectedCurrency" class="currency-select">
-            <option v-for="currency in currencies" :key="currency.code" :value="currency.code">
-              {{ currency.symbol }} {{ currency.code }}
-            </option>
-          </select>
           <span class="user-name">{{ user?.name }}</span>
           <button @click="goToSettings" class="settings-btn">⚙️ Настройки</button>
           <button @click="handleLogout" class="logout-btn">Выйти</button>
@@ -19,10 +14,21 @@
     <main class="dashboard-main">
       <div class="welcome-section">
         <h2 class="section-title">Мои апартаменты</h2>
-        <router-link to="/apartments/add" class="add-btn">
-          <span class="add-icon">+</span>
-          Добавить апартаменты
-        </router-link>
+        <div class="welcome-actions">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input
+              v-model="apartmentSearchQuery"
+              type="text"
+              placeholder="Поиск по названию, адресу, владельцу..."
+              class="search-input"
+            />
+          </div>
+          <router-link to="/apartments/add" class="add-btn">
+            <span class="add-icon">+</span>
+            Добавить апартаменты
+          </router-link>
+        </div>
       </div>
 
       <!-- Список апартаментов -->
@@ -38,9 +44,15 @@
         <router-link to="/apartments/add" class="btn-primary">Добавить апартаменты</router-link>
       </div>
 
+      <div v-else-if="filteredApartments.length === 0 && apartmentSearchQuery" class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>Ничего не найдено</h3>
+        <p>Попробуйте изменить поисковый запрос</p>
+      </div>
+
       <div v-else class="apartments-list">
         <div
-          v-for="apartment in apartments"
+          v-for="apartment in filteredApartments"
           :key="apartment.id"
           class="apartment-row"
           :class="{ expanded: expandedApartment === apartment.id }"
@@ -318,7 +330,7 @@
                   v-model="bookingFormData.mainGuest.phoneNumber"
                   type="tel"
                   class="form-input"
-                  placeholder="+79991234567"
+                  placeholder="+66812345678"
                   required
                 />
               </div>
@@ -496,7 +508,7 @@
               <AddressAutocomplete
                 v-model="addressSearchQuery"
                 label="Поиск адреса"
-                placeholder="Начните вводить адрес (например: Москва, Тверская 10)"
+                placeholder="Start typing address (e.g.: Phuket, Patong Beach)"
                 @select="handleAddressSelect"
               />
               <p class="helper-text">💡 Начните вводить адрес для автоматического заполнения полей</p>
@@ -512,7 +524,7 @@
                   v-model="formData.address.country"
                   type="text"
                   class="form-input"
-                  placeholder="Россия"
+                  placeholder="Thailand"
                   required
                 />
               </div>
@@ -524,7 +536,7 @@
                   v-model="formData.address.city"
                   type="text"
                   class="form-input"
-                  placeholder="Москва"
+                  placeholder="Phuket"
                   required
                 />
               </div>
@@ -642,6 +654,22 @@ const user = computed(() => authStore.user)
 const apartments = computed(() => apartmentStore.apartments)
 const loading = ref(false)
 
+// Поиск по квартирам
+const apartmentSearchQuery = ref('')
+const filteredApartments = computed(() => {
+  if (!apartmentSearchQuery.value) return apartments.value
+  
+  const query = apartmentSearchQuery.value.toLowerCase()
+  return apartments.value.filter(apartment => 
+    apartment.title?.toLowerCase().includes(query) ||
+    apartment.address?.city?.toLowerCase().includes(query) ||
+    apartment.address?.street?.toLowerCase().includes(query) ||
+    apartment.address?.district?.toLowerCase().includes(query) ||
+    apartment.owner?.name?.toLowerCase().includes(query) ||
+    apartment.owner?.email?.toLowerCase().includes(query)
+  )
+})
+
 // Переотправка письма собственнику
 const resendingEmail = ref(null)
 
@@ -746,7 +774,7 @@ const formData = ref({
   },
   address: {
     postalCode: '',
-    country: 'Россия',
+    country: 'Thailand',
     city: '',
     district: '',
     street: '',
@@ -797,7 +825,7 @@ const resetForm = () => {
     },
     address: {
       postalCode: '',
-      country: 'Россия',
+      country: 'Thailand',
       city: '',
       district: '',
       street: '',
@@ -1322,6 +1350,47 @@ const getPaymentStatusText = (status) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.welcome-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-box:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-icon {
+  font-size: 1rem;
+  margin-right: 0.5rem;
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  color: #1a202c;
+  min-width: 250px;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: #a0aec0;
 }
 
 .section-title {

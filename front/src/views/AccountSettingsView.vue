@@ -60,7 +60,7 @@
                 type="tel"
                 id="phoneNumber"
                 v-model="profileForm.phoneNumber"
-                placeholder="+79991234567"
+                placeholder="+66812345678"
                 required
               />
             </div>

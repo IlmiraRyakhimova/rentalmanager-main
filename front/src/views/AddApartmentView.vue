@@ -25,7 +25,7 @@
               v-model="formData.title"
               type="text"
               class="form-input"
-              placeholder="Уютная квартира в центре"
+              placeholder="Apartment 123"
               required
             />
           </div>
@@ -212,7 +212,7 @@
                   v-model="formData.owner.phoneNumber"
                   type="tel"
                   class="form-input"
-                  placeholder="+79991234567"
+                  placeholder="+66812345678"
                   required
                 />
               </div>
@@ -232,7 +232,7 @@
             <AddressAutocomplete
               v-model="addressSearchQuery"
               label="Поиск адреса"
-              placeholder="Начните вводить адрес (например: Москва, Тверская 10)"
+              placeholder="Start typing address (e.g.: Phuket, Patong Beach)"
               @select="handleAddressSelect"
             />
             <p class="helper-text">💡 Начните вводить адрес для автоматического заполнения полей</p>
@@ -248,7 +248,7 @@
                 v-model="formData.address.country"
                 type="text"
                 class="form-input"
-                placeholder="Россия"
+                placeholder="Thailand"
               />
             </div>
 
@@ -259,7 +259,7 @@
                 v-model="formData.address.city"
                 type="text"
                 class="form-input"
-                placeholder="Москва"
+                placeholder="Phuket"
               />
             </div>
           </div>
@@ -392,7 +392,7 @@ const formData = ref({
   },
   address: {
     postalCode: '',
-    country: 'Россия',
+    country: 'Thailand',
     city: '',
     district: '',
     street: '',

@@ -6,6 +6,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
 
     <include file="db/changelog/sql/001-add-users-table.sql"/>
+    <include file="db/changelog/sql/002-add-test-data.sql"/>
 </databaseChangeLog>
 
 <!--1) создать файл sql с помощью скрипта new-migration.sh или вручную

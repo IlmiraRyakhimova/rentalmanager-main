@@ -4,11 +4,6 @@
       <div class="header-content">
         <h1 class="dashboard-title">RENTAL MANAGER</h1>
         <div class="user-info">
-          <select v-model="selectedCurrency" class="currency-select">
-            <option v-for="currency in currencies" :key="currency.code" :value="currency.code">
-              {{ currency.symbol }} {{ currency.code }}
-            </option>
-          </select>
           <span class="user-role-badge">Собственник</span>
           <span class="user-name">{{ user?.name }}</span>
           <button @click="goToSettings" class="settings-btn">⚙️ Настройки</button>
