@@ -212,6 +212,19 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Получение текущего про��иля пользователя
+  async function fetchUserProfile() {
+    try {
+      const response = await authApi.getCurrentUser()
+      user.value = response.data
+      // Обновляем в localStorage
+      localStorage.setItem('user', JSON.stringify(response.data))
+    } catch (err) {
+      console.error('Error fetching user profile:', err)
+      throw err
+    }
+  }
+
   return {
     user,
     accessToken,
@@ -225,6 +238,7 @@ export const useAuthStore = defineStore('auth', () => {
     logOut,
     resendVerification,
     clearAuthData,
+    fetchUserProfile,
   }
 })
 

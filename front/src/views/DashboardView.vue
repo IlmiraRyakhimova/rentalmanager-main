@@ -167,6 +167,9 @@
                       <span class="booking-dates">
                         {{ formatDate(booking.checkInDate) }} — {{ formatDate(booking.checkOutDate) }}
                       </span>
+                      <span class="booking-price">
+                        💰 {{ formatPriceNumber(calculateBookingPrice(booking, apartment)) }} {{ currentCurrencySymbol }}
+                      </span>
                     </div>
                     <div class="booking-statuses">
                       <span class="booking-status" :class="'status-' + booking.bookingStatus?.toLowerCase()">
@@ -242,6 +245,19 @@
               <span class="legend-item"><span class="legend-dot booked"></span> Забронировано</span>
               <span class="legend-item"><span class="legend-dot selected"></span> Выбрано</span>
             </div>
+
+            <!-- Расчёт стоимости под календарем -->
+            <div v-if="bookingFormData.checkInDate && bookingFormData.checkOutDate && calculatedBookingPrice > 0" class="booking-price-preview calendar-price">
+              <div class="price-calculation">
+                <div class="price-row">
+                  <span class="price-nights">{{ calculatedNights }} {{ getNightsWord(calculatedNights) }} × {{ formatPriceNumber(selectedApartmentPrice) }} {{ currentCurrencySymbol }}</span>
+                </div>
+                <div class="price-total-row">
+                  <span class="price-total-label">💰 Стоимость:</span>
+                  <span class="price-total-value">{{ formatPriceNumber(calculatedBookingPrice) }} {{ currentCurrencySymbol }}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Форма бронирования -->
@@ -267,19 +283,6 @@
                   class="form-input"
                   required
                 />
-              </div>
-            </div>
-
-            <!-- Расчёт стоимости -->
-            <div v-if="bookingFormData.checkInDate && bookingFormData.checkOutDate && calculatedBookingPrice > 0" class="booking-price-preview">
-              <div class="price-calculation">
-                <div class="price-row">
-                  <span>{{ calculatedNights }} ночей × {{ formatPriceNumber(selectedApartmentPrice) }} {{ currentCurrencySymbol }}</span>
-                </div>
-                <div class="price-total-row">
-                  <span class="price-total-label">Итого:</span>
-                  <span class="price-total-value">{{ formatPriceNumber(calculatedBookingPrice) }} {{ currentCurrencySymbol }}</span>
-                </div>
               </div>
             </div>
 
@@ -706,6 +709,16 @@ const calculatedBookingPrice = computed(() => {
   return calculatedNights.value * Number(selectedApartmentPrice.value)
 })
 
+// Склонение слова "ночь"
+const getNightsWord = (n) => {
+  const abs = Math.abs(n) % 100
+  const n1 = abs % 10
+  if (abs > 10 && abs < 20) return 'ночей'
+  if (n1 > 1 && n1 < 5) return 'ночи'
+  if (n1 === 1) return 'ночь'
+  return 'ночей'
+}
+
 // Форматирование числа с разделителями
 const formatPriceNumber = (price) => {
   if (!price && price !== 0) return '0'
@@ -909,7 +922,7 @@ const loadBookingsForApartment = async (apartmentId) => {
 }
 
 const openBookingModal = (apartment) => {
-  currentBookingApartment.value = apartment
+  currentBookingApartment.value = apartment.id
   editingBooking.value = null
   bookingFormData.value = {
     mainGuest: {
@@ -940,6 +953,8 @@ const closeBookingModal = () => {
 
 const editBooking = (booking) => {
   editingBooking.value = booking
+  currentBookingApartment.value = booking.apartment?.id || booking.apartmentId || null
+
   bookingFormData.value = {
     mainGuest: {
       name: booking.mainGuest?.name || booking.guestName || '',
@@ -1120,14 +1135,23 @@ const handleBookingSubmit = async () => {
       })
     } else {
       // Создание нового бронирования
-      await bookingsApi.create({
-        apartmentId: currentBookingApartment.value.id,
+      const response = await bookingsApi.create({
+        apartmentId: currentBookingApartment.value, // Это уже ID, не объект
         mainGuest: bookingFormData.value.mainGuest,
         numberOfAdults: bookingFormData.value.numberOfAdults,
         numberOfChildren: bookingFormData.value.numberOfChildren,
         checkInDate: bookingFormData.value.checkInDate,
         checkOutDate: bookingFormData.value.checkOutDate,
         notes: bookingFormData.value.notes
+      })
+
+      // Обновляем статусы сразу после создания
+      const bookingId = response.data.id
+      await bookingsApi.updateBookingStatus(bookingId, {
+        bookingStatus: bookingFormData.value.bookingStatus
+      })
+      await bookingsApi.updatePaymentStatus(bookingId, {
+        paymentStatus: bookingFormData.value.paymentStatus
       })
     }
 
@@ -1148,6 +1172,16 @@ const formatDate = (dateStr) => {
   if (!dateStr) return '—'
   const date = new Date(dateStr)
   return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+// Расчет стоимости бронирования
+const calculateBookingPrice = (booking, apartment) => {
+  if (!booking.checkInDate || !booking.checkOutDate || !apartment?.pricePerNight) return 0
+  const start = new Date(booking.checkInDate)
+  const end = new Date(booking.checkOutDate)
+  const diffTime = end - start
+  const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return nights > 0 ? nights * apartment.pricePerNight : 0
 }
 
 // Текст статуса бронирования
@@ -1682,6 +1716,15 @@ const getPaymentStatusText = (status) => {
   font-size: 0.9rem;
 }
 
+.booking-price {
+  color: #2e7d32;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: #e8f5e9;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
 .booking-statuses {
   display: flex;
   gap: 0.75rem;
@@ -1891,6 +1934,15 @@ const getPaymentStatusText = (status) => {
   background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
   border-radius: 10px;
   border: 1px solid #a5d6a7;
+}
+
+.booking-price-preview.calendar-price {
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+.price-nights {
+  font-weight: 500;
 }
 
 .price-calculation {

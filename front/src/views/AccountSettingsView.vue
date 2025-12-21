@@ -38,6 +38,52 @@
           </div>
         </div>
 
+        <!-- Редактирование профиля -->
+        <div class="profile-edit-section">
+          <h3>Редактирование профиля</h3>
+
+          <form @submit.prevent="handleUpdateProfile" class="profile-form">
+            <div class="form-group">
+              <label for="name">Имя</label>
+              <input
+                type="text"
+                id="name"
+                v-model="profileForm.name"
+                placeholder="Введите ваше имя"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="phoneNumber">Номер телефона</label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                v-model="profileForm.phoneNumber"
+                placeholder="+79991234567"
+                required
+              />
+            </div>
+
+            <div v-if="profileError" class="error-message">
+              {{ profileError }}
+            </div>
+
+            <div v-if="profileSuccess" class="success-message">
+              {{ profileSuccess }}
+            </div>
+
+            <button
+              type="submit"
+              class="submit-btn"
+              :disabled="profileLoading"
+            >
+              <span v-if="profileLoading" class="spinner"></span>
+              <span v-else>Сохранить изменения</span>
+            </button>
+          </form>
+        </div>
+
         <!-- Смена пароля -->
         <div class="password-section">
           <h3>Смена пароля</h3>
@@ -101,7 +147,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import apiClient from '@/api/axios'
@@ -110,6 +156,15 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const user = computed(() => authStore.user)
+
+const profileForm = ref({
+  name: '',
+  phoneNumber: ''
+})
+
+const profileLoading = ref(false)
+const profileError = ref(null)
+const profileSuccess = ref(null)
 
 const passwordForm = ref({
   oldPassword: '',
@@ -120,6 +175,16 @@ const passwordForm = ref({
 const loading = ref(false)
 const error = ref(null)
 const success = ref(null)
+
+// Инициализация формы профиля данными пользователя
+onMounted(() => {
+  if (user.value) {
+    profileForm.value = {
+      name: user.value.name || '',
+      phoneNumber: user.value.phoneNumber || ''
+    }
+  }
+})
 
 function getRoleText(role) {
   const roles = {
@@ -136,6 +201,46 @@ function goBack() {
     router.push({ name: 'owner-dashboard' })
   } else {
     router.push({ name: 'dashboard' })
+  }
+}
+
+async function handleUpdateProfile() {
+  profileError.value = null
+  profileSuccess.value = null
+
+  // Валидация
+  if (!profileForm.value.name || profileForm.value.name.trim() === '') {
+    profileError.value = 'Имя не может быть пустым'
+    return
+  }
+
+  if (!profileForm.value.phoneNumber || profileForm.value.phoneNumber.trim() === '') {
+    profileError.value = 'Телефон не может быть пустым'
+    return
+  }
+
+  profileLoading.value = true
+
+  try {
+    // Изменяем имя пользователя
+    await apiClient.post('/api/account-settings/change-user-name', {
+      newName: profileForm.value.name
+    })
+
+    // Изменяем номер телефона
+    await apiClient.post('/api/account-settings/change-phone-number', {
+      newPhoneNumber: profileForm.value.phoneNumber
+    })
+
+    // Обновляем данные пользователя в store
+    await authStore.fetchUserProfile()
+
+    profileSuccess.value = 'Профиль успешно обновлён'
+  } catch (err) {
+    console.error('Ошибка обновления профиля:', err)
+    profileError.value = err.response?.data?.message || err.response?.data || 'Ошибка при обновлении профиля'
+  } finally {
+    profileLoading.value = false
   }
 }
 
@@ -241,11 +346,13 @@ async function handleChangePassword() {
 }
 
 .user-info-section,
+.profile-edit-section,
 .password-section {
   margin-bottom: 2rem;
 }
 
 .user-info-section h3,
+.profile-edit-section h3,
 .password-section h3 {
   font-size: 1.1rem;
   color: #555;
@@ -277,6 +384,7 @@ async function handleChangePassword() {
   font-weight: 500;
 }
 
+.profile-form,
 .password-form {
   max-width: 400px;
 }

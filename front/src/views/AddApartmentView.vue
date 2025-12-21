@@ -41,7 +41,7 @@
             </div>
 
             <div class="form-group">
-              <label for="pricePerNight">Цена за ночь (₽) <span class="required">*</span></label>
+              <label for="pricePerNight">Цена за ночь (THB) <span class="required">*</span></label>
               <input
                 id="pricePerNight"
                 v-model.number="formData.pricePerNight"
@@ -49,7 +49,7 @@
                 class="form-input"
                 placeholder="5000"
                 min="0"
-                step="100"
+                step="any"
                 required
               />
             </div>
@@ -57,7 +57,7 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="area">Площадь (м²) <span class="required">*</span></label>
+              <label for="area">Площадь (м²)</label>
               <input
                 id="area"
                 v-model.number="formData.area"
@@ -66,33 +66,30 @@
                 placeholder="65.5"
                 min="0"
                 step="0.1"
-                required
               />
             </div>
 
             <div class="form-group">
-              <label for="numberOfRooms">Комнат <span class="required">*</span></label>
+              <label for="numberOfRooms">Комнат</label>
               <input
                 id="numberOfRooms"
                 v-model.number="formData.numberOfRooms"
                 type="number"
                 class="form-input"
                 placeholder="2"
-                min="1"
-                required
+                min="0"
               />
             </div>
 
             <div class="form-group">
-              <label for="numberOfBathrooms">Ванных комнат <span class="required">*</span></label>
+              <label for="numberOfBathrooms">Ванных комнат</label>
               <input
                 id="numberOfBathrooms"
                 v-model.number="formData.numberOfBathrooms"
                 type="number"
                 class="form-input"
                 placeholder="1"
-                min="1"
-                required
+                min="0"
               />
             </div>
           </div>
@@ -161,7 +158,7 @@
             </div>
 
             <div v-else-if="ownerSearchQuery && !searchingOwners" class="no-results">
-              Владельцы не найдены. 
+              Владельцы не найдены.
               <button type="button" class="link-btn" @click="ownerMode = 'new'">
                 Создать нового?
               </button>
@@ -245,26 +242,24 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="country">Страна <span class="required">*</span></label>
+              <label for="country">Страна</label>
               <input
                 id="country"
                 v-model="formData.address.country"
                 type="text"
                 class="form-input"
                 placeholder="Россия"
-                required
               />
             </div>
 
             <div class="form-group">
-              <label for="city">Город <span class="required">*</span></label>
+              <label for="city">Город</label>
               <input
                 id="city"
                 v-model="formData.address.city"
                 type="text"
                 class="form-input"
                 placeholder="Москва"
-                required
               />
             </div>
           </div>
@@ -295,26 +290,24 @@
 
           <div class="form-row">
             <div class="form-group flex-2">
-              <label for="street">Улица <span class="required">*</span></label>
+              <label for="street">Улица</label>
               <input
                 id="street"
                 v-model="formData.address.street"
                 type="text"
                 class="form-input"
                 placeholder="Тверская"
-                required
               />
             </div>
 
             <div class="form-group">
-              <label for="buildingNumber">Дом <span class="required">*</span></label>
+              <label for="buildingNumber">Дом</label>
               <input
                 id="buildingNumber"
                 v-model="formData.address.buildingNumber"
                 type="text"
                 class="form-input"
                 placeholder="10"
-                required
               />
             </div>
           </div>
@@ -389,8 +382,8 @@ const formData = ref({
   accommodationType: 'Apartment',
   pricePerNight: null,
   area: null,
-  numberOfRooms: 1,
-  numberOfBathrooms: 1,
+  numberOfRooms: null,
+  numberOfBathrooms: null,
   owner: {
     name: '',
     email: '',
@@ -412,9 +405,9 @@ const formData = ref({
 // Фильтрация владельцев
 const filteredOwners = computed(() => {
   if (!ownerSearchQuery.value) return owners.value
-  
+
   const query = ownerSearchQuery.value.toLowerCase()
-  return owners.value.filter(owner => 
+  return owners.value.filter(owner =>
     owner.name?.toLowerCase().includes(query) ||
     owner.email?.toLowerCase().includes(query) ||
     owner.phoneNumber?.includes(query)
@@ -436,7 +429,7 @@ let searchTimeout = null
 const searchOwners = () => {
   clearTimeout(searchTimeout)
   searchingOwners.value = true
-  
+
   searchTimeout = setTimeout(async () => {
     try {
       if (ownerSearchQuery.value.trim()) {

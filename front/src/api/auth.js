@@ -71,4 +71,11 @@ export const authApi = {
   resendOwnerCredentials(email) {
     return apiClient.post('/api/auth/resend-owner-credentials', { email })
   },
+
+  /**
+   * Получение текущего профиля пользователя
+   */
+  getCurrentUser() {
+    return apiClient.get('/api/users/me')
+  },
 }
