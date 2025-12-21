@@ -13,13 +13,8 @@ public class AddressRequestDto {
     private String country;
     private String city;
     private String district;
-
-    @NotBlank
     private String street;
-
-    @NotBlank
     private String buildingNumber;
     private Integer floorNumber;
-
     private Integer apartmentNumber;
 }
