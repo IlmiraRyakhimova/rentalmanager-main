@@ -530,7 +530,7 @@ const handleSubmit = async () => {
 <style scoped>
 .add-apartment-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
 }
 
 .page-header {
@@ -549,7 +549,7 @@ const handleSubmit = async () => {
 
 .back-btn {
   display: inline-block;
-  color: #3b82f6;
+  color: #1565c0;
   text-decoration: none;
   font-weight: 600;
   font-size: 0.9rem;
@@ -558,13 +558,13 @@ const handleSubmit = async () => {
 }
 
 .back-btn:hover {
-  color: #0ea5e9;
+  color: #0d47a1;
 }
 
 .page-title {
   font-size: 1.75rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -646,7 +646,7 @@ const handleSubmit = async () => {
 }
 
 .form-input:focus {
-  border-color: #3b82f6;
+  border-color: #1565c0;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
@@ -707,7 +707,7 @@ const handleSubmit = async () => {
 
 .toggle-btn.active {
   background: white;
-  color: #3b82f6;
+  color: #1565c0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -728,7 +728,7 @@ const handleSubmit = async () => {
   width: 18px;
   height: 18px;
   border: 2px solid #e2e8f0;
-  border-top-color: #3b82f6;
+  border-top-color: #1565c0;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -768,7 +768,7 @@ const handleSubmit = async () => {
 
 .owner-item.selected {
   background: #ebf4ff;
-  border-color: #3b82f6;
+  border-color: #1565c0;
 }
 
 .owner-info {
@@ -784,7 +784,7 @@ const handleSubmit = async () => {
 
 .owner-email {
   font-size: 0.85rem;
-  color: #3b82f6;
+  color: #1565c0;
 }
 
 .owner-phone {
@@ -793,7 +793,7 @@ const handleSubmit = async () => {
 }
 
 .check-icon {
-  color: #3b82f6;
+  color: #1565c0;
   font-size: 1.25rem;
   font-weight: bold;
 }
@@ -807,14 +807,14 @@ const handleSubmit = async () => {
 .link-btn {
   background: none;
   border: none;
-  color: #3b82f6;
+  color: #1565c0;
   font-weight: 600;
   cursor: pointer;
   text-decoration: underline;
 }
 
 .link-btn:hover {
-  color: #0ea5e9;
+  color: #0d47a1;
 }
 
 /* Выбранный владелец */
@@ -875,7 +875,7 @@ const handleSubmit = async () => {
 
 .btn-primary {
   padding: 0.875rem 2rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -903,8 +903,8 @@ const handleSubmit = async () => {
 .btn-secondary {
   padding: 0.875rem 2rem;
   background: transparent;
-  color: #3b82f6;
-  border: 2px solid #3b82f6;
+  color: #1565c0;
+  border: 2px solid #1565c0;
   border-radius: 10px;
   font-size: 1rem;
   font-weight: 600;
@@ -915,7 +915,7 @@ const handleSubmit = async () => {
 }
 
 .btn-secondary:hover {
-  background: #3b82f6;
+  background: #1565c0;
   color: white;
 }
 

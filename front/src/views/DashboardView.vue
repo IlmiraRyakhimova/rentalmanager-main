@@ -4,7 +4,13 @@
       <div class="header-content">
         <h1 class="dashboard-title">RENTAL MANAGER</h1>
         <div class="user-info">
+          <select v-model="selectedCurrency" class="currency-select">
+            <option v-for="currency in currencies" :key="currency.code" :value="currency.code">
+              {{ currency.symbol }} {{ currency.code }}
+            </option>
+          </select>
           <span class="user-name">{{ user?.name }}</span>
+          <button @click="goToSettings" class="settings-btn">⚙️ Настройки</button>
           <button @click="handleLogout" class="logout-btn">Выйти</button>
         </div>
       </div>
@@ -53,7 +59,7 @@
               </span>
               <span class="quick-info-item price">
                 <span class="info-icon">💰</span>
-                {{ apartment.pricePerNight }} ₽/ночь
+                {{ apartment.pricePerNight }} {{ currentCurrencySymbol }}/ночь
               </span>
               <span class="quick-info-item">
                 <span class="info-icon">🛏️</span>
@@ -129,8 +135,8 @@
                     <span class="detail-value">{{ apartment.owner?.phoneNumber || '—' }}</span>
                   </div>
                 </div>
-                <button 
-                  v-if="apartment.owner?.email" 
+                <button
+                  v-if="apartment.owner?.email"
                   @click="resendOwnerEmail(apartment.owner.email, apartment.owner.name)"
                   class="resend-email-btn"
                   :disabled="resendingEmail === apartment.owner.email"
@@ -264,6 +270,19 @@
               </div>
             </div>
 
+            <!-- Расчёт стоимости -->
+            <div v-if="bookingFormData.checkInDate && bookingFormData.checkOutDate && calculatedBookingPrice > 0" class="booking-price-preview">
+              <div class="price-calculation">
+                <div class="price-row">
+                  <span>{{ calculatedNights }} ночей × {{ formatPriceNumber(selectedApartmentPrice) }} {{ currentCurrencySymbol }}</span>
+                </div>
+                <div class="price-total-row">
+                  <span class="price-total-label">Итого:</span>
+                  <span class="price-total-value">{{ formatPriceNumber(calculatedBookingPrice) }} {{ currentCurrencySymbol }}</span>
+                </div>
+              </div>
+            </div>
+
             <div class="form-section-title">Информация о госте</div>
             <div class="form-group">
               <label for="guestName">Имя гостя <span class="required">*</span></label>
@@ -338,7 +357,7 @@
               ></textarea>
             </div>
 
-            <div v-if="editingBooking" class="form-row">
+            <div class="form-row">
               <div class="form-group">
                 <label for="bookingStatus">Статус бронирования</label>
                 <select id="bookingStatus" v-model="bookingFormData.bookingStatus" class="form-input">
@@ -653,6 +672,46 @@ const bookingFormData = ref({
 const currentMonth = ref(new Date())
 const bookedDates = ref([])
 
+// Валюта
+const selectedCurrency = ref('THB')
+const currencies = [
+  { code: 'THB', symbol: '฿', name: 'Тайский бат' },
+  { code: 'RUB', symbol: '₽', name: 'Российский рубль' },
+  { code: 'USD', symbol: '$', name: 'Доллар США' },
+  { code: 'EUR', symbol: '€', name: 'Евро' },
+]
+
+const currentCurrencySymbol = computed(() => {
+  const currency = currencies.find(c => c.code === selectedCurrency.value)
+  return currency?.symbol || '฿'
+})
+
+// Расчёт стоимости бронирования
+const selectedApartmentPrice = computed(() => {
+  if (!currentBookingApartment.value) return 0
+  const apartment = apartments.value.find(a => a.id === currentBookingApartment.value)
+  return apartment?.pricePerNight || 0
+})
+
+const calculatedNights = computed(() => {
+  if (!bookingFormData.value.checkInDate || !bookingFormData.value.checkOutDate) return 0
+  const start = new Date(bookingFormData.value.checkInDate)
+  const end = new Date(bookingFormData.value.checkOutDate)
+  const diffTime = end - start
+  const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return nights > 0 ? nights : 0
+})
+
+const calculatedBookingPrice = computed(() => {
+  return calculatedNights.value * Number(selectedApartmentPrice.value)
+})
+
+// Форматирование числа с разделителями
+const formatPriceNumber = (price) => {
+  if (!price && price !== 0) return '0'
+  return new Intl.NumberFormat('ru-RU').format(Math.round(price))
+}
+
 const showAddModal = ref(false)
 const editingApartment = ref(null)
 const formLoading = ref(false)
@@ -689,10 +748,15 @@ const handleLogout = async () => {
   router.push('/')
 }
 
+// Переход к настройкам аккаунта
+const goToSettings = () => {
+  router.push({ name: 'account-settings' })
+}
+
 // Переотправка письма собственнику
 const resendOwnerEmail = async (email, name) => {
   if (resendingEmail.value) return
-  
+
   resendingEmail.value = email
   try {
     await authApi.resendOwnerCredentials(email)
@@ -899,6 +963,14 @@ const editBooking = (booking) => {
 }
 
 // === Функции календаря ===
+// Функция для форматирования даты в YYYY-MM-DD без смещения часового пояса
+const formatDateLocal = (date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 const updateBookedDates = async (apartmentId, excludeBookingId = null) => {
   const bookings = apartmentBookings.value[apartmentId] || []
   const dates = []
@@ -911,7 +983,7 @@ const updateBookedDates = async (apartmentId, excludeBookingId = null) => {
     const end = new Date(booking.checkOutDate)
 
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      dates.push(d.toISOString().split('T')[0])
+      dates.push(formatDateLocal(new Date(d)))
     }
   })
 
@@ -929,7 +1001,7 @@ const calendarDays = computed(() => {
   const month = currentMonth.value.getMonth()
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
-  const today = new Date().toISOString().split('T')[0]
+  const today = formatDateLocal(new Date())
 
   const days = []
 
@@ -940,19 +1012,20 @@ const calendarDays = computed(() => {
 
   for (let i = startDayOfWeek; i > 0; i--) {
     const d = new Date(year, month, 1 - i)
+    const dateStr = formatDateLocal(d)
     days.push({
       day: d.getDate(),
-      date: d.toISOString().split('T')[0],
+      date: dateStr,
       currentMonth: false,
-      booked: bookedDates.value.includes(d.toISOString().split('T')[0]),
-      isToday: d.toISOString().split('T')[0] === today
+      booked: bookedDates.value.includes(dateStr),
+      isToday: dateStr === today
     })
   }
 
   // Дни текущего месяца
   for (let i = 1; i <= lastDay.getDate(); i++) {
     const d = new Date(year, month, i)
-    const dateStr = d.toISOString().split('T')[0]
+    const dateStr = formatDateLocal(d)
     days.push({
       day: i,
       date: dateStr,
@@ -966,12 +1039,13 @@ const calendarDays = computed(() => {
   const remaining = 42 - days.length
   for (let i = 1; i <= remaining; i++) {
     const d = new Date(year, month + 1, i)
+    const dateStr = formatDateLocal(d)
     days.push({
       day: i,
-      date: d.toISOString().split('T')[0],
+      date: dateStr,
       currentMonth: false,
-      booked: bookedDates.value.includes(d.toISOString().split('T')[0]),
-      isToday: d.toISOString().split('T')[0] === today
+      booked: bookedDates.value.includes(dateStr),
+      isToday: dateStr === today
     })
   }
 
@@ -1101,7 +1175,7 @@ const getPaymentStatusText = (status) => {
 <style scoped>
 .dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
 }
 
 .dashboard-header {
@@ -1124,7 +1198,7 @@ const getPaymentStatusText = (status) => {
 .dashboard-title {
   font-size: 1.75rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1137,17 +1211,55 @@ const getPaymentStatusText = (status) => {
   gap: 1.5rem;
 }
 
+.currency-select {
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #0d47a1;
+  border-radius: 8px;
+  background: white;
+  color: #0d47a1;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.currency-select:hover {
+  background: #eff6ff;
+}
+
+.currency-select:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
 .user-name {
   font-size: 1rem;
   font-weight: 500;
   color: #2d3748;
 }
 
+.settings-btn {
+  padding: 0.6rem 1.5rem;
+  border: 2px solid #0d47a1;
+  background: transparent;
+  color: #0d47a1;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.settings-btn:hover {
+  background: #0d47a1;
+  color: white;
+}
+
 .logout-btn {
   padding: 0.6rem 1.5rem;
-  border: 2px solid #3b82f6;
+  border: 2px solid #0d47a1;
   background: transparent;
-  color: #3b82f6;
+  color: #0d47a1;
   border-radius: 8px;
   font-size: 0.95rem;
   font-weight: 600;
@@ -1156,7 +1268,7 @@ const getPaymentStatusText = (status) => {
 }
 
 .logout-btn:hover {
-  background: #3b82f6;
+  background: #0d47a1;
   color: white;
   transform: translateY(-1px);
 }
@@ -1187,7 +1299,7 @@ const getPaymentStatusText = (status) => {
 
 .add-btn {
   padding: 0.8rem 1.8rem;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -1303,7 +1415,7 @@ const getPaymentStatusText = (status) => {
 }
 
 .expand-icon {
-  color: #3b82f6;
+  color: #0d47a1;
   font-size: 0.75rem;
   width: 20px;
   transition: transform 0.2s ease;
@@ -1318,7 +1430,7 @@ const getPaymentStatusText = (status) => {
 
 .apartment-type-badge {
   padding: 0.25rem 0.6rem;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   color: white;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -1343,7 +1455,7 @@ const getPaymentStatusText = (status) => {
 }
 
 .quick-info-item.price {
-  color: #3b82f6;
+  color: #0d47a1;
   font-weight: 600;
 }
 
@@ -1371,11 +1483,11 @@ const getPaymentStatusText = (status) => {
 
 .action-btn-small.edit-btn {
   background: #dbeafe;
-  color: #3b82f6;
+  color: #0d47a1;
 }
 
 .action-btn-small.edit-btn:hover {
-  background: #3b82f6;
+  background: #0d47a1;
   color: white;
 }
 
@@ -1494,7 +1606,7 @@ const getPaymentStatusText = (status) => {
 
 .add-booking-btn {
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   color: white;
   border: none;
   border-radius: 6px;
@@ -1544,7 +1656,7 @@ const getPaymentStatusText = (status) => {
 }
 
 .booking-item.status-completed {
-  border-left-color: #3b82f6;
+  border-left-color: #0d47a1;
 }
 
 .booking-info {
@@ -1556,7 +1668,7 @@ const getPaymentStatusText = (status) => {
 .booking-code {
   font-family: monospace;
   font-size: 0.85rem;
-  color: #3b82f6;
+  color: #0d47a1;
   font-weight: 600;
 }
 
@@ -1612,7 +1724,7 @@ const getPaymentStatusText = (status) => {
 }
 
 .booking-action-btn:hover {
-  background: #3b82f6;
+  background: #0d47a1;
   color: white;
 }
 
@@ -1673,7 +1785,7 @@ const getPaymentStatusText = (status) => {
 }
 
 .calendar-nav:hover {
-  background: #3b82f6;
+  background: #0d47a1;
   color: white;
 }
 
@@ -1720,7 +1832,7 @@ const getPaymentStatusText = (status) => {
 
 .calendar-day.today {
   font-weight: 700;
-  border: 2px solid #3b82f6;
+  border: 2px solid #0d47a1;
 }
 
 .calendar-day.booked {
@@ -1731,7 +1843,7 @@ const getPaymentStatusText = (status) => {
 
 .calendar-day.selected-start,
 .calendar-day.selected-end {
-  background: #3b82f6;
+  background: #0d47a1;
   color: white;
   font-weight: 600;
 }
@@ -1766,17 +1878,56 @@ const getPaymentStatusText = (status) => {
 }
 
 .legend-dot.selected {
-  background: #3b82f6;
+  background: #0d47a1;
 }
 
 .booking-form {
   padding: 1.5rem;
 }
 
+.booking-price-preview {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border-radius: 10px;
+  border: 1px solid #a5d6a7;
+}
+
+.price-calculation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.price-row {
+  font-size: 0.9rem;
+  color: #2e7d32;
+}
+
+.price-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #81c784;
+  margin-top: 0.25rem;
+}
+
+.price-total-label {
+  font-weight: 600;
+  color: #1b5e20;
+}
+
+.price-total-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1b5e20;
+}
+
 .form-section-title {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #3b82f6;
+  color: #0d47a1;
   margin-bottom: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -1835,7 +1986,7 @@ const getPaymentStatusText = (status) => {
 
 .apartment-type {
   padding: 0.4rem 0.8rem;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   color: white;
   border-radius: 6px;
   font-size: 0.8rem;
@@ -1882,12 +2033,12 @@ const getPaymentStatusText = (status) => {
 
 .edit-btn {
   background: #f7fafc;
-  color: #3b82f6;
-  border: 2px solid #3b82f6;
+  color: #0d47a1;
+  border: 2px solid #0d47a1;
 }
 
 .edit-btn:hover {
-  background: #3b82f6;
+  background: #0d47a1;
   color: white;
 }
 
@@ -2046,7 +2197,7 @@ const getPaymentStatusText = (status) => {
 
 .form-input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #0d47a1;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -2079,7 +2230,7 @@ const getPaymentStatusText = (status) => {
 .btn-primary {
   flex: 1;
   padding: 0.9rem;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   color: white;
   border: none;
   border-radius: 8px;

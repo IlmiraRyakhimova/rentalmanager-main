@@ -4,8 +4,14 @@
       <div class="header-content">
         <h1 class="dashboard-title">RENTAL MANAGER</h1>
         <div class="user-info">
+          <select v-model="selectedCurrency" class="currency-select">
+            <option v-for="currency in currencies" :key="currency.code" :value="currency.code">
+              {{ currency.symbol }} {{ currency.code }}
+            </option>
+          </select>
           <span class="user-role-badge">Собственник</span>
           <span class="user-name">{{ user?.name }}</span>
+          <button @click="goToSettings" class="settings-btn">⚙️ Настройки</button>
           <button @click="handleLogout" class="logout-btn">Выйти</button>
         </div>
       </div>
@@ -14,15 +20,15 @@
     <main class="dashboard-main">
       <!-- Вкладки -->
       <div class="tabs">
-        <button 
-          class="tab-btn" 
+        <button
+          class="tab-btn"
           :class="{ active: activeTab === 'apartments' }"
           @click="activeTab = 'apartments'"
         >
-          🏢 Мои квартиры ({{ apartments.length }})
+          🏢 Мои апартаменты ({{ apartments.length }})
         </button>
-        <button 
-          class="tab-btn" 
+        <button
+          class="tab-btn"
           :class="{ active: activeTab === 'bookings' }"
           @click="activeTab = 'bookings'"
         >
@@ -46,8 +52,8 @@
       <div v-else-if="activeTab === 'apartments'" class="tab-content">
         <div v-if="apartments.length === 0" class="empty-state">
           <div class="empty-icon">🏢</div>
-          <h3>У вас пока нет квартир</h3>
-          <p>Ваш агент добавит квартиры, и они появятся здесь</p>
+          <h3>У вас пока нет апартаментов</h3>
+          <p>Ваш агент добавит апартаменты, и они появятся здесь</p>
         </div>
 
         <div v-else class="apartments-grid">
@@ -56,7 +62,7 @@
               <h3 class="apartment-title">{{ apartment.title }}</h3>
               <span class="apartment-type">{{ apartment.accommodationType }}</span>
             </div>
-            
+
             <div class="apartment-details">
               <div class="detail-row">
                 <span class="detail-icon">📍</span>
@@ -74,13 +80,18 @@
               </div>
               <div class="detail-row">
                 <span class="detail-icon">💰</span>
-                <span class="detail-text price">{{ apartment.pricePerNight }} ₽/ночь</span>
+                <span class="detail-text price">{{ apartment.pricePerNight }} {{ currentCurrencySymbol }}/ночь</span>
               </div>
             </div>
 
             <div class="apartment-bookings-count">
               <span class="bookings-icon">📅</span>
               <span>Бронирований: {{ getApartmentBookingsCount(apartment.id) }}</span>
+            </div>
+
+            <div class="apartment-total-income">
+              <span class="income-icon">💵</span>
+              <span class="income-text">Общий доход: <strong>{{ formatPrice(getApartmentTotalIncome(apartment.id)) }} {{ currentCurrencySymbol }}</strong></span>
             </div>
           </div>
         </div>
@@ -91,13 +102,13 @@
         <div v-if="bookings.length === 0" class="empty-state">
           <div class="empty-icon">📅</div>
           <h3>Бронирований пока нет</h3>
-          <p>Когда появятся бронирования ваших квартир, они отобразятся здесь</p>
+          <p>Когда появятся бронирования ваших апартаментов, они отобразятся здесь</p>
         </div>
 
         <div v-else class="bookings-list">
-          <div 
-            v-for="booking in sortedBookings" 
-            :key="booking.id" 
+          <div
+            v-for="booking in sortedBookings"
+            :key="booking.id"
             class="booking-card"
             :class="'status-' + booking.bookingStatus?.toLowerCase()"
           >
@@ -115,7 +126,7 @@
 
             <div class="booking-apartment">
               <span class="apartment-icon">🏢</span>
-              <span>{{ getApartmentTitle(booking.apartmentId) }}</span>
+              <span>{{ getApartmentTitle(booking) }}</span>
             </div>
 
             <div class="booking-details">
@@ -133,10 +144,11 @@
                 <span class="detail-icon">🌙</span>
                 <span class="detail-text">{{ getNightsCount(booking.checkInDate, booking.checkOutDate) }} ночей</span>
               </div>
-              <div v-if="booking.totalPrice" class="detail-row">
-                <span class="detail-icon">💰</span>
-                <span class="detail-text price">{{ booking.totalPrice }} ₽</span>
-              </div>
+            </div>
+
+            <div class="booking-price-section">
+              <span class="price-label">Сумма бронирования:</span>
+              <span class="booking-total-price">{{ formatPrice(getBookingPrice(booking)) }} {{ currentCurrencySymbol }}</span>
             </div>
           </div>
         </div>
@@ -161,6 +173,20 @@ const activeTab = ref('apartments')
 
 const apartments = ref([])
 const bookings = ref([])
+
+// Валюта
+const selectedCurrency = ref('THB')
+const currencies = [
+  { code: 'THB', symbol: '฿', name: 'Тайский бат' },
+  { code: 'RUB', symbol: '₽', name: 'Российский рубль' },
+  { code: 'USD', symbol: '$', name: 'Доллар США' },
+  { code: 'EUR', symbol: '€', name: 'Евро' },
+]
+
+const currentCurrencySymbol = computed(() => {
+  const currency = currencies.find(c => c.code === selectedCurrency.value)
+  return currency?.symbol || '฿'
+})
 
 // Сортировка бронирований по дате заезда (ближайшие сначала)
 const sortedBookings = computed(() => {
@@ -192,13 +218,60 @@ async function loadData() {
 
 // Получить количество бронирований для квартиры
 function getApartmentBookingsCount(apartmentId) {
-  return bookings.value.filter(b => b.apartmentId === apartmentId).length
+  return bookings.value.filter(b => {
+    // Проверяем оба варианта: apartmentId напрямую или apartment.id
+    const bookingApartmentId = b.apartmentId || b.apartment?.id
+    return bookingApartmentId === apartmentId
+  }).length
 }
 
-// Получить название квартиры по ID
-function getApartmentTitle(apartmentId) {
+// Получить общий доход квартиры за все бронирования
+function getApartmentTotalIncome(apartmentId) {
+  return bookings.value
+    .filter(b => {
+      const bookingApartmentId = b.apartmentId || b.apartment?.id
+      // Учитываем только подтверждённые и завершённые бронирования
+      const isValidStatus = b.bookingStatus !== 'CANCELLED'
+      return bookingApartmentId === apartmentId && isValidStatus
+    })
+    .reduce((total, b) => {
+      const price = getBookingPrice(b)
+      return total + price
+    }, 0)
+}
+
+// Получить цену бронирования
+function getBookingPrice(booking) {
+  // Если есть totalPrice - используем её
+  if (booking.totalPrice) {
+    return Number(booking.totalPrice)
+  }
+  // Иначе вычисляем: ночи * цена за ночь
+  const nights = getNightsCount(booking.checkInDate, booking.checkOutDate)
+  const pricePerNight = booking.apartment?.pricePerNight || 0
+  return nights * Number(pricePerNight)
+}
+
+// Форматирование цены с разделителями
+function formatPrice(price) {
+  if (!price && price !== 0) return '0'
+  return new Intl.NumberFormat('ru-RU').format(Math.round(price))
+}
+
+// Получить название квартиры по ID или из объекта бронирования
+function getApartmentTitle(booking) {
+  // Сначала пробуем взять из apartmentTitle
+  if (booking.apartmentTitle) {
+    return booking.apartmentTitle
+  }
+  // Затем из объекта apartment
+  if (booking.apartment?.title) {
+    return booking.apartment.title
+  }
+  // Ищем в списке квартир
+  const apartmentId = booking.apartmentId || booking.apartment?.id
   const apartment = apartments.value.find(a => a.id === apartmentId)
-  return apartment?.title || 'Квартира'
+  return apartment?.title || 'Апартаменты'
 }
 
 // Форматирование даты
@@ -248,6 +321,11 @@ async function handleLogout() {
   router.push({ name: 'login' })
 }
 
+// Переход к настройкам аккаунта
+function goToSettings() {
+  router.push({ name: 'account-settings' })
+}
+
 onMounted(() => {
   loadData()
 })
@@ -256,7 +334,7 @@ onMounted(() => {
 <style scoped>
 .owner-dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
 }
 
 .dashboard-header {
@@ -287,6 +365,32 @@ onMounted(() => {
   gap: 1rem;
 }
 
+.currency-select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.currency-select:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.currency-select:focus {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+.currency-select option {
+  background: #1565c0;
+  color: white;
+}
+
 .user-role-badge {
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -298,6 +402,20 @@ onMounted(() => {
 .user-name {
   color: white;
   font-weight: 500;
+}
+
+.settings-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.settings-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .logout-btn {
@@ -345,7 +463,7 @@ onMounted(() => {
 
 .tab-btn.active {
   background: white;
-  color: #667eea;
+  color: #1565c0;
   border-color: white;
 }
 
@@ -380,7 +498,7 @@ onMounted(() => {
 
 .retry-btn {
   background: white;
-  color: #667eea;
+  color: #1565c0;
   border: none;
   padding: 0.75rem 2rem;
   border-radius: 8px;
@@ -442,7 +560,7 @@ onMounted(() => {
 }
 
 .apartment-type {
-  background: #667eea;
+  background: #1565c0;
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
@@ -471,7 +589,7 @@ onMounted(() => {
 
 .detail-text.price {
   font-weight: 600;
-  color: #667eea;
+  color: #1565c0;
 }
 
 .apartment-bookings-count {
@@ -482,6 +600,29 @@ onMounted(() => {
   align-items: center;
   gap: 0.5rem;
   color: #888;
+}
+
+.apartment-total-income {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.income-icon {
+  font-size: 1.2rem;
+}
+
+.income-text {
+  color: #2e7d32;
+  font-size: 0.95rem;
+}
+
+.income-text strong {
+  font-size: 1.1rem;
 }
 
 /* Список бронирований */
@@ -592,6 +733,28 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 0.75rem;
+}
+
+.booking-price-section {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-label {
+  color: #1565c0;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.booking-total-price {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1565c0;
 }
 
 /* Responsive */

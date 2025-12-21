@@ -14,24 +14,34 @@ apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken')
 
-    // Проверка на невалидные токены
-    const isValidToken = token && token !== 'null' && token !== 'undefined' && token.length > 20
+    // Проверка на невалидные токены - JWT токен должен начинаться с "eyJ"
+    const isValidToken = token &&
+                         token !== 'null' &&
+                         token !== 'undefined' &&
+                         token.length > 20 &&
+                         token.startsWith('eyJ')
 
     console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, {
       hasToken: !!token,
       isValidToken,
-      tokenType: typeof token,
-      tokenValue: token === 'null' ? 'STRING "null"!!!' : (token ? `${token.substring(0, 20)}...` : 'none'),
-      tokenLength: token?.length
+      tokenPreview: token ? (token.startsWith('eyJ') ? `${token.substring(0, 20)}...` : `INVALID: ${token}`) : 'none'
     })
 
     if (isValidToken) {
       config.headers.Authorization = `Bearer ${token}`
     } else if (token) {
-      console.error('[API Request] Invalid token detected:', {
+      // Если токен есть, но невалиден - очищаем его немедленно
+      console.error('[API Request] Invalid token detected, clearing:', {
         token,
-        reason: token === 'null' ? 'Token is string "null"' : token === 'undefined' ? 'Token is string "undefined"' : 'Token too short'
+        reason: token === 'null' ? 'Token is string "null"' :
+                token === 'undefined' ? 'Token is string "undefined"' :
+                !token.startsWith('eyJ') ? 'Token does not start with eyJ' :
+                'Token too short'
       })
+      // Очищаем невалидные данные
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('user')
     }
 
     return config

@@ -71,6 +71,17 @@
             <span v-if="loading" class="spinner"></span>
             <span v-else>Войти</span>
           </button>
+
+          <!-- Кнопка подтверждения email -->
+          <button
+            type="button"
+            class="verify-email-btn"
+            @click="handleResendVerification"
+            :disabled="resendingVerification || !formData.email"
+          >
+            <span v-if="resendingVerification" class="spinner spinner-dark"></span>
+            <span v-else>📧 Подтвердить email</span>
+          </button>
         </form>
 
         <div class="auth-footer">
@@ -92,6 +103,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { authApi } from '@/api/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -105,6 +117,7 @@ const errors = ref({})
 const showPassword = ref(false)
 const loading = ref(false)
 const serverError = ref('')
+const resendingVerification = ref(false)
 
 // Валидация полей
 const validators = {
@@ -167,6 +180,35 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
+
+const handleResendVerification = async () => {
+  if (!formData.value.email) {
+    errors.value.email = 'Введите email для подтверждения'
+    return
+  }
+
+  const emailError = validators.email(formData.value.email)
+  if (emailError) {
+    errors.value.email = emailError
+    return
+  }
+
+  resendingVerification.value = true
+  serverError.value = ''
+
+  try {
+    await authApi.resendVerificationEmail(formData.value.email)
+    router.push({ name: 'email-pending' })
+  } catch (error) {
+    if (error.response?.data?.message) {
+      serverError.value = error.response.data.message
+    } else {
+      serverError.value = 'Ошибка при отправке письма. Попробуйте позже.'
+    }
+  } finally {
+    resendingVerification.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -175,7 +217,7 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
   padding: 20px;
 }
 
@@ -256,7 +298,7 @@ const handleSubmit = async () => {
 }
 
 .form-input:focus {
-  border-color: #3b82f6;
+  border-color: #1565c0;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -299,14 +341,14 @@ const handleSubmit = async () => {
 
 .forgot-password-link .link {
   font-size: 13px;
-  color: #3b82f6;
+  color: #1565c0;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .forgot-password-link .link:hover {
-  color: #0ea5e9;
+  color: #0d47a1;
   text-decoration: underline;
 }
 
@@ -318,8 +360,8 @@ const handleSubmit = async () => {
   width: 100%;
   padding: 12px;
   background: transparent;
-  border: 2px solid #3b82f6;
-  color: #3b82f6;
+  border: 2px solid #1565c0;
+  color: #1565c0;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
@@ -329,6 +371,21 @@ const handleSubmit = async () => {
 
 .verify-email-btn:hover {
   background: rgba(59, 130, 246, 0.1);
+}
+
+.verify-email-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner-dark {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-top-color: #1565c0;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 .modal-overlay {
@@ -413,14 +470,14 @@ const handleSubmit = async () => {
 }
 
 .btn-secondary:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
+  border-color: #1565c0;
+  color: #1565c0;
 }
 
 .btn-primary {
   flex: 1;
   padding: 12px;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -463,7 +520,7 @@ const handleSubmit = async () => {
 .submit-btn {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -512,14 +569,14 @@ const handleSubmit = async () => {
 }
 
 .footer-link {
-  color: #3b82f6;
+  color: #1565c0;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s;
 }
 
 .footer-link:hover {
-  color: #0ea5e9;
+  color: #0d47a1;
   text-decoration: underline;
 }
 

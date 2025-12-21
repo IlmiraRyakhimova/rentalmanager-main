@@ -98,7 +98,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   padding: 20px;
 }
 
@@ -182,7 +182,7 @@ h1 {
 }
 
 .success-message strong {
-  color: #3b82f6;
+  color: #1565c0;
 }
 
 .info-text {
@@ -200,7 +200,7 @@ h1 {
 .redirect-timer {
   font-size: 48px;
   font-weight: 700;
-  color: #3b82f6;
+  color: #1565c0;
   margin-top: 20px;
   animation: countdown 1s ease-in-out infinite;
 }
@@ -219,7 +219,7 @@ h1 {
   width: 48px;
   height: 48px;
   border: 4px solid rgba(59, 130, 246, 0.2);
-  border-top-color: #3b82f6;
+  border-top-color: #1565c0;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -250,7 +250,7 @@ h1 {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   color: white;
 }
 

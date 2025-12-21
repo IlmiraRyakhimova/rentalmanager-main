@@ -35,7 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/owner/**").hasRole("OWNER")
                         .requestMatchers("/api/apartments/**").hasRole("AGENT")
                         .requestMatchers("/api/bookings/**").hasRole("AGENT")
-                        .requestMatchers("/api/account-settings/**").hasAnyAuthority("AGENT", "OWNER")
+                        .requestMatchers("/api/account-settings/**").hasAnyRole("AGENT", "OWNER")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

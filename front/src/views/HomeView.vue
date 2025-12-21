@@ -46,7 +46,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   padding: 20px;
 }
 
@@ -85,7 +85,7 @@
 
 .welcome-subtitle {
   font-size: 24px;
-  color: #3b82f6;
+  color: #1565c0;
   margin: 0 0 12px 0;
   font-weight: 600;
 }
@@ -120,7 +120,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   color: white;
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
@@ -132,12 +132,12 @@
 
 .btn-secondary {
   background: white;
-  color: #3b82f6;
-  border: 2px solid #3b82f6;
+  color: #1565c0;
+  border: 2px solid #1565c0;
 }
 
 .btn-secondary:hover {
-  background: #3b82f6;
+  background: #1565c0;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);

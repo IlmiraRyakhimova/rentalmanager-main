@@ -12,6 +12,7 @@ import EmailPendingView from '@/views/EmailPendingView.vue'
 import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
 import ResetPasswordView from '@/views/ResetPasswordView.vue'
 import AddApartmentView from '@/views/AddApartmentView.vue'
+import AccountSettingsView from '@/views/AccountSettingsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -85,6 +86,12 @@ const router = createRouter({
       name: 'add-apartment',
       component: AddApartmentView,
       meta: { requiresAuth: true, roles: ['AGENT', 'ADMIN'] },
+    },
+    {
+      path: '/account-settings',
+      name: 'account-settings',
+      component: AccountSettingsView,
+      meta: { requiresAuth: true, roles: ['AGENT', 'OWNER', 'ADMIN'] },
     },
   ],
 })

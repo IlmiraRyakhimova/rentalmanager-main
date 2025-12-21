@@ -39,7 +39,7 @@ const email = computed(() => route.query.email || '')
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
   padding: 20px;
 }
 
@@ -94,7 +94,7 @@ const email = computed(() => route.query.email || '')
 }
 
 .email-info strong {
-  color: #3b82f6;
+  color: #1565c0;
 }
 
 .actions {
@@ -106,7 +106,7 @@ const email = computed(() => route.query.email || '')
 .btn-primary {
   display: block;
   padding: 14px 24px;
-  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
   color: white;
   text-decoration: none;
   border-radius: 10px;
@@ -124,17 +124,17 @@ const email = computed(() => route.query.email || '')
   display: block;
   padding: 14px 24px;
   background: transparent;
-  color: #3b82f6;
+  color: #1565c0;
   text-decoration: none;
   border-radius: 10px;
   font-size: 16px;
   font-weight: 600;
-  border: 2px solid #3b82f6;
+  border: 2px solid #1565c0;
   transition: background 0.2s, color 0.2s;
 }
 
 .btn-secondary:hover {
-  background: #3b82f6;
+  background: #1565c0;
   color: white;
 }
 </style>

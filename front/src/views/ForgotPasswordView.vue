@@ -144,7 +144,7 @@ const resetForm = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   padding: 20px;
 }
 
@@ -230,7 +230,7 @@ const resetForm = () => {
 }
 
 .form-input:focus {
-  border-color: #3b82f6;
+  border-color: #1565c0;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
@@ -258,7 +258,7 @@ const resetForm = () => {
 
 .submit-btn {
   padding: 14px 24px;
-  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -330,8 +330,8 @@ const resetForm = () => {
 .btn-secondary {
   padding: 12px 24px;
   background: transparent;
-  color: #3b82f6;
-  border: 2px solid #3b82f6;
+  color: #1565c0;
+  border: 2px solid #1565c0;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
@@ -340,7 +340,7 @@ const resetForm = () => {
 }
 
 .btn-secondary:hover {
-  background: #3b82f6;
+  background: #1565c0;
   color: white;
 }
 
@@ -356,13 +356,13 @@ const resetForm = () => {
 }
 
 .footer-link {
-  color: #3b82f6;
+  color: #1565c0;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 .footer-link:hover {
-  color: #0ea5e9;
+  color: #0d47a1;
 }
 </style>
