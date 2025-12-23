@@ -33,9 +33,9 @@ jwt:
 
 app:
   backend:
-    url: http://localhost:8080
+    url: https://api.managerrent.com
   frontend:
-    url: http://localhost:3000
+    url: https://managerrent.com
 
 geocoding:
   nominatim:
