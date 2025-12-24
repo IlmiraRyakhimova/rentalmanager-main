@@ -8,10 +8,11 @@ import com.rental.manager.dto.responsedto.BookingResponseDto;
 import com.rental.manager.entities.Booking;
 import com.rental.manager.entities.Apartment;
 import com.rental.manager.entities.Guest;
+import com.rental.manager.entities.User;
 import com.rental.manager.entities.enums.BookingStatus;
 import com.rental.manager.entities.enums.PaymentStatus;
 import com.rental.manager.mappers.BookingMapper;
-import com.rental.manager.mappers.GuestMapper;
+import com.rental.manager.service.EmailService;
 import com.rental.manager.repository.ApartmentRepository;
 import com.rental.manager.repository.BookingRepository;
 import com.rental.manager.repository.GuestRepository;
@@ -34,6 +35,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ApartmentRepository apartmentRepository;
     private final GuestRepository guestRepository;
+    private final EmailService emailService;
     private final BookingMapper mapper;
 
     @Override
@@ -45,6 +47,15 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = mapper.toEntity(request);
         booking.setApartment(apartment);
         resolveGuest(booking);
+        String guestEmail = booking.getMainGuest().getEmail();
+        String guestName = booking.getMainGuest().getName();
+        String bookingCode = booking.getBookingCode();
+        emailService.sendBookingInfoToGuest(guestEmail, guestName, bookingCode,
+                booking.getCheckInDate(), booking.getCheckOutDate());
+        String ownerEmail = apartment.getOwner().getEmail();
+        String ownerName = apartment.getOwner().getName();
+        emailService.sendBookingInfoToOwner(ownerEmail, ownerName, guestName, bookingCode,
+                booking.getCheckInDate(), booking.getCheckOutDate());
         return mapper.toDto(bookingRepository.save(booking));
     }
 

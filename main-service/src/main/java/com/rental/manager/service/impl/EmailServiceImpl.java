@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -134,6 +135,29 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    public void sendEmail(String to, String subject, String message) {
+        try {
+            String content = """
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border-radius: 8px; background-color: #f9f9f9;">
+            <div style="font-size: 16px; color: #555; text-align: left; margin: 20px 0;">%s</div>
+            <p style="font-size: 12px; color: #aaa; margin-top: 30px;">С уважением,<br>Елена Лозовая</p>
+        </div>
+        """.formatted(message);
+
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setFrom(from);
+            helper.setText(content, true);
+            mailSender.send(mimeMessage);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка отправки email: " + e.getMessage(), e);
+        }
+    }
+
+
 
     @Override
     public void sendOwnerCredentialsEmail(String to, String name, String password) {
@@ -144,12 +168,41 @@ public class EmailServiceImpl implements EmailService {
         <strong>Ваши учетные данные:</strong><br>
         Email: %s<br>
         Пароль: %s<br><br>
-        Пожалуйста, при входе в систему подтвердите свой email и измените пароль после первого входа.
+        На Вашу почту уже пришло письмо для подтверждения email и входа в аккаунт. Измените пароль после первого входа.
         """.formatted(name, to, password);
 
         String loginUrl = frontendUrl + "/owner-login";
         sendEmail(to, subject, message, loginUrl, "Войти в систему");
 
+    }
+
+    public void sendBookingInfoToGuest(String to, String name, String bookingCode, LocalDate checkIn, LocalDate checkOut) {
+        String subject = "Информация о вашем бронировании";
+        String message = """
+        Здравствуйте, %s!<br><br>
+        Спасибо за бронирование апартаментов!<br><br>
+        <strong>Детали вашего бронирования:</strong><br>
+        Код бронирования: %s<br>
+        Дата заезда: %s<br>
+        Дата выезда: %s<br><br>
+        """.formatted(name, bookingCode, checkIn, checkOut);
+
+        sendEmail(to, subject, message);
+    }
+
+    public void sendBookingInfoToOwner(String to, String ownerName, String guestName, String bookingCode, LocalDate checkIn, LocalDate checkOut) {
+        String subject = "Новое бронирование ваших апартаментов";
+        String message = """
+        Здравствуйте, %s!<br><br>
+        У вас новое бронирование апартаментов!<br><br>
+        <strong>Детали бронирования:</strong><br>
+        Гость: %s<br>
+        Код бронирования: %s<br>
+        Дата заезда: %s<br>
+        Дата выезда: %s<br><br>
+        """.formatted(ownerName, guestName, bookingCode, checkIn, checkOut);
+
+        sendEmail(to, subject, message);
     }
 
     @Override
@@ -217,16 +270,12 @@ public class EmailServiceImpl implements EmailService {
             throw new IllegalArgumentException("Пользователь не является собственником");
         }
 
-        // Генерируем новый пароль
         String newPassword = UUID.randomUUID().toString().substring(0, 8);
         user.setPassword(passwordEncoder.encode(newPassword));
-        user.setEmailVerified(false); // Сбрасываем верификацию
+        user.setEmailVerified(false);
         userRepository.save(user);
 
-        // Отправляем письмо с новыми учетными данными
         sendOwnerCredentialsEmail(ownerEmail, user.getName(), newPassword);
-
-        // Создаём токен верификации
         createAndSendVerificationToken(ownerEmail);
     }
 }
