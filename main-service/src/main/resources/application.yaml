@@ -33,7 +33,7 @@ jwt:
 
 app:
   backend:
-    url: https://api.managerrent.com
+    url: https://managerrent.com
   frontend:
     url: https://managerrent.com
 
