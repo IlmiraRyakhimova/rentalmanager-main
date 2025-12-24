@@ -53,7 +53,8 @@ public class SecurityConfig {
                 "http://localhost:5173",  // Dev режим (Vite)
                 "http://localhost:3000",  // Docker (Nginx)
                 "http://localhost",        // Docker на порту 80
-                "https://managerrent.com"  // Production domain
+                "https://managerrent.com",   // Production domain
+                "https://www.managerrent.com" // Production domain
         ));
         
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
