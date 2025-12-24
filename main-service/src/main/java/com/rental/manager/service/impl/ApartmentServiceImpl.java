@@ -282,7 +282,9 @@ public class ApartmentServiceImpl implements ApartmentService {
 
     @Override
     public List<ApartmentResponseDto> getAllApartments() {
-        List<Apartment> apartments = apartmentRepository.findAll();
+        String agentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User agent = userRepository.findByEmail(agentEmail);
+        List<Apartment> apartments = apartmentRepository.findByAgentId(agent.getId());
         return apartments.stream().map(mapper::toDto).toList();
     }
 }
