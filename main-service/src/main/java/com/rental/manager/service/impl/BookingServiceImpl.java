@@ -47,16 +47,17 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = mapper.toEntity(request);
         booking.setApartment(apartment);
         resolveGuest(booking);
-        String guestEmail = booking.getMainGuest().getEmail();
-        String guestName = booking.getMainGuest().getName();
-        String bookingCode = booking.getBookingCode();
+        Booking savedBooking = bookingRepository.save(booking);
+        String guestEmail = savedBooking.getMainGuest().getEmail();
+        String guestName = savedBooking.getMainGuest().getName();
+        String bookingCode = savedBooking.getBookingCode();
         emailService.sendBookingInfoToGuest(guestEmail, guestName, bookingCode,
-                booking.getCheckInDate(), booking.getCheckOutDate());
+                savedBooking.getCheckInDate(), savedBooking.getCheckOutDate());
         String ownerEmail = apartment.getOwner().getEmail();
         String ownerName = apartment.getOwner().getName();
         emailService.sendBookingInfoToOwner(ownerEmail, ownerName, guestName, bookingCode,
                 booking.getCheckInDate(), booking.getCheckOutDate());
-        return mapper.toDto(bookingRepository.save(booking));
+        return mapper.toDto(savedBooking);
     }
 
     public BookingResponseDto updateBooking(UUID id, BookingRequestDto request) {
