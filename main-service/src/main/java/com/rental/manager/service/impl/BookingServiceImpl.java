@@ -1,22 +1,19 @@
 package com.rental.manager.service.impl;
 
-import com.rental.manager.dto.requestdto.BookingPatchRequestDto;
-import com.rental.manager.dto.requestdto.BookingPaymentStatusPatchRequestDto;
-import com.rental.manager.dto.requestdto.BookingRequestDto;
-import com.rental.manager.dto.requestdto.BookingStatusPatchRequestDto;
+import com.rental.manager.dto.requestdto.*;
 import com.rental.manager.dto.responsedto.BookingResponseDto;
 import com.rental.manager.entities.Booking;
 import com.rental.manager.entities.Apartment;
 import com.rental.manager.entities.Guest;
-import com.rental.manager.entities.User;
 import com.rental.manager.entities.enums.BookingStatus;
 import com.rental.manager.entities.enums.PaymentStatus;
 import com.rental.manager.mappers.BookingMapper;
-import com.rental.manager.service.EmailService;
 import com.rental.manager.repository.ApartmentRepository;
 import com.rental.manager.repository.BookingRepository;
 import com.rental.manager.repository.GuestRepository;
 import com.rental.manager.service.BookingService;
+import com.rental.manager.service.queue.EmailQueueProducer;
+import com.rental.manager.service.queue.EmailTaskType;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,8 +32,8 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ApartmentRepository apartmentRepository;
     private final GuestRepository guestRepository;
-    private final EmailService emailService;
     private final BookingMapper mapper;
+    private final EmailQueueProducer emailQueueProducer;
 
     @Override
     @Transactional
@@ -108,17 +105,32 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException(BOOKING_NOT_FOUND_MSG + id));
         booking.setBookingStatus(request.getBookingStatus());
         Booking savedBooking = bookingRepository.save(booking);
-//        if (request.getBookingStatus() == BookingStatus.CONFIRMED) {
-//            String guestEmail = savedBooking.getMainGuest().getEmail();
-//            String guestName = savedBooking.getMainGuest().getName();
-//            String bookingCode = savedBooking.getBookingCode();
-//            emailService.sendBookingInfoToGuest(guestEmail, guestName, bookingCode,
-//                    savedBooking.getCheckInDate(), savedBooking.getCheckOutDate());
-//            String ownerEmail = savedBooking.getApartment().getOwner().getEmail();
-//            String ownerName = savedBooking.getApartment().getOwner().getName();
-//            emailService.sendBookingInfoToOwner(ownerEmail, ownerName, guestName, bookingCode,
-//                    savedBooking.getCheckInDate(), savedBooking.getCheckOutDate());
-//        }
+        if (request.getBookingStatus() == BookingStatus.CONFIRMED) {
+            String guestEmail = savedBooking.getMainGuest().getEmail();
+            String guestName = savedBooking.getMainGuest().getName();
+            String bookingCode = savedBooking.getBookingCode();
+            EmailTaskRequestDto guestDto = EmailTaskRequestDto.builder()
+                    .to(guestEmail)
+                    .guestName(guestName)
+                    .bookingCode(bookingCode)
+                    .checkIn(savedBooking.getCheckInDate())
+                    .checkOut(savedBooking.getCheckOutDate())
+                    .taskType(EmailTaskType.BOOKING_INFO_TO_GUEST)
+                    .build();
+            emailQueueProducer.enqueueEmailTask(guestDto);
+            String ownerEmail = savedBooking.getApartment().getOwner().getEmail();
+            String ownerName = savedBooking.getApartment().getOwner().getName();
+            EmailTaskRequestDto ownerDto = EmailTaskRequestDto.builder()
+                    .to(ownerEmail)
+                    .ownerName(ownerName)
+                    .guestName(guestName)
+                    .bookingCode(bookingCode)
+                    .checkIn(savedBooking.getCheckInDate())
+                    .checkOut(savedBooking.getCheckOutDate())
+                    .taskType(EmailTaskType.BOOKING_INFO_TO_OWNER)
+                    .build();
+            emailQueueProducer.enqueueEmailTask(ownerDto);
+        }
         return mapper.toDto(savedBooking);
     }
 

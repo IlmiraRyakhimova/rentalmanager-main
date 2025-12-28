@@ -3,6 +3,7 @@ package com.rental.manager.service.impl;
 import com.rental.manager.entities.EmailVerificationToken;
 import com.rental.manager.entities.PasswordResetToken;
 import com.rental.manager.entities.User;
+import com.rental.manager.entities.enums.UserRole;
 import com.rental.manager.repository.EmailVerificationTokenRepository;
 import com.rental.manager.repository.PasswordResetTokenRepository;
 import com.rental.manager.repository.UserRepository;
@@ -266,7 +267,7 @@ public class EmailServiceImpl implements EmailService {
             throw new EntityNotFoundException("Собственник не найден с email: " + ownerEmail);
         }
 
-        if (user.getRole() != com.rental.manager.entities.enums.UserRole.OWNER) {
+        if (user.getRole() != UserRole.OWNER) {
             throw new IllegalArgumentException("Пользователь не является собственником");
         }
 

@@ -1,5 +1,6 @@
 package com.rental.manager.security.auth;
 
+import com.rental.manager.dto.requestdto.EmailTaskRequestDto;
 import com.rental.manager.dto.requestdto.SignInRequestDto;
 import com.rental.manager.dto.requestdto.SignUpRequestDto;
 import com.rental.manager.dto.responsedto.AuthResponseDto;
@@ -8,7 +9,8 @@ import com.rental.manager.repository.UserRepository;
 import com.rental.manager.security.jwt.JwtService;
 import com.rental.manager.security.jwt.dto.JwtDTO;
 import com.rental.manager.security.jwt.dto.RefreshTokenDTO;
-import com.rental.manager.service.EmailService;
+import com.rental.manager.service.queue.EmailQueueProducer;
+import com.rental.manager.service.queue.EmailTaskType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,14 +25,15 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
-    private final EmailService emailService;
+
     private final PasswordEncoder passwordEncoder;
+    private final EmailQueueProducer emailQueueProducer;
 
     @Override
     @Transactional
     public AuthResponseDto signUp(SignUpRequestDto request) {
         if (userRepository.findByEmail(request.getEmail()) != null) {
-            throw new IllegalArgumentException("Email already in use");
+            throw new IllegalArgumentException("Этот email уже используется");
         }
         User user = new User();
         user.setName(request.getName());
@@ -40,8 +43,12 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
 
-        emailService.createAndSendVerificationToken(user.getEmail());
+        EmailTaskRequestDto verifyDto = EmailTaskRequestDto.builder()
+                .to(user.getEmail())
+                .taskType(EmailTaskType.EMAIL_VERIFICATION)
+                .build();
 
+        emailQueueProducer.enqueueEmailTask(verifyDto);
 
         AuthResponseDto response = new AuthResponseDto();
         response.setName(user.getName());

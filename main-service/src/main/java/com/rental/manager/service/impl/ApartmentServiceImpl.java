@@ -2,6 +2,7 @@ package com.rental.manager.service.impl;
 
 import com.rental.manager.dto.requestdto.ApartmentPatchRequestDto;
 import com.rental.manager.dto.requestdto.ApartmentRequestDto;
+import com.rental.manager.dto.requestdto.EmailTaskRequestDto;
 import com.rental.manager.dto.responsedto.ApartmentResponseDto;
 import com.rental.manager.entities.User;
 import com.rental.manager.entities.Address;
@@ -16,6 +17,8 @@ import com.rental.manager.repository.UserRepository;
 import com.rental.manager.service.AddressService;
 import com.rental.manager.service.ApartmentService;
 import com.rental.manager.service.UserService;
+import com.rental.manager.service.queue.EmailQueueProducer;
+import com.rental.manager.service.queue.EmailTaskType;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,7 +46,7 @@ public class ApartmentServiceImpl implements ApartmentService {
     private final AddressRepository addressRepository;
     private final AddressService addressService;
     private final UserService userService;
-    private final EmailServiceImpl emailService;
+    private final  EmailQueueProducer emailQueueProducer;
 
     @Override
     @Transactional
@@ -77,8 +80,19 @@ public class ApartmentServiceImpl implements ApartmentService {
             owner.setRole(UserRole.OWNER);
             owner.setEmailVerified(false);
             apartment.setOwner(userRepository.save(owner));
-            emailService.sendOwnerCredentialsEmail(owner.getEmail(), owner.getName(), ownerPassword);
-            emailService.createAndSendVerificationToken(owner.getEmail());
+            EmailTaskRequestDto credDto = EmailTaskRequestDto.builder()
+                    .to(owner.getEmail())
+                    .ownerName(owner.getName())
+                    .ownerPassword(ownerPassword)
+                    .taskType(EmailTaskType.OWNER_CREDENTIALS)
+                    .build();
+            emailQueueProducer.enqueueEmailTask(credDto);
+
+            EmailTaskRequestDto verifyDto = EmailTaskRequestDto.builder()
+                    .to(owner.getEmail())
+                    .taskType(EmailTaskType.EMAIL_VERIFICATION)
+                    .build();
+            emailQueueProducer.enqueueEmailTask(verifyDto);
         }
     }
 

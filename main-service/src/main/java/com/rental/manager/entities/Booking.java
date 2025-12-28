@@ -81,7 +81,7 @@ public class Booking {
 
     public Booking() {
         this.bookingStatus = BookingStatus.PENDING;
-        this.paymentStatus = PaymentStatus.UNPAID;
+        this.paymentStatus = PaymentStatus.PENDING;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -96,7 +96,7 @@ public class Booking {
             this.bookingStatus = BookingStatus.PENDING;
         }
         if (this.paymentStatus == null) {
-            this.paymentStatus = PaymentStatus.UNPAID;
+            this.paymentStatus = PaymentStatus.PENDING;
         }
     }
 

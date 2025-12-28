@@ -1,7 +1,7 @@
 package com.rental.manager.entities.enums;
 
 public enum PaymentStatus {
-    UNPAID("Неоплачено"),
+    PENDING("Ожидает оплаты"),
     PREPAID("Внесен депозит"),
     PAID("Оплачено"),
     REFUNDED("Возврат");
