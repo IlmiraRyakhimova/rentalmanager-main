@@ -108,17 +108,17 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException(BOOKING_NOT_FOUND_MSG + id));
         booking.setBookingStatus(request.getBookingStatus());
         Booking savedBooking = bookingRepository.save(booking);
-        if (request.getBookingStatus() == BookingStatus.CONFIRMED) {
-            String guestEmail = savedBooking.getMainGuest().getEmail();
-            String guestName = savedBooking.getMainGuest().getName();
-            String bookingCode = savedBooking.getBookingCode();
-            emailService.sendBookingInfoToGuest(guestEmail, guestName, bookingCode,
-                    savedBooking.getCheckInDate(), savedBooking.getCheckOutDate());
-            String ownerEmail = savedBooking.getApartment().getOwner().getEmail();
-            String ownerName = savedBooking.getApartment().getOwner().getName();
-            emailService.sendBookingInfoToOwner(ownerEmail, ownerName, guestName, bookingCode,
-                    savedBooking.getCheckInDate(), savedBooking.getCheckOutDate());
-        }
+//        if (request.getBookingStatus() == BookingStatus.CONFIRMED) {
+//            String guestEmail = savedBooking.getMainGuest().getEmail();
+//            String guestName = savedBooking.getMainGuest().getName();
+//            String bookingCode = savedBooking.getBookingCode();
+//            emailService.sendBookingInfoToGuest(guestEmail, guestName, bookingCode,
+//                    savedBooking.getCheckInDate(), savedBooking.getCheckOutDate());
+//            String ownerEmail = savedBooking.getApartment().getOwner().getEmail();
+//            String ownerName = savedBooking.getApartment().getOwner().getName();
+//            emailService.sendBookingInfoToOwner(ownerEmail, ownerName, guestName, bookingCode,
+//                    savedBooking.getCheckInDate(), savedBooking.getCheckOutDate());
+//        }
         return mapper.toDto(savedBooking);
     }
 
