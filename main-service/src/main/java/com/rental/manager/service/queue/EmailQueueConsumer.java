@@ -15,32 +15,37 @@ public class EmailQueueConsumer {
 
     @Scheduled(fixedDelay = 1000)
     public void consume() {
-        EmailTaskRequestDto dto = (EmailTaskRequestDto) redisTemplate.opsForList().leftPop("emailQueue");
-        if (dto == null) return;
-        switch (dto.getTaskType()) {
-            case EMAIL_VERIFICATION -> emailService.createAndSendVerificationToken(dto.getTo());
-            case OWNER_CREDENTIALS -> {
-                emailService.sendOwnerCredentialsEmail(dto.getTo(), dto.getOwnerName(), dto.getOwnerPassword());
-                emailService.createAndSendVerificationToken(dto.getTo());
-            }
+        try {
+            EmailTaskRequestDto dto = (EmailTaskRequestDto) redisTemplate.opsForList().leftPop("emailQueue");
+            if (dto == null) return;
+            System.out.println("EmailTaskRequestDto from queue: " + dto);
+            switch (dto.getTaskType()) {
+                case EMAIL_VERIFICATION -> emailService.createAndSendVerificationToken(dto.getTo());
+                case OWNER_CREDENTIALS -> {
+                    emailService.sendOwnerCredentialsEmail(dto.getTo(), dto.getOwnerName(), dto.getOwnerPassword());
+                    emailService.createAndSendVerificationToken(dto.getTo());
+                }
 
-            case RESEND_OWNER_CREDENTIALS -> emailService.resendOwnerCredentialsEmail(dto.getTo());
-            case FORGOT_PASSWORD -> emailService.createAndSendPasswordResetToken(dto.getTo());
-            case BOOKING_INFO_TO_GUEST -> emailService.sendBookingInfoToGuest(
-                    dto.getTo(),
-                    dto.getGuestName(),
-                    dto.getBookingCode(),
-                    dto.getCheckIn(),
-                    dto.getCheckOut()
-            );
-            case BOOKING_INFO_TO_OWNER -> emailService.sendBookingInfoToOwner(
-                    dto.getTo(),
-                    dto.getOwnerName(),
-                    dto.getGuestName(),
-                    dto.getBookingCode(),
-                    dto.getCheckIn(),
-                    dto.getCheckOut()
-            );
+                case RESEND_OWNER_CREDENTIALS -> emailService.resendOwnerCredentialsEmail(dto.getTo());
+                case FORGOT_PASSWORD -> emailService.createAndSendPasswordResetToken(dto.getTo());
+                case BOOKING_INFO_TO_GUEST -> emailService.sendBookingInfoToGuest(
+                        dto.getTo(),
+                        dto.getGuestName(),
+                        dto.getBookingCode(),
+                        dto.getCheckIn(),
+                        dto.getCheckOut()
+                );
+                case BOOKING_INFO_TO_OWNER -> emailService.sendBookingInfoToOwner(
+                        dto.getTo(),
+                        dto.getOwnerName(),
+                        dto.getGuestName(),
+                        dto.getBookingCode(),
+                        dto.getCheckIn(),
+                        dto.getCheckOut()
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
