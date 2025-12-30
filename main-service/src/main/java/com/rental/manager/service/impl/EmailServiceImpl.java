@@ -186,8 +186,8 @@ public class EmailServiceImpl implements EmailService {
         <strong>Детали вашего бронирования:</strong><br>
         Код бронирования: %s<br>
         Дата заезда: %s<br>
-        Дата выезда: %s<br><br>
-        Сумма бронирования: %s<br><br>
+        Дата выезда: %s<br>
+        Сумма бронирования: %sTHB<br><br>
         """.formatted(name, bookingCode, checkIn, checkOut, price);
 
         sendEmail(to, subject, message);
@@ -202,8 +202,8 @@ public class EmailServiceImpl implements EmailService {
         Гость: %s<br>
         Код бронирования: %s<br>
         Дата заезда: %s<br>
-        Дата выезда: %s<br><br>
-        Сумма бронирования: %s<br><br>
+        Дата выезда: %s<br>
+        Сумма бронирования: %sTHB<br><br>
         """.formatted(ownerName, guestName, bookingCode, checkIn, checkOut, price);
 
         sendEmail(to, subject, message);
