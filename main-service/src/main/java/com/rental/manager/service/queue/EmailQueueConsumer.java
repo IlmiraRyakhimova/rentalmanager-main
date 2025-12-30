@@ -2,6 +2,7 @@ package com.rental.manager.service.queue;
 
 import com.rental.manager.dto.requestdto.EmailTaskRequestDto;
 import com.rental.manager.service.EmailService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,12 +14,15 @@ public class EmailQueueConsumer {
     private final RedisTemplate<String, Object> redisTemplate;
     private final EmailService emailService;
 
+    @PostConstruct
+    public void init() {
+        System.out.println("✅ EmailQueueConsumer запущен!");
+    }
+
     @Scheduled(fixedDelay = 1000)
     public void consume() {
-        try {
             EmailTaskRequestDto dto = (EmailTaskRequestDto) redisTemplate.opsForList().leftPop("emailQueue");
             if (dto == null) return;
-            System.out.println("EmailTaskRequestDto from queue: " + dto);
             switch (dto.getTaskType()) {
                 case EMAIL_VERIFICATION -> emailService.createAndSendVerificationToken(dto.getTo());
                 case OWNER_CREDENTIALS -> {
@@ -44,8 +48,5 @@ public class EmailQueueConsumer {
                         dto.getCheckOut()
                 );
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

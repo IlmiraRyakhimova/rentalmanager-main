@@ -1,18 +1,17 @@
 package com.rental.manager.web.controller;
 
 
-import com.rental.manager.dto.requestdto.EmailVerificationRequestDto;
-import com.rental.manager.dto.requestdto.PasswordResetRequestDto;
-import com.rental.manager.dto.requestdto.SignInRequestDto;
-import com.rental.manager.dto.requestdto.SignUpRequestDto;
+import com.rental.manager.dto.requestdto.*;
 import com.rental.manager.dto.responsedto.AuthResponseDto;
 import com.rental.manager.security.auth.AuthService;
 import com.rental.manager.security.jwt.dto.RefreshTokenDTO;
 import com.rental.manager.service.EmailService;
+import com.rental.manager.service.queue.EmailTaskType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import com.rental.manager.service.queue.EmailQueueProducer;
 
 @RestController
 @RequestMapping("api/auth")
@@ -21,6 +20,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final EmailService emailService;
+    private final EmailQueueProducer emailQueueProducer;
 
     @PostMapping("/sign-up")
     public ResponseEntity<AuthResponseDto> signUp(@RequestBody @Validated SignUpRequestDto request) {
@@ -51,13 +51,21 @@ public class AuthController {
 
     @PostMapping("/resend-verification-email")
     public ResponseEntity<String> resendVerificationEmail(@RequestBody EmailVerificationRequestDto request) {
-        emailService.createAndSendVerificationToken(request.getEmail());
+        emailQueueProducer.enqueueEmailTask(
+                EmailTaskRequestDto.builder()
+                        .to(request.getEmail())
+                        .taskType(EmailTaskType.EMAIL_VERIFICATION)
+                        .build());
         return ResponseEntity.ok("Письмо с подтверждением отправлено повторно.");
     }
 
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody EmailVerificationRequestDto request) {
-        emailService.createAndSendPasswordResetToken(request.getEmail());
+        emailQueueProducer.enqueueEmailTask(
+                EmailTaskRequestDto.builder()
+                        .to(request.getEmail())
+                        .taskType(EmailTaskType.FORGOT_PASSWORD)
+                        .build());
         return ResponseEntity.ok("Письмо для сброса пароля отправлено.");
     }
 
@@ -69,7 +77,11 @@ public class AuthController {
 
     @PostMapping("/resend-owner-credentials")
     public ResponseEntity<String> resendOwnerCredentials(@RequestBody EmailVerificationRequestDto request) {
-        emailService.resendOwnerCredentialsEmail(request.getEmail());
+        emailQueueProducer.enqueueEmailTask(
+                EmailTaskRequestDto.builder()
+                        .to(request.getEmail())
+                        .taskType(EmailTaskType.RESEND_OWNER_CREDENTIALS)
+                        .build());
         return ResponseEntity.ok("Письмо с новым паролем отправлено собственнику.");
     }
 
