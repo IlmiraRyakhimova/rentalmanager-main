@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -21,5 +22,6 @@ public class EmailTaskRequestDto implements Serializable {
     private String bookingCode;
     private LocalDate checkIn;
     private LocalDate checkOut;
+    private BigDecimal price;
     private EmailTaskType taskType;
 }

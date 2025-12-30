@@ -1,5 +1,6 @@
 package com.rental.manager.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -13,6 +14,6 @@ public interface EmailService {
     void sendEmail(String to, String token, String subject, String path, String message);
     void sendOwnerCredentialsEmail(String to, String name, String password);
     void resendOwnerCredentialsEmail(String ownerEmail);
-    void sendBookingInfoToGuest(String to, String name, String bookingCode, LocalDate checkIn, LocalDate checkOut);
-    void sendBookingInfoToOwner(String to, String ownerName, String guestName, String bookingCode, LocalDate checkIn, LocalDate checkOut);
+    void sendBookingInfoToGuest(String to, String name, String bookingCode, LocalDate checkIn, LocalDate checkOut, BigDecimal price);
+    void sendBookingInfoToOwner(String to, String ownerName, String guestName, String bookingCode, LocalDate checkIn, LocalDate checkOut, BigDecimal price);
 }

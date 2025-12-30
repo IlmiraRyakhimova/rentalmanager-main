@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -177,7 +178,7 @@ public class EmailServiceImpl implements EmailService {
 
     }
 
-    public void sendBookingInfoToGuest(String to, String name, String bookingCode, LocalDate checkIn, LocalDate checkOut) {
+    public void sendBookingInfoToGuest(String to, String name, String bookingCode, LocalDate checkIn, LocalDate checkOut, BigDecimal price) {
         String subject = "Информация о вашем бронировании";
         String message = """
         Здравствуйте, %s!<br><br>
@@ -186,12 +187,13 @@ public class EmailServiceImpl implements EmailService {
         Код бронирования: %s<br>
         Дата заезда: %s<br>
         Дата выезда: %s<br><br>
-        """.formatted(name, bookingCode, checkIn, checkOut);
+        Сумма бронирования: %s<br><br>
+        """.formatted(name, bookingCode, checkIn, checkOut, price);
 
         sendEmail(to, subject, message);
     }
 
-    public void sendBookingInfoToOwner(String to, String ownerName, String guestName, String bookingCode, LocalDate checkIn, LocalDate checkOut) {
+    public void sendBookingInfoToOwner(String to, String ownerName, String guestName, String bookingCode, LocalDate checkIn, LocalDate checkOut, BigDecimal price) {
         String subject = "Новое бронирование ваших апартаментов";
         String message = """
         Здравствуйте, %s!<br><br>
@@ -201,7 +203,8 @@ public class EmailServiceImpl implements EmailService {
         Код бронирования: %s<br>
         Дата заезда: %s<br>
         Дата выезда: %s<br><br>
-        """.formatted(ownerName, guestName, bookingCode, checkIn, checkOut);
+        Сумма бронирования: %s<br><br>
+        """.formatted(ownerName, guestName, bookingCode, checkIn, checkOut, price);
 
         sendEmail(to, subject, message);
     }

@@ -37,7 +37,8 @@ public class EmailQueueConsumer {
                         dto.getGuestName(),
                         dto.getBookingCode(),
                         dto.getCheckIn(),
-                        dto.getCheckOut()
+                        dto.getCheckOut(),
+                        dto. getPrice()
                 );
                 case BOOKING_INFO_TO_OWNER -> emailService.sendBookingInfoToOwner(
                         dto.getTo(),
@@ -45,7 +46,8 @@ public class EmailQueueConsumer {
                         dto.getGuestName(),
                         dto.getBookingCode(),
                         dto.getCheckIn(),
-                        dto.getCheckOut()
+                        dto.getCheckOut(),
+                        dto.getPrice()
                 );
             }
     }

@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -109,12 +110,14 @@ public class BookingServiceImpl implements BookingService {
             String guestEmail = savedBooking.getMainGuest().getEmail();
             String guestName = savedBooking.getMainGuest().getName();
             String bookingCode = savedBooking.getBookingCode();
+            BigDecimal price = savedBooking.getTotalPrice();
             EmailTaskRequestDto guestDto = EmailTaskRequestDto.builder()
                     .to(guestEmail)
                     .guestName(guestName)
                     .bookingCode(bookingCode)
                     .checkIn(savedBooking.getCheckInDate())
                     .checkOut(savedBooking.getCheckOutDate())
+                    .price(price)
                     .taskType(EmailTaskType.BOOKING_INFO_TO_GUEST)
                     .build();
             emailQueueProducer.enqueueEmailTask(guestDto);
@@ -127,6 +130,7 @@ public class BookingServiceImpl implements BookingService {
                     .bookingCode(bookingCode)
                     .checkIn(savedBooking.getCheckInDate())
                     .checkOut(savedBooking.getCheckOutDate())
+                    .price(price)
                     .taskType(EmailTaskType.BOOKING_INFO_TO_OWNER)
                     .build();
             emailQueueProducer.enqueueEmailTask(ownerDto);
