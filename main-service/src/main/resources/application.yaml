@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres-db:5432/rental_manager
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres-db:5432/rental_manager}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD}}
   jpa:
     hibernate:
       ddl-auto: update
@@ -11,19 +11,19 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/master.xml
   mail:
-    host: smtp.gmail.com
-    port: 587
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
     username: ${EMAIL_ADDRESS}
-    password: ${EMAIL_PASSWORD}
+    password: ${EMAIL_PASSWORD:}
     properties:
       mail:
         smtp:
-          auth: true
+          auth: ${MAIL_SMTP_AUTH:true}
           starttls:
-            enable: true
+            enable: ${MAIL_SMTP_STARTTLS:true}
   redis:
-    host: rental-redis
-    port: 6379
+    host: ${SPRING_REDIS_HOST:redis}
+    port: ${SPRING_REDIS_PORT:6379}
 
 logging:
   level:
@@ -36,9 +36,9 @@ jwt:
 
 app:
   backend:
-    url: https://managerrent.com
+    url: ${APP_BACKEND_URL:https://managerrent.com}
   frontend:
-    url: https://managerrent.com
+    url: ${APP_FRONTEND_URL:https://managerrent.com}
 
 geocoding:
   nominatim:

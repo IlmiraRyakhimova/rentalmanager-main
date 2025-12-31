@@ -54,7 +54,7 @@ onMounted(async () => {
 
   try {
     // Вызываем API бэкенда для верификации
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+    const API_URL = import.meta.env.VITE_API_URL || ''
     const response = await axios.get(`${API_URL}/api/auth/verify-email?token=${token}`)
 
     // Бекенд возвращает URL для редиректа с токенами
