@@ -313,25 +313,23 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label for="guestEmail">Email гостя <span class="required">*</span></label>
+                <label for="guestEmail">Email гостя</label>
                 <input
                   id="guestEmail"
                   v-model="bookingFormData.mainGuest.email"
                   type="email"
                   class="form-input"
                   placeholder="guest@example.com"
-                  required
                 />
               </div>
               <div class="form-group">
-                <label for="guestPhoneNumber">Телефон <span class="required">*</span></label>
+                <label for="guestPhoneNumber">Телефон</label>
                 <input
                   id="guestPhoneNumber"
                   v-model="bookingFormData.mainGuest.phoneNumber"
                   type="tel"
                   class="form-input"
                   placeholder="+66812345678"
-                  required
                 />
               </div>
             </div>
@@ -658,9 +656,9 @@ const loading = ref(false)
 const apartmentSearchQuery = ref('')
 const filteredApartments = computed(() => {
   if (!apartmentSearchQuery.value) return apartments.value
-  
+
   const query = apartmentSearchQuery.value.toLowerCase()
-  return apartments.value.filter(apartment => 
+  return apartments.value.filter(apartment =>
     apartment.title?.toLowerCase().includes(query) ||
     apartment.address?.city?.toLowerCase().includes(query) ||
     apartment.address?.street?.toLowerCase().includes(query) ||
