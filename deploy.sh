@@ -16,15 +16,16 @@ fi
 
 echo "✓ Файл .env найден"
 
-# Остановка и удаление ТОЛЬКО контейнеров приложения (НЕ volumes с данными!)
-echo "📦 Остановка контейнеров..."
-docker-compose down
+# Остановка и пересборка ТОЛЬКО backend и frontend (БД и Redis НЕ трогаем!)
+echo "📦 Остановка и удаление контейнеров backend и frontend..."
+docker-compose stop backend-service frontend-service
+docker-compose rm -f backend-service frontend-service
 
-echo "🔨 Пересборка Docker образов..."
-docker-compose build --no-cache
+echo "🔨 Пересборка Docker образов backend и frontend..."
+docker-compose build --no-cache backend-service frontend-service
 
-echo "🚀 Запуск обновленных контейнеров..."
-docker-compose up -d
+echo "🚀 Запуск обновленных контейнеров backend и frontend..."
+docker-compose up -d backend-service frontend-service
 
 echo "⏳ Ожидание готовности сервисов..."
 sleep 10
