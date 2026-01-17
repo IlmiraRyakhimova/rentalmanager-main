@@ -2,7 +2,7 @@
   <div class="home-page">
     <div class="home-container">
       <div class="welcome-card">
-        <h1 class="welcome-title">ВСЕХ ПОЗДРАВЛЯЕМ</h1>
+        <h1 class="welcome-title">RENTAL MANAGER</h1>
         <p class="welcome-subtitle">Ваш персональный менеджер аренды</p>
         <p class="welcome-description">
           Управляйте недвижимостью, бронированиями и клиентами в одном месте
