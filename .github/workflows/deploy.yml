@@ -19,7 +19,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             # Переход в директорию проекта
-            cd /rentalmanager/rentalmanager-main || exit 1
+            cd /root/rentalmanager/rentalmanager-main || exit 1
             
             # Получение последних изменений из ветки deploy
             git fetch origin deploy
